@@ -1,10 +1,12 @@
 import { useEffect, useState } from "react";
 
 function ViewFeedback() {
+
   const [feedback, setFeedback] = useState(null);
 
   useEffect(() => {
     const data = localStorage.getItem("feedback");
+
     if (data) {
       setFeedback(JSON.parse(data));
     }
@@ -23,18 +25,58 @@ function ViewFeedback() {
   return (
     <div className="container">
       <div className="card">
+
         <h2 className="title">Interview Feedback Summary</h2>
 
-        <p><strong>Technical Score:</strong> {feedback.technical}</p>
-        <p><strong>Communication Score:</strong> {feedback.communication}</p>
-        <p><strong>Problem Solving Score:</strong> {feedback.problemSolving}</p>
+        {/* Candidate Info */}
 
-        <div style={{ marginTop: "20px" }}>
-          <strong>Comments:</strong>
-          <p style={{ marginTop: "10px", color: "#4b5563" }}>
-            {feedback.comments}
-          </p>
-        </div>
+        <h3>Candidate Information</h3>
+
+        <p><strong>Name:</strong> {feedback.candidateName}</p>
+        <p><strong>Email:</strong> {feedback.candidateEmail}</p>
+        <p><strong>Role Applied:</strong> {feedback.role}</p>
+        <p><strong>Interview Date:</strong> {feedback.date}</p>
+
+        <hr />
+
+        {/* Scores */}
+
+        <h3>Evaluation Scores</h3>
+
+        <p><strong>Technical Skills:</strong> {feedback.technical}/10</p>
+        <p><strong>Communication:</strong> {feedback.communication}/10</p>
+        <p><strong>Problem Solving:</strong> {feedback.problemSolving}/10</p>
+
+        <h3>Total Score: {feedback.totalScore} / 30</h3>
+
+        <hr />
+
+        {/* Strengths */}
+
+        <h3>Strengths</h3>
+        <p>{feedback.strengths}</p>
+
+        <hr />
+
+        {/* Improvements */}
+
+        <h3>Areas of Improvement</h3>
+        <p>{feedback.improvements}</p>
+
+        <hr />
+
+        {/* Comments */}
+
+        <h3>Additional Comments</h3>
+        <p>{feedback.comments}</p>
+
+        <hr />
+
+        {/* Recommendation */}
+
+        <h3>Recommendation</h3>
+        <p><strong>{feedback.recommendation}</strong></p>
+
       </div>
     </div>
   );
