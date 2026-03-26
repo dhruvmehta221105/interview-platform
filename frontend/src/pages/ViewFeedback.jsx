@@ -1,5 +1,9 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import FeedbackNav from "../components/common/FeedbackNav";
+import FeedbackTable from "../components/viewFeedback/FeedbackTable";
+import DetailPanel from "../components/viewFeedback/DetailPanel";
+import { filterFeedbacks, sortFeedbacks } from "../utils/helpers";
 
 const DEMO = [
   { id: 1, candidateName: "Arjun Sharma", candidateEmail: "arjun@example.com", role: "Frontend Developer", date: "2025-03-14", technical: "4", communication: "5", problemSolving: "4", strengths: "Excellent React knowledge, clean code structure, great with CSS animations.", improvements: "Could improve on system design concepts and backend awareness.", comments: "Very promising candidate. Would be a great addition to the team.", recommendation: "Strongly Hire", totalScore: "4.3" },
@@ -19,45 +23,26 @@ function ViewFeedback() {
   const [deleteId, setDeleteId] = useState(null);
 
   useEffect(() => {
-    const stored = JSON.parse(localStorage.getItem("feedbacks") || "[]");
-    setFeedbacks(stored.length ? stored : DEMO);
+    try {
+      const stored = JSON.parse(localStorage.getItem("feedbacks") || "[]");
+      const data = Array.isArray(stored) && stored.length ? stored : DEMO;
+      setFeedbacks(Array.isArray(data) ? data : DEMO);
+    } catch (error) {
+      console.error("Error parsing feedbacks from localStorage:", error);
+      setFeedbacks(DEMO);
+    }
   }, []);
 
-  const recConfig = {
-    "Strongly Hire": { color: "#22d3a4", bg: "#e6faf5", icon: "🚀" },
-    "Hire":          { color: "#4f8ef7", bg: "#e8f2ff", icon: "✅" },
-    "Maybe":         { color: "#f5c842", bg: "#fffbe6", icon: "🤔" },
-    "No Hire":       { color: "#f25f6a", bg: "#fff0f1", icon: "❌" },
-  };
+  // Ensure feedbacks is always an array
+  const safeFeedbacks = Array.isArray(feedbacks) ? feedbacks : [];
+  const roles = ["All", ...new Set(safeFeedbacks.map((f) => f?.role).filter(Boolean))];
 
-  const scoreColor = (score) => {
-    const n = parseFloat(score);
-    if (n >= 4.5) return "#22d3a4";
-    if (n >= 3.5) return "#4f8ef7";
-    if (n >= 2.5) return "#f5c842";
-    return "#f25f6a";
-  };
-
-  const roles = ["All", ...new Set(feedbacks.map((f) => f.role))];
-
-  const filtered = feedbacks
-    .filter((f) => {
-      const q = search.toLowerCase();
-      return (
-        (!q || f.candidateName.toLowerCase().includes(q) || f.role.toLowerCase().includes(q) || f.candidateEmail.toLowerCase().includes(q)) &&
-        (filterRec === "All" || f.recommendation === filterRec) &&
-        (filterRole === "All" || f.role === filterRole)
-      );
-    })
-    .sort((a, b) => {
-      if (sortBy === "date") return new Date(b.date) - new Date(a.date);
-      if (sortBy === "score") return parseFloat(b.totalScore) - parseFloat(a.totalScore);
-      if (sortBy === "name") return a.candidateName.localeCompare(b.candidateName);
-      return 0;
-    });
+  const filtered = safeFeedbacks
+    .filter((f) => filterFeedbacks(f, search, filterRec, filterRole))
+    .sort((a, b) => sortFeedbacks(a, b, sortBy));
 
   const handleDelete = (id) => {
-    const updated = feedbacks.filter((f) => f.id !== id);
+    const updated = safeFeedbacks.filter((f) => f?.id !== id);
     setFeedbacks(updated);
     localStorage.setItem("feedbacks", JSON.stringify(updated));
     setDeleteId(null);
@@ -65,15 +50,15 @@ function ViewFeedback() {
   };
 
   const stats = {
-    total: feedbacks.length,
-    hire: feedbacks.filter((f) => f.recommendation === "Strongly Hire" || f.recommendation === "Hire").length,
-    avg: feedbacks.length ? (feedbacks.reduce((a, b) => a + parseFloat(b.totalScore || 0), 0) / feedbacks.length).toFixed(1) : "—",
-    noHire: feedbacks.filter((f) => f.recommendation === "No Hire").length,
+    total: safeFeedbacks.length,
+    hire: safeFeedbacks.filter((f) => f?.recommendation === "Strongly Hire" || f?.recommendation === "Hire").length,
+    avg: safeFeedbacks.length ? (safeFeedbacks.reduce((a, b) => a + parseFloat(b?.totalScore || 0), 0) / safeFeedbacks.length).toFixed(1) : "—",
+    noHire: safeFeedbacks.filter((f) => f?.recommendation === "No Hire").length,
   };
 
   return (
     <div style={s.root}>
-      <Nav navigate={navigate} />
+      <FeedbackNav />
 
       {/* Hero */}
       <div style={s.hero}>
@@ -138,7 +123,7 @@ function ViewFeedback() {
 
         {/* Results count */}
         <div style={s.resultsInfo}>
-          Showing <strong>{filtered.length}</strong> of {feedbacks.length} candidates
+          Showing <strong>{filtered.length}</strong> of {safeFeedbacks.length} candidates
         </div>
 
         {/* Main layout: table + detail */}
@@ -152,132 +137,21 @@ function ViewFeedback() {
                 <button onClick={() => { setSearch(""); setFilterRec("All"); setFilterRole("All"); }} style={s.btnSecondary}>Clear Filters</button>
               </div>
             ) : (
-              <>
-                <div style={s.tableHead}>
-                  {["Candidate", "Role", "Score", "Recommendation", "Date", ""].map((h) => (
-                    <div key={h} style={s.th}>{h}</div>
-                  ))}
-                </div>
-                {filtered.map((f) => {
-                  const rc = recConfig[f.recommendation] || { color: "#888", bg: "#f5f5f5", icon: "—" };
-                  const sc = scoreColor(f.totalScore);
-                  const isActive = selected?.id === f.id;
-                  return (
-                    <div
-                      key={f.id}
-                      style={{ ...s.tableRow, background: isActive ? "#f8f6ff" : "#fff", borderLeft: isActive ? "3px solid #7c5af6" : "3px solid transparent" }}
-                      onClick={() => setSelected(isActive ? null : f)}
-                    >
-                      <div style={s.td}>
-                        <div style={s.avatar}>{f.candidateName.charAt(0)}</div>
-                        <div>
-                          <div style={s.candidateName}>{f.candidateName}</div>
-                          <div style={s.candidateEmail}>{f.candidateEmail}</div>
-                        </div>
-                      </div>
-                      <div style={s.td}>
-                        <span style={s.roleTag}>{f.role}</span>
-                      </div>
-                      <div style={s.td}>
-                        <div style={{ ...s.scoreChip, background: sc + "18", color: sc }}>
-                          ★ {parseFloat(f.totalScore).toFixed(1)}
-                        </div>
-                      </div>
-                      <div style={s.td}>
-                        <span style={{ ...s.recChip, background: rc.bg, color: rc.color }}>
-                          {rc.icon} {f.recommendation}
-                        </span>
-                      </div>
-                      <div style={{ ...s.td, color: "#888", fontSize: 13 }}>
-                        {new Date(f.date).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}
-                      </div>
-                      <div style={s.td} onClick={(e) => e.stopPropagation()}>
-                        <button
-                          style={s.deleteBtn}
-                          onClick={() => setDeleteId(f.id)}
-                          title="Delete"
-                        >🗑</button>
-                      </div>
-                    </div>
-                  );
-                })}
-              </>
+              <FeedbackTable
+                filtered={filtered}
+                selected={selected}
+                onSelect={setSelected}
+                onDelete={(id) => setDeleteId(id)}
+              />
             )}
           </div>
 
           {/* Detail Panel */}
           {selected && (
-            <div style={s.detailPanel}>
-              <div style={s.detailHeader}>
-                <div style={s.detailAvatar}>{selected.candidateName.charAt(0)}</div>
-                <div style={{ flex: 1 }}>
-                  <div style={s.detailName}>{selected.candidateName}</div>
-                  <div style={s.detailEmail}>{selected.candidateEmail}</div>
-                  <div style={s.detailRole}>{selected.role}</div>
-                </div>
-                <button onClick={() => setSelected(null)} style={s.closeBtn}>✕</button>
-              </div>
-
-              {/* Score breakdown */}
-              <div style={s.detailSection}>
-                <div style={s.detailSectionTitle}>Score Breakdown</div>
-                {[
-                  { label: "Technical", value: selected.technical, color: "#7c5af6" },
-                  { label: "Communication", value: selected.communication, color: "#4f8ef7" },
-                  { label: "Problem Solving", value: selected.problemSolving, color: "#22d3a4" },
-                ].map(({ label, value, color }) => (
-                  <div key={label} style={s.scoreRow}>
-                    <span style={s.scoreRowLabel}>{label}</span>
-                    <div style={s.scoreTrack}>
-                      <div style={{ ...s.scoreFill, width: `${(parseInt(value) / 5) * 100}%`, background: color }} />
-                    </div>
-                    <span style={{ ...s.scoreRowVal, color }}>{value}/5</span>
-                  </div>
-                ))}
-                <div style={{ ...s.totalRow, color: scoreColor(selected.totalScore) }}>
-                  Overall: {parseFloat(selected.totalScore).toFixed(1)} / 5
-                </div>
-              </div>
-
-              {/* Recommendation */}
-              <div style={s.detailSection}>
-                {(() => {
-                  const rc = recConfig[selected.recommendation] || { color: "#888", bg: "#f5f5f5", icon: "—" };
-                  return (
-                    <div style={{ ...s.recBanner, background: rc.bg, borderColor: rc.color + "44" }}>
-                      <span style={{ fontSize: 20 }}>{rc.icon}</span>
-                      <div>
-                        <div style={{ fontSize: 11, color: "#888", fontWeight: 600, marginBottom: 2 }}>RECOMMENDATION</div>
-                        <div style={{ ...s.recBannerText, color: rc.color }}>{selected.recommendation}</div>
-                      </div>
-                    </div>
-                  );
-                })()}
-              </div>
-
-              {/* Strengths / Improvements */}
-              {selected.strengths && (
-                <div style={s.detailSection}>
-                  <div style={s.detailSectionTitle}>💪 Strengths</div>
-                  <p style={s.detailText}>{selected.strengths}</p>
-                </div>
-              )}
-              {selected.improvements && (
-                <div style={s.detailSection}>
-                  <div style={s.detailSectionTitle}>🎯 Areas to Improve</div>
-                  <p style={s.detailText}>{selected.improvements}</p>
-                </div>
-              )}
-              {selected.comments && (
-                <div style={s.detailSection}>
-                  <div style={s.detailSectionTitle}>📝 Comments</div>
-                  <p style={s.detailText}>{selected.comments}</p>
-                </div>
-              )}
-              <div style={s.detailFooter}>
-                Reviewed on {new Date(selected.date).toLocaleDateString("en-IN", { dateStyle: "long" })}
-              </div>
-            </div>
+            <DetailPanel
+              selected={selected}
+              onClose={() => setSelected(null)}
+            />
           )}
         </div>
       </div>
@@ -300,27 +174,8 @@ function ViewFeedback() {
   );
 }
 
-function Nav({ navigate }) {
-  return (
-    <nav style={s.nav}>
-      <span style={s.logo}>InterviewX</span>
-      <ul style={s.navLinks}>
-        {["Start Interview", "AI Chatbot", "Recordings", "Feedback"].map((l) => (
-          <li key={l}><a href="#" style={s.navLink}>{l}</a></li>
-        ))}
-      </ul>
-      <a href="#" style={s.navCta}>Login / Sign Up ↗</a>
-    </nav>
-  );
-}
-
 const s = {
   root: { fontFamily: "'Plus Jakarta Sans', 'Segoe UI', sans-serif", background: "#f5f6fa", minHeight: "100vh", color: "#0f1117" },
-  nav: { background: "#fff", borderBottom: "1px solid #ebebf0", padding: "0 40px", height: 64, display: "flex", alignItems: "center", justifyContent: "space-between", position: "sticky", top: 0, zIndex: 100 },
-  logo: { fontFamily: "'Manrope', sans-serif", fontWeight: 800, fontSize: 20, letterSpacing: "-0.5px" },
-  navLinks: { display: "flex", gap: 32, listStyle: "none", padding: 0, margin: 0 },
-  navLink: { textDecoration: "none", color: "#555", fontSize: 14, fontWeight: 500 },
-  navCta: { background: "#0f1117", color: "#fff", padding: "9px 20px", borderRadius: 100, fontSize: 14, fontWeight: 600, textDecoration: "none" },
 
   hero: { background: "linear-gradient(135deg, #ede9ff 0%, #dbeaff 50%, #e8f5ff 100%)", padding: "52px 40px 40px", position: "relative", overflow: "hidden", display: "flex", alignItems: "flex-start", justifyContent: "space-between" },
   heroBlob: { position: "absolute", width: 500, height: 500, background: "radial-gradient(circle, rgba(124,92,246,0.18) 0%, transparent 70%)", top: -150, right: -100, pointerEvents: "none" },
