@@ -53,7 +53,7 @@ export default function WhyChoose() {
 }
 
 const g = {
-  section: { padding: "80px 40px", maxWidth: "100%", overflow: "hidden" },
+  section: { padding: "80px 40px", maxWidth: "100%", overflow: "hidden",background: "#f5f6fa" },
   sectionCenter: { textAlign: "center", marginBottom: 48 },
   sectionTitle: { fontFamily: "'Manrope', sans-serif", fontSize: 40, fontWeight: 800, color: "#0f1117", letterSpacing: "-1px", marginBottom: 12 },
   sectionSub: { color: "#666", fontSize: 15, lineHeight: 1.6 },

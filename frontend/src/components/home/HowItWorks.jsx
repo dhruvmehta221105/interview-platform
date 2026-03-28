@@ -51,7 +51,7 @@ export default function HowItWorks() {
 }
 
 const g = {
-  section: { padding: "80px 40px", maxWidth: "100%", overflow: "hidden" },
+  section: { padding: "80px 40px", maxWidth: "100%", overflow: "hidden",background: "#f5f6fa" },
   sectionTitle: { fontFamily: "'Manrope', sans-serif", fontSize: 40, fontWeight: 800, color: "#0f1117", letterSpacing: "-1px", marginBottom: 12 },
   howLayout: { display: "flex", gap: 60, alignItems: "flex-start", maxWidth: 1000, margin: "0 auto" },
   howStep: { background: "#fff", borderRadius: 14, padding: "18px 20px", display: "flex", alignItems: "center", gap: 14, boxShadow: "0 2px 12px rgba(0,0,0,0.06)", cursor: "default" },
