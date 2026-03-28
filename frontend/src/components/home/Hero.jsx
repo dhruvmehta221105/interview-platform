@@ -1,64 +1,100 @@
-// components/home/Hero.jsx
 export default function Hero({ searchRole, setSearchRole, searchCompany, setSearchCompany }) {
+  const profiles = [
+    {
+      bg: "#ddd8c4",
+      img: "https://images.unsplash.com/photo-1618077360395-f3068be8e001?w=400&h=500&fit=crop&crop=faces",
+      label: "Software Engineer"
+    },
+    {
+      bg: "#d4cfc0",
+      img: "https://images.unsplash.com/photo-1633332755192-727a05c4013d?w=400&h=500&fit=crop&crop=faces",
+      label: "Product Manager"
+    },
+    {
+      bg: "#e8e0d0",
+      img: "https://images.unsplash.com/photo-1614644147798-f8c0fc9da7f6?w=400&h=500&fit=crop&crop=faces",
+      label: "UX Designer"
+    },
+    {
+      bg: "#d8d4c8",
+      img: "https://images.unsplash.com/photo-1622253692010-333f2da6031d?w=400&h=500&fit=crop&crop=faces",
+      label: "HR Expert"
+    },
+    {
+      bg: "#cdd4c8",
+      img: "https://images.unsplash.com/photo-1607746882042-944635dfe10e?w=400&h=500&fit=crop&crop=faces",
+      label: "Backend Engineer"
+    },
+    {
+      bg: "#c8cdd4",
+      img: "https://images.unsplash.com/photo-1595152772835-219674b2a8a6?w=400&h=500&fit=crop&crop=faces",
+      label: "Data Scientist"
+    }
+  ];
+
   return (
     <section style={g.hero}>
-      {/* blobs */}
-      <div style={{ position: "absolute", width: 600, height: 600, background: "radial-gradient(circle, rgba(100,80,220,0.55) 0%, transparent 65%)", top: -120, left: "50%", transform: "translateX(-50%)", pointerEvents: "none" }} />
-      <div style={{ position: "absolute", width: 300, height: 300, background: "radial-gradient(circle, rgba(140,100,255,0.4) 0%, transparent 70%)", top: 20, right: 80, pointerEvents: "none" }} />
+      <div style={g.blob1} />
+      <div style={g.blob2} />
 
-      <div className="hero-content" style={{ position: "relative", zIndex: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: 20 }}>
-        {/* Badge */}
+      {/* Hero text content */}
+      <div style={g.heroContent}>
         <div style={g.heroBadge}>
           <span style={{ fontSize: 16 }}>🤖</span>
           Your #1 Platform for interview practice
         </div>
 
-        {/* Headline */}
         <h1 style={g.heroTitle}>Showcase Your Mastery.</h1>
 
-        <p style={g.heroSubBold}>Practice Interviews with AI and Real HR Experts</p>
-        <p style={g.heroSub}>Create your profile, practice your interview, get hired!</p>
+        <p style={g.heroSubBold}>
+          Practice Interviews with AI and Real HR Experts
+        </p>
+        <p style={g.heroSub}>
+          Create your profile, practice your interview, get hired!
+        </p>
 
-        {/* Search bar */}
+        {/* Search Bar */}
         <div style={g.searchBar}>
           <div style={g.searchField}>
-            <span style={{ color: "#aaa", fontSize: 15 }}>🔍</span>
+            <span style={{ color: "#aaa", fontSize: 16 }}>🔍</span>
             <input
-              className="search-input"
-              style={g.searchInputEl}
+              style={g.searchInput}
               placeholder="e.g. UX Designer"
               value={searchRole}
-              onChange={e => setSearchRole(e.target.value)}
+              onChange={(e) => setSearchRole(e.target.value)}
             />
           </div>
           <div style={g.searchDivider} />
           <div style={g.searchField}>
             <input
-              className="search-input"
-              style={g.searchInputEl}
+              style={g.searchInput}
               placeholder="e.g. Google / Amazon"
               value={searchCompany}
-              onChange={e => setSearchCompany(e.target.value)}
+              onChange={(e) => setSearchCompany(e.target.value)}
             />
           </div>
           <button style={g.searchBtn}>Search</button>
         </div>
       </div>
 
-      {/* Candidate photos strip */}
+      {/* Profile Cards + Labels below */}
       <div style={g.photoStrip}>
-        {[
-          { bg: "#c8d8b0", initials: "AK", label: "" },
-          { bg: "#d4c4a0", initials: "RS", label: "" },
-          { bg: "#b8cce0", initials: "PM", label: "" },
-          { bg: "#d0c8b8", initials: "SK", label: "" },
-          { bg: "#c0d0c0", initials: "NV", label: "" },
-          { bg: "#d8b8a8", initials: "AM", label: "" },
-        ].map((p, i) => (
-          <div key={i} style={{ ...g.photoCard, background: p.bg, animationDelay: `${i * 0.1}s` }}>
-            <div style={g.photoAvatar}>{p.initials}</div>
-            {i === 2 && <div style={g.photoLabel}>HR Expert</div>}
-            {i === 4 && <div style={g.photoLabel}>Tech Lead</div>}
+        {profiles.map((p, i) => (
+          <div key={i} style={g.photoWrapper}>
+            {/* Image card */}
+            <div style={{ ...g.photoCard, background: p.bg }}>
+              <img
+                src={p.img}
+                alt={p.label}
+                style={g.photoImg}
+                onError={(e) => {
+                  e.target.src = `https://randomuser.me/api/portraits/${i % 2 === 0 ? "men" : "women"}/${40 + i}.jpg`;
+                }}
+              />
+            </div>
+
+            {/* Label BELOW the card */}
+            <div style={g.photoLabel}>{p.label}</div>
           </div>
         ))}
       </div>
@@ -67,18 +103,196 @@ export default function Hero({ searchRole, setSearchRole, searchCompany, setSear
 }
 
 const g = {
-  hero: { background: "linear-gradient(180deg, #c8b8f0 0%, #b8c8f8 30%, #e8eeff 65%, #f5f6fa 100%)", minHeight: 680, display: "flex", flexDirection: "column", alignItems: "center", paddingTop: 60, position: "relative", overflow: "hidden" },
-  heroBadge: { background: "rgba(255,255,255,0.9)", border: "1px solid rgba(255,255,255,0.8)", borderRadius: 100, padding: "8px 18px", fontSize: 13, fontWeight: 600, color: "#444", display: "flex", alignItems: "center", gap: 8, backdropFilter: "blur(8px)" },
-  heroTitle: { fontFamily: "'Manrope', sans-serif", fontSize: 58, fontWeight: 900, color: "#0f1117", letterSpacing: "-2px", textAlign: "center", lineHeight: 1.1 },
-  heroSubBold: { fontFamily: "'Manrope', sans-serif", fontSize: 22, fontWeight: 700, color: "#0f1117", textAlign: "center" },
-  heroSub: { fontSize: 14, color: "#555", textAlign: "center" },
-  searchBar: { background: "#fff", borderRadius: 100, padding: "6px 6px 6px 20px", display: "flex", alignItems: "center", gap: 0, boxShadow: "0 4px 24px rgba(0,0,0,0.12)", maxWidth: 540, width: "100%" },
-  searchField: { display: "flex", alignItems: "center", gap: 8, flex: 1, padding: "4px 0" },
-  searchInputEl: { border: "none", outline: "none", fontSize: 14, color: "#0f1117", background: "transparent", width: "100%" },
-  searchDivider: { width: 1, height: 24, background: "#e8e9f0", margin: "0 8px", flexShrink: 0 },
-  searchBtn: { background: "#1a73e8", color: "#fff", border: "none", borderRadius: 100, padding: "10px 24px", fontSize: 14, fontWeight: 700, flexShrink: 0 },
-  photoStrip: { display: "flex", gap: 12, marginTop: 48, paddingBottom: 0, width: "100%", justifyContent: "center" },
-  photoCard: { width: 160, height: 200, borderRadius: 16, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "flex-end", padding: "0 0 12px", overflow: "hidden", position: "relative", flexShrink: 0 },
-  photoAvatar: { width: 80, height: 80, borderRadius: "50%", background: "rgba(255,255,255,0.3)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 22, fontWeight: 700, color: "#fff", marginBottom: 40 },
-  photoLabel: { position: "absolute", bottom: 10, left: "50%", transform: "translateX(-50%)", background: "rgba(0,0,0,0.6)", color: "#fff", fontSize: 11, fontWeight: 600, padding: "4px 10px", borderRadius: 100, whiteSpace: "nowrap" },
+  hero: {
+    background:
+      "linear-gradient(180deg, #c0b0ee 0%, #c8bcf4 12%, #d8d0fa 26%, #e4e0ff 42%, #eeeeff 60%, #f0f2fa 80%, #f5f6fa 100%)",
+    minHeight: 700,
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    paddingTop: 56,
+    position: "relative",
+    overflow: "hidden",
+  },
+
+  blob1: {
+    position: "absolute",
+    width: 680,
+    height: 620,
+    background:
+      "radial-gradient(circle, rgba(100,75,220,0.52) 0%, rgba(120,90,240,0.18) 45%, transparent 70%)",
+    top: -180,
+    left: "50%",
+    transform: "translateX(-50%)",
+    pointerEvents: "none",
+    zIndex: 0,
+  },
+
+  blob2: {
+    position: "absolute",
+    width: 340,
+    height: 340,
+    background:
+      "radial-gradient(circle, rgba(150,110,255,0.32) 0%, transparent 70%)",
+    top: -10,
+    right: 40,
+    pointerEvents: "none",
+    zIndex: 0,
+  },
+
+  heroContent: {
+    position: "relative",
+    zIndex: 1,
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    gap: 18,
+    paddingBottom: 44,
+  },
+
+  heroBadge: {
+    background: "rgba(255,255,255,0.92)",
+    backdropFilter: "blur(10px)",
+    border: "1px solid rgba(255,255,255,0.85)",
+    borderRadius: 100,
+    padding: "9px 20px",
+    fontSize: 13,
+    fontWeight: 600,
+    color: "#333",
+    display: "flex",
+    alignItems: "center",
+    gap: 8,
+    boxShadow: "0 2px 16px rgba(0,0,0,0.07)",
+  },
+
+  heroTitle: {
+    fontFamily: "'Manrope', sans-serif",
+    fontSize: 60,
+    fontWeight: 900,
+    color: "#0d0f1a",
+    letterSpacing: "-2px",
+    textAlign: "center",
+    lineHeight: 1.08,
+    margin: 0,
+  },
+
+  heroSubBold: {
+    fontFamily: "'Manrope', sans-serif",
+    fontSize: 22,
+    fontWeight: 800,
+    color: "#0d0f1a",
+    textAlign: "center",
+    margin: 0,
+  },
+
+  heroSub: {
+    fontSize: 14,
+    color: "#666",
+    textAlign: "center",
+    margin: 0,
+  },
+
+  searchBar: {
+    background: "#fff",
+    borderRadius: 100,
+    padding: "7px 7px 7px 22px",
+    display: "flex",
+    alignItems: "center",
+    gap: 0,
+    maxWidth: 560,
+    width: "90vw",
+    boxShadow: "0 6px 28px rgba(0,0,0,0.13)",
+    marginTop: 4,
+  },
+
+  searchField: {
+    display: "flex",
+    alignItems: "center",
+    gap: 8,
+    flex: 1,
+    minWidth: 0,
+  },
+
+  searchInput: {
+    border: "none",
+    outline: "none",
+    fontSize: 14,
+    color: "#0f1117",
+    background: "transparent",
+    flex: 1,
+    minWidth: 0,
+    fontFamily: "inherit",
+  },
+
+  searchDivider: {
+    width: 1,
+    height: 26,
+    background: "#e0e0ea",
+    margin: "0 10px",
+    flexShrink: 0,
+  },
+
+  searchBtn: {
+    background: "#1a73e8",
+    color: "#fff",
+    border: "none",
+    borderRadius: 100,
+    padding: "11px 28px",
+    fontSize: 14,
+    fontWeight: 700,
+    cursor: "pointer",
+    flexShrink: 0,
+    fontFamily: "inherit",
+    boxShadow: "0 4px 14px rgba(26,115,232,0.3)",
+  },
+
+  /* Strip wraps each card+label pair */
+  photoStrip: {
+    display: "flex",
+    gap: 14,
+    justifyContent: "center",
+    alignItems: "flex-end",
+    position: "relative",
+    zIndex: 1,
+    width: "100%",
+    paddingBottom: 28,
+  },
+
+  /* Each wrapper stacks card then label */
+  photoWrapper: {
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    gap: 10,
+  },
+
+  photoCard: {
+    width: 155,
+    height: 210,
+    borderRadius: 16,
+    overflow: "hidden",
+    flexShrink: 0,
+    boxShadow: "0 4px 18px rgba(0,0,0,0.10)",
+  },
+
+  photoImg: {
+    width: "100%",
+    height: "100%",
+    objectFit: "cover",
+    objectPosition: "top center",
+    display: "block",
+  },
+
+  /* Dark pill label below each card */
+  photoLabel: {
+    background: "rgba(18, 20, 34, 0.80)",
+    backdropFilter: "blur(4px)",
+    color: "#fff",
+    fontSize: 12,
+    fontWeight: 600,
+    padding: "6px 14px",
+    borderRadius: 100,
+    whiteSpace: "nowrap",
+    letterSpacing: "0.1px",
+  },
 };

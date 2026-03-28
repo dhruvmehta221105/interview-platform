@@ -4,11 +4,11 @@ export default function FeedbackNav() {
     <nav style={s.nav}>
       <span style={s.logo}>InterviewX</span>
       <ul style={s.navLinks}>
-        {["Start Interview", "AI Chatbot", "Recordings", "Feedback"].map((l) => (
-          <li key={l}><a href="#" style={s.navLink}>{l}</a></li>
+        {["Home", "Start Interview", "AI Chatbot", "Recordings", "Feedback"].map((l) => (
+          <li key={l}><a href="/" style={s.navLink}>{l}</a></li>
         ))}
       </ul>
-      <a href="#" style={s.navCta}>Login / Sign Up ↗</a>
+      <a href="/" style={s.navCta}>Login / Sign Up ↗</a>
     </nav>
   );
 }

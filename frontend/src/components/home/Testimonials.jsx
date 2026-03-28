@@ -26,7 +26,7 @@ export default function Testimonials() {
 }
 
 const g = {
-  section: { padding: "80px 40px", maxWidth: "100%", overflow: "hidden" },
+  section: { padding: "80px 40px", maxWidth: "100%", overflow: "hidden",background: "#f5f6fa" },
   sectionTitle: { fontFamily: "'Manrope', sans-serif", fontSize: 40, fontWeight: 800, color: "#0f1117", letterSpacing: "-1px", marginBottom: 12 },
   testimGrid: { display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, maxWidth: 1100, margin: "0 auto" },
   testimCard: { borderRadius: 20, padding: "28px 30px" },

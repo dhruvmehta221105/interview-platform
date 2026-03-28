@@ -8,14 +8,20 @@ export default function Navbar() {
     <nav style={s.nav}>
       <span style={s.logo}>InterviewX</span>
       <ul style={s.navLinks}>
-        {["Start Interview", "AI Chatbot", "Recordings", "Contact Us"].map(l => (
-          <li key={l}><a href="#" className="nav-link" style={s.navLink}>{l}</a></li>
+        {["Home","Start Interview", "AI Chatbot", "Recordings", "Contact Us"].map(l => (
+          <li key={l}><a href="/" className="nav-link" style={s.navLink}>{l}</a></li>
         ))}
       </ul>
       <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
-        <button onClick={() => navigate("/view-feedback")} style={s.feedbackBtn}>Feedback</button>
-        <button style={s.navCta}>Login/Sign Up <span style={s.navCtaIcon}>↗</span></button>
-      </div>
+  <button onClick={() => navigate("/view-feedback")} style={s.navBtn}>
+    Feedback
+  </button>
+
+  <button style={s.navBtn}>
+    Login/Sign Up
+    <span style={s.navCtaIcon}>↗</span>
+  </button>
+</div>
     </nav>
   );
 }
@@ -25,7 +31,29 @@ const s = {
   logo: { fontFamily: "'Manrope', sans-serif", fontWeight: 900, fontSize: 20, letterSpacing: "-0.5px", color: "#0f1117" },
   navLinks: { display: "flex", gap: 32, listStyle: "none", padding: 0 },
   navLink: { fontSize: 14, fontWeight: 500, color: "#555", textDecoration: "none", transition: "color 0.2s" },
-  feedbackBtn: { background: "#f0ecff", color: "#7c5af6", border: "none", padding: "8px 18px", borderRadius: 100, fontSize: 13, fontWeight: 700, cursor: "pointer" },
-  navCta: { background: "#fff", border: "1.5px solid #0f1117", color: "#0f1117", padding: "8px 18px", borderRadius: 100, fontSize: 13, fontWeight: 700, display: "flex", alignItems: "center", gap: 6 },
-  navCtaIcon: { background: "#0f1117", color: "#fff", borderRadius: "50%", width: 20, height: 20, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 10 },
+  navBtn: {
+  background: "#fff",
+  border: "1.5px solid #0f1117",
+  color: "#0f1117",
+  padding: "8px 18px",
+  borderRadius: 100,
+  fontSize: 13,
+  fontWeight: 700,
+  display: "flex",
+  alignItems: "center",
+  gap: 6,
+  cursor: "pointer"
+},
+
+navCtaIcon: {
+  background: "#0f1117",
+  color: "#fff",
+  borderRadius: "50%",
+  width: 20,
+  height: 20,
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+  fontSize: 10
+}
 };
