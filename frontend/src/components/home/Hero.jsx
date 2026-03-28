@@ -48,17 +48,20 @@ export default function Hero({ searchRole, setSearchRole, searchCompany, setSear
       {/* Candidate photos strip */}
       <div style={g.photoStrip}>
         {[
-          { bg: "#c8d8b0", initials: "AK", label: "" },
-          { bg: "#d4c4a0", initials: "RS", label: "" },
-          { bg: "#b8cce0", initials: "PM", label: "" },
-          { bg: "#d0c8b8", initials: "SK", label: "" },
-          { bg: "#c0d0c0", initials: "NV", label: "" },
-          { bg: "#d8b8a8", initials: "AM", label: "" },
+          { image: "https://plus.unsplash.com/premium_photo-1727976369393-820b783227af?q=80&w=687&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D", label: "Software Engineer" },
+          { image: "https://plus.unsplash.com/premium_photo-1683121727064-e151bd584a54?q=80&w=687&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D", label: "Product Manager" },
+          { image: "https://plus.unsplash.com/premium_photo-1664478244612-d4b3238abd81?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D ", label: "UX Designer" },
+          { image: "https://imgs.search.brave.com/wzUfu4DO7LNrJIsPxhFckiqX_avx7FKP-mUpjIvbn74/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly9tZWRp/YS5pc3RvY2twaG90/by5jb20vaWQvMTE4/MjA2ODc2MC9waG90/by9pbmRpYW4tYmVh/cmRlZC1tYWxlLWJ1/c2luZXNzbWFuLWNl/bGVicmF0aW5nLXN1/Y2Nlc3Mtd2l0aC10/aHVtYnMtdXAtb3It/cmFpc2luZy1maXN0/LXdoaWxlLmpwZz9z/PTYxMng2MTImdz0w/Jms9MjAmYz1kd1c5/UGZrTmVaWkJ1TlZw/eVRST0dyTDNzcGx5/Tno4Q0VkbUQzUnJt/ZkxzPQ", label: "HR Expert" },
+          { image: "https://imgs.search.brave.com/hfovEBKvR5U27GuQ9QoWMTlEquKMFfV0a-8HMrnNKuQ/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly9tZWRp/YS5nZXR0eWltYWdl/cy5jb20vaWQvMTk4/NzY1MzI3OS9waG90/by9zbWlsaW5nLXlv/dW5nLWJ1c2luZXNz/d29tYW4td2l0aC1h/LWxhcHRvcC1zdGFu/ZGluZy1pbi10aGUt/Y29ycmlkb3Itb2Yt/YW4tb2ZmaWNlLmpw/Zz9zPTYxMng2MTIm/dz0wJms9MjAmYz1X/cHRmd2NYX0dqLV9o/U3RBdHRwSHZsbE1K/VkRrTV90WU9vbjlh/MTJqNmVRPQ", label: "Backend Engineer" },
+          { image: "https://plus.unsplash.com/premium_photo-1770447611992-de6a1d090367?q=80&w=1098&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D", label: "Data Scientist" },
         ].map((p, i) => (
-          <div key={i} style={{ ...g.photoCard, background: p.bg, animationDelay: `${i * 0.1}s` }}>
-            <div style={g.photoAvatar}>{p.initials}</div>
-            {i === 2 && <div style={g.photoLabel}>HR Expert</div>}
-            {i === 4 && <div style={g.photoLabel}>Tech Lead</div>}
+          <div key={i} style={{ ...g.photoCard, animationDelay: `${i * 0.2}s` }}>
+            <img 
+              src={p.image} 
+              alt={p.label}
+              style={g.profileImage}
+            />
+            <div style={g.photoLabel}>{p.label}</div>
           </div>
         ))}
       </div>
@@ -77,8 +80,8 @@ const g = {
   searchInputEl: { border: "none", outline: "none", fontSize: 14, color: "#0f1117", background: "transparent", width: "100%" },
   searchDivider: { width: 1, height: 24, background: "#e8e9f0", margin: "0 8px", flexShrink: 0 },
   searchBtn: { background: "#1a73e8", color: "#fff", border: "none", borderRadius: 100, padding: "10px 24px", fontSize: 14, fontWeight: 700, flexShrink: 0 },
-  photoStrip: { display: "flex", gap: 12, marginTop: 48, paddingBottom: 0, width: "100%", justifyContent: "center" },
-  photoCard: { width: 160, height: 200, borderRadius: 16, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "flex-end", padding: "0 0 12px", overflow: "hidden", position: "relative", flexShrink: 0 },
-  photoAvatar: { width: 80, height: 80, borderRadius: "50%", background: "rgba(255,255,255,0.3)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 22, fontWeight: 700, color: "#fff", marginBottom: 40 },
-  photoLabel: { position: "absolute", bottom: 10, left: "50%", transform: "translateX(-50%)", background: "rgba(0,0,0,0.6)", color: "#fff", fontSize: 11, fontWeight: 600, padding: "4px 10px", borderRadius: 100, whiteSpace: "nowrap" },
+  photoStrip: { display: "flex", gap: 12, marginTop: 48, paddingBottom: 0, width: "100%", justifyContent: "center", flexWrap: "wrap" },
+  photoCard: { width: 160, height: 240, borderRadius: 16, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "0 0 12px", overflow: "hidden", position: "relative", flexShrink: 0 },
+  profileImage: { width: "100%", height: "85%", objectFit: "cover", objectPosition: "center", borderRadius: "16px 16px 0 0" },
+  photoLabel: { position: "absolute", bottom: 1, left: "50%", transform: "translateX(-50%)", background: "rgba(0,0,0,0.7)", color: "#fff", fontSize: 11, fontWeight: 600, padding: "4px 10px", borderRadius: 100, whiteSpace: "nowrap", textAlign: "center", maxWidth: "95%" },
 };
