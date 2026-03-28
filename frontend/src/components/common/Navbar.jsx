@@ -34,7 +34,7 @@ export default function Navbar() {
           Feedback
         </button>
 
-        <button style={s.navBtn}>
+        <button onClick={() => navigate("/login")} style={s.navBtn}>
           Login/Sign Up
           <span style={s.navCtaIcon}>↗</span>
         </button>

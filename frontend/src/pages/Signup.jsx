@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import Navbar from '../components/common/Navbar';
 import AuthLayout from '../components/layout/AuthLayout';
 import Card from '../components/ui/Card';
 import Input from '../components/ui/Input';
@@ -72,39 +73,52 @@ const Signup = () => {
     setLoading(true);
     await new Promise((r) => setTimeout(r, 1600));
     setLoading(false);
-    navigate('/profile');
+    navigate('/');
   };
 
   const set = (key) => (e) => setForm((f) => ({ ...f, [key]: e.target.value }));
 
+  const styles = {
+    title: { fontFamily: 'Manrope, sans-serif', fontSize: 32, fontWeight: 800, color: '#0f1117', marginBottom: 6 },
+    subtitle: { color: '#666', fontSize: 14, marginBottom: 20 },
+    cardWrapper: { width: '100%', maxWidth: 380 },
+    section: { display: 'flex', flexDirection: 'column', gap: 16 },
+    link: { color: '#1a73e8', textDecoration: 'none', fontWeight: 600 },
+  };
+
   return (
-    <AuthLayout>
-      <Card variant="glass" className="w-full max-w-md animate-fade-up" padding={false}>
-        <div className="p-8">
-          {/* Header */}
-          <div className="mb-6 text-center">
-            <h1 className="font-display text-2xl font-bold text-indigo-900 mb-1">
-              Create your account ✨
-            </h1>
-            <p className="text-sm text-indigo-400">
-              Start practising smarter, get hired faster
-            </p>
+    <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
+      <Navbar />
+      <AuthLayout>
+        <div style={styles.cardWrapper}>
+          <Card>
+            <div style={styles.section}>
+              <div style={{ textAlign: 'center' }}>
+                <h1 style={styles.title}>Create your account</h1>
+                <p style={styles.subtitle}>Start practicing smarter, get hired faster</p>
+              </div>
+
+          {/* Social Logins */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+            <Button variant="social" fullWidth size="md" style={{ justifyContent: 'center' }}>
+              Sign up with Google
+            </Button>
+            <Button variant="social" fullWidth size="md" style={{ justifyContent: 'center' }}>
+              Sign up with GitHub
+            </Button>
           </div>
 
-          {/* Google Social */}
-          <Button variant="social" fullWidth size="md" icon={<GoogleIcon />} iconPosition="left" className="mb-5">
-            Sign up with Google
-          </Button>
-
           {/* Divider */}
-          <div className="flex items-center gap-3 mb-5">
-            <div className="flex-1 h-px bg-indigo-100" />
-            <span className="text-xs text-indigo-300 font-medium">or fill in the form</span>
-            <div className="flex-1 h-px bg-indigo-100" />
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginTop: 20, marginBottom: 18 }}>
+            <div style={{ flex: 1, height: 1, background: '#e2e8f0' }} />
+            <span style={{ fontSize: 12, color: '#64748b', textTransform: 'uppercase', letterSpacing: 0.6 }}>
+              or fill in the form
+            </span>
+            <div style={{ flex: 1, height: 1, background: '#e2e8f0' }} />
           </div>
 
           {/* Form */}
-          <form onSubmit={handleSubmit} className="space-y-4" noValidate>
+          <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 14 }} noValidate>
             <Input
               label="Full name"
               type="text"
@@ -138,7 +152,7 @@ const Signup = () => {
                 leftIcon={<LockIcon />}
                 rightElement={
                   <button type="button" onClick={() => setShowPwd(v => !v)}
-                    className="text-indigo-300 hover:text-indigo-600 transition-colors p-1" tabIndex={-1}>
+                    style={{ border: 'none', background: 'transparent', cursor: 'pointer', color: '#4f46e5', padding: 4, display: 'flex', alignItems: 'center' }} tabIndex={-1}>
                     {showPwd ? <EyeOffIcon /> : <EyeIcon />}
                   </button>
                 }
@@ -157,7 +171,7 @@ const Signup = () => {
               leftIcon={<LockIcon />}
               rightElement={
                 <button type="button" onClick={() => setShowConfirm(v => !v)}
-                  className="text-indigo-300 hover:text-indigo-600 transition-colors p-1" tabIndex={-1}>
+                  style={{ border: 'none', background: 'transparent', cursor: 'pointer', color: '#4f46e5', padding: 4, display: 'flex', alignItems: 'center' }} tabIndex={-1}>
                   {showConfirm ? <EyeOffIcon /> : <EyeIcon />}
                 </button>
               }
@@ -165,41 +179,41 @@ const Signup = () => {
             />
 
             {/* Terms */}
-            <div className="space-y-1">
-              <label className="flex items-start gap-2.5 cursor-pointer select-none">
-                <input
-                  type="checkbox"
-                  checked={terms}
-                  onChange={(e) => setTerms(e.target.checked)}
-                  className="mt-0.5 w-4 h-4 rounded border-indigo-200 accent-brand-indigo shrink-0"
-                />
-                <span className="text-sm text-indigo-600 leading-snug">
-                  I agree to the{' '}
-                  <a href="#" className="text-brand-indigo font-semibold hover:underline">Terms of Service</a>
-                  {' '}and{' '}
-                  <a href="#" className="text-brand-indigo font-semibold hover:underline">Privacy Policy</a>
-                </span>
-              </label>
-              {errors.terms && (
-                <p className="text-xs text-red-500 pl-6">{errors.terms}</p>
-              )}
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
+              <input
+                type="checkbox"
+                checked={terms}
+                onChange={(e) => setTerms(e.target.checked)}
+                style={{ width: 16, height: 16, accentColor: '#1a73e8', borderColor: '#cbd5e1' }}
+              />
+              <span style={{ fontSize: 14, color: '#475569', lineHeight: 1.4 }}>
+                I agree to the{' '}
+                <a href="#" style={{ color: '#1a73e8', textDecoration: 'none' }}>Terms of Service</a>{' '}
+                and{' '}
+                <a href="#" style={{ color: '#1a73e8', textDecoration: 'none' }}>Privacy Policy</a>
+              </span>
             </div>
+            {errors.terms && (
+              <p style={{ color: '#ef4444', fontSize: 12 }}>{errors.terms}</p>
+            )}
 
-            <Button type="submit" variant="primary" size="lg" fullWidth loading={loading} className="mt-1">
+            <Button type="submit" variant="primary" size="lg" fullWidth loading={loading} style={{ marginTop: 8 }}>
               Create Account
             </Button>
           </form>
 
           {/* Footer */}
-          <p className="text-center text-sm text-indigo-400 mt-5">
+          <p style={{ textAlign: 'center', color: '#475569', fontSize: 14, marginTop: 18 }}>
             Already have an account?{' '}
-            <Link to="/login" className="text-brand-indigo font-semibold hover:text-indigo-800 transition-colors">
-              Sign in
+            <Link to="/login" style={styles.link}>
+              Login
             </Link>
           </p>
         </div>
       </Card>
-    </AuthLayout>
+      </div>
+      </AuthLayout>
+    </div>
   );
 };
 

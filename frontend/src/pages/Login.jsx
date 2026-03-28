@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import Navbar from '../components/common/Navbar';
 import AuthLayout from '../components/layout/AuthLayout';
 import Card from '../components/ui/Card';
 import Input from '../components/ui/Input';
@@ -77,48 +78,53 @@ const Login = () => {
     // Simulate API call
     await new Promise((r) => setTimeout(r, 1500));
     setLoading(false);
-    navigate('/profile');
+    navigate('/');
   };
 
   const set = (key) => (e) => setForm((f) => ({ ...f, [key]: e.target.value }));
 
+  const styles = {
+    title: { fontFamily: "Manrope, sans-serif", fontSize: 32, fontWeight: 800, color: '#0f1117', marginBottom: 6 },
+    subtitle: { color: '#666', fontSize: 14, marginBottom: 20 },
+    cardWrapper: { width: '100%', maxWidth: 380 },
+    section: { display: 'flex', flexDirection: 'column', gap: 16 },
+    inlineControls: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: 14, marginTop: 2 },
+    link: { color: '#1a73e8', textDecoration: 'none' },
+  };
+
   return (
-    <AuthLayout>
-      <Card
-        variant="glass"
-        className="w-full max-w-md animate-fade-up"
-        padding={false}
-      >
-        <div className="p-8">
-          {/* Header */}
-          <div className="mb-7 text-center">
-            <h1 className="font-display text-2xl font-bold text-indigo-900 mb-1">
-              Welcome back 👋
-            </h1>
-            <p className="text-sm text-indigo-400">
-              Sign in to continue your interview journey
-            </p>
-          </div>
+    <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
+      <Navbar />
+      <AuthLayout>
+        <div style={styles.cardWrapper}>
+          <Card>
+          <div style={styles.section}>
+            <div style={{ textAlign: 'center' }}>
+              <h1 style={styles.title}>Welcome back</h1>
+              <p style={styles.subtitle}>Sign in to continue your interview journey</p>
+            </div>
 
           {/* Social Logins */}
-          <div className="flex gap-3 mb-6">
-            <Button variant="social" fullWidth size="md" icon={<GoogleIcon />} iconPosition="left">
-              Google
+          <div style={{ display: 'flex', gap: 12, marginBottom: 20 }}>
+            <Button variant="social" fullWidth size="md" style={{ justifyContent: 'center' }}>
+              Continue with Google
             </Button>
-            <Button variant="social" fullWidth size="md" icon={<GithubIcon />} iconPosition="left">
-              GitHub
+            <Button variant="social" fullWidth size="md" style={{ justifyContent: 'center' }}>
+              Continue with GitHub
             </Button>
           </div>
 
           {/* Divider */}
-          <div className="flex items-center gap-3 mb-6">
-            <div className="flex-1 h-px bg-indigo-100" />
-            <span className="text-xs text-indigo-300 font-medium">or continue with email</span>
-            <div className="flex-1 h-px bg-indigo-100" />
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 18 }}>
+            <div style={{ flex: 1, height: 1, background: '#e2e8f0' }} />
+            <span style={{ fontSize: 12, color: '#64748b', textTransform: 'uppercase', letterSpacing: 0.6 }}>
+              or continue with email
+            </span>
+            <div style={{ flex: 1, height: 1, background: '#e2e8f0' }} />
           </div>
 
           {/* Form */}
-          <form onSubmit={handleSubmit} className="space-y-4" noValidate>
+          <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 14 }} noValidate>
             <Input
               label="Email address"
               type="email"
@@ -142,7 +148,7 @@ const Login = () => {
                 <button
                   type="button"
                   onClick={() => setShowPwd((v) => !v)}
-                  className="text-indigo-300 hover:text-indigo-600 transition-colors p-1"
+                  style={{ border: 'none', background: 'transparent', cursor: 'pointer', color: '#4f46e5', padding: 4, display: 'flex', alignItems: 'center' }}
                   tabIndex={-1}
                 >
                   {showPwd ? <EyeOffIcon /> : <EyeIcon />}
@@ -152,19 +158,19 @@ const Login = () => {
             />
 
             {/* Remember + Forgot */}
-            <div className="flex items-center justify-between text-sm">
-              <label className="flex items-center gap-2 cursor-pointer select-none">
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: 14 }}>
+              <label style={{ display: 'flex', alignItems: 'center', gap: 8, color: '#475569' }}>
                 <input
                   type="checkbox"
                   checked={remember}
                   onChange={(e) => setRemember(e.target.checked)}
-                  className="w-4 h-4 rounded border-indigo-200 accent-brand-indigo"
+                  style={{ width: 16, height: 16, accentColor: '#1a73e8', borderColor: '#cbd5e1' }}
                 />
-                <span className="text-indigo-600">Remember me</span>
+                Remember me
               </label>
               <Link
                 to="/forgot-password"
-                className="text-brand-indigo hover:text-indigo-800 font-medium transition-colors"
+                style={{ ...styles.link, fontWeight: 600 }}
               >
                 Forgot password?
               </Link>
@@ -176,25 +182,27 @@ const Login = () => {
               size="lg"
               fullWidth
               loading={loading}
-              className="mt-2"
+              style={{ marginTop: 8 }}
             >
               Sign In
             </Button>
           </form>
 
           {/* Footer */}
-          <p className="text-center text-sm text-indigo-400 mt-6">
+          <p style={{ textAlign: 'center', color: '#475569', fontSize: 14, marginTop: 18 }}>
             Don't have an account?{' '}
             <Link
               to="/signup"
-              className="text-brand-indigo font-semibold hover:text-indigo-800 transition-colors"
+              style={{ ...styles.link, fontWeight: 600 }}
             >
-              Create one
+              Sign up
             </Link>
           </p>
         </div>
       </Card>
-    </AuthLayout>
+      </div>
+      </AuthLayout>
+    </div>
   );
 };
 
