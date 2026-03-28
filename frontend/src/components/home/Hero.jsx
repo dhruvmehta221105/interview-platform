@@ -37,11 +37,10 @@ export default function Hero({ searchRole, setSearchRole, searchCompany, setSear
       <div style={g.blob1} />
       <div style={g.blob2} />
 
-      {/* Hero text content */}
+      {/* Content */}
       <div style={g.heroContent}>
         <div style={g.heroBadge}>
-          <span style={{ fontSize: 16 }}>🤖</span>
-          Your #1 Platform for interview practice
+          🤖 Your #1 Platform for interview practice
         </div>
 
         <h1 style={g.heroTitle}>Showcase Your Mastery.</h1>
@@ -53,10 +52,10 @@ export default function Hero({ searchRole, setSearchRole, searchCompany, setSear
           Create your profile, practice your interview, get hired!
         </p>
 
-        {/* Search Bar */}
+        {/* Search */}
         <div style={g.searchBar}>
           <div style={g.searchField}>
-            <span style={{ color: "#aaa", fontSize: 16 }}>🔍</span>
+            🔍
             <input
               style={g.searchInput}
               placeholder="e.g. UX Designer"
@@ -64,7 +63,9 @@ export default function Hero({ searchRole, setSearchRole, searchCompany, setSear
               onChange={(e) => setSearchRole(e.target.value)}
             />
           </div>
+
           <div style={g.searchDivider} />
+
           <div style={g.searchField}>
             <input
               style={g.searchInput}
@@ -73,27 +74,18 @@ export default function Hero({ searchRole, setSearchRole, searchCompany, setSear
               onChange={(e) => setSearchCompany(e.target.value)}
             />
           </div>
+
           <button style={g.searchBtn}>Search</button>
         </div>
       </div>
 
-      {/* Profile Cards + Labels below */}
+      {/* Cards */}
       <div style={g.photoStrip}>
         {profiles.map((p, i) => (
           <div key={i} style={g.photoWrapper}>
-            {/* Image card */}
             <div style={{ ...g.photoCard, background: p.bg }}>
-              <img
-                src={p.img}
-                alt={p.label}
-                style={g.photoImg}
-                onError={(e) => {
-                  e.target.src = `https://randomuser.me/api/portraits/${i % 2 === 0 ? "men" : "women"}/${40 + i}.jpg`;
-                }}
-              />
+              <img src={p.img} alt={p.label} style={g.photoImg} />
             </div>
-
-            {/* Label BELOW the card */}
             <div style={g.photoLabel}>{p.label}</div>
           </div>
         ))}
@@ -117,119 +109,81 @@ const g = {
 
   blob1: {
     position: "absolute",
-    width: 680,
-    height: 620,
-    background:
-      "radial-gradient(circle, rgba(100,75,220,0.52) 0%, rgba(120,90,240,0.18) 45%, transparent 70%)",
-    top: -180,
+    width: 600,
+    height: 600,
+    background: "radial-gradient(circle, rgba(100,80,220,0.5) 0%, transparent 65%)",
+    top: -120,
     left: "50%",
     transform: "translateX(-50%)",
-    pointerEvents: "none",
-    zIndex: 0,
   },
 
   blob2: {
     position: "absolute",
-    width: 340,
-    height: 340,
-    background:
-      "radial-gradient(circle, rgba(150,110,255,0.32) 0%, transparent 70%)",
-    top: -10,
-    right: 40,
-    pointerEvents: "none",
-    zIndex: 0,
+    width: 300,
+    height: 300,
+    background: "radial-gradient(circle, rgba(140,100,255,0.3) 0%, transparent 70%)",
+    top: 20,
+    right: 80,
   },
 
   heroContent: {
-    position: "relative",
-    zIndex: 1,
     display: "flex",
     flexDirection: "column",
     alignItems: "center",
-    gap: 18,
-    paddingBottom: 44,
+    gap: 16,
+    zIndex: 1,
   },
 
   heroBadge: {
-    background: "rgba(255,255,255,0.92)",
-    backdropFilter: "blur(10px)",
-    border: "1px solid rgba(255,255,255,0.85)",
+    background: "#fff",
     borderRadius: 100,
-    padding: "9px 20px",
+    padding: "8px 18px",
     fontSize: 13,
     fontWeight: 600,
-    color: "#333",
-    display: "flex",
-    alignItems: "center",
-    gap: 8,
-    boxShadow: "0 2px 16px rgba(0,0,0,0.07)",
   },
 
   heroTitle: {
-    fontFamily: "'Manrope', sans-serif",
-    fontSize: 60,
+    fontSize: 58,
     fontWeight: 900,
-    color: "#0d0f1a",
-    letterSpacing: "-2px",
     textAlign: "center",
-    lineHeight: 1.08,
-    margin: 0,
   },
 
   heroSubBold: {
-    fontFamily: "'Manrope', sans-serif",
-    fontSize: 22,
-    fontWeight: 800,
-    color: "#0d0f1a",
+    fontSize: 20,
+    fontWeight: 700,
     textAlign: "center",
-    margin: 0,
   },
 
   heroSub: {
     fontSize: 14,
-    color: "#666",
+    color: "#555",
     textAlign: "center",
-    margin: 0,
   },
 
   searchBar: {
     background: "#fff",
     borderRadius: 100,
-    padding: "7px 7px 7px 22px",
+    padding: "6px 20px",
     display: "flex",
     alignItems: "center",
-    gap: 0,
-    maxWidth: 560,
-    width: "90vw",
-    boxShadow: "0 6px 28px rgba(0,0,0,0.13)",
-    marginTop: 4,
+    gap: 10,
   },
 
   searchField: {
     display: "flex",
     alignItems: "center",
-    gap: 8,
-    flex: 1,
-    minWidth: 0,
+    gap: 6,
   },
 
   searchInput: {
     border: "none",
     outline: "none",
-    fontSize: 14,
-    color: "#0f1117",
-    background: "transparent",
-    flex: 1,
-    minWidth: 0,
-    fontFamily: "inherit",
   },
 
   searchDivider: {
     width: 1,
-    height: 26,
-    background: "#e0e0ea",
-    margin: "0 10px",
-    flexShrink: 0,
+    height: 20,
+    background: "#ddd",
   },
 
   searchBtn: {
@@ -237,62 +191,40 @@ const g = {
     color: "#fff",
     border: "none",
     borderRadius: 100,
-    padding: "11px 28px",
-    fontSize: 14,
-    fontWeight: 700,
-    cursor: "pointer",
-    flexShrink: 0,
-    fontFamily: "inherit",
-    boxShadow: "0 4px 14px rgba(26,115,232,0.3)",
+    padding: "8px 16px",
   },
 
-  /* Strip wraps each card+label pair */
   photoStrip: {
     display: "flex",
-    gap: 14,
-    justifyContent: "center",
-    alignItems: "flex-end",
-    position: "relative",
-    zIndex: 1,
-    width: "100%",
-    paddingBottom: 28,
+    gap: 16,
+    marginTop: 40,
   },
 
-  /* Each wrapper stacks card then label */
   photoWrapper: {
     display: "flex",
     flexDirection: "column",
     alignItems: "center",
-    gap: 10,
+    gap: 8,
   },
 
   photoCard: {
-    width: 155,
-    height: 210,
+    width: 160,
+    height: 200,
     borderRadius: 16,
     overflow: "hidden",
-    flexShrink: 0,
-    boxShadow: "0 4px 18px rgba(0,0,0,0.10)",
   },
 
   photoImg: {
     width: "100%",
     height: "100%",
     objectFit: "cover",
-    objectPosition: "top center",
-    display: "block",
   },
 
-  /* Dark pill label below each card */
   photoLabel: {
-    background: "rgba(18, 20, 34, 0.80)",
-    backdropFilter: "blur(4px)",
+    background: "#111",
     color: "#fff",
     fontSize: 12,
-    fontWeight: 600,
-    padding: "6px 14px",
+    padding: "4px 12px",
     borderRadius: 100,
-    whiteSpace: "nowrap",
-    letterSpacing: "0.1px",
   },
 };
