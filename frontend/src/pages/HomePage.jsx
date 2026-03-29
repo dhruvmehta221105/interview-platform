@@ -104,8 +104,8 @@ function ClientLogos() {
   return (
     <section style={{ ...g.section, background: "#f8f9fc", paddingTop: 60, paddingBottom: 60 }}>
       <div style={g.sectionCenter}>
-        <h2 style={{ ...g.sectionTitle, fontSize: 36 }}>We are happy to work<br />with incredible clients</h2>
-        <p style={g.sectionSub}>Fortune 500 companies and renowned global brands place their trust in our products,<br />solutions, and bespoke software development services.</p>
+        <h2 style={{ ...g.sectionTitle, fontSize: 36 }}>Trusted by aspiring professionals<br />and top recruiters</h2>
+        <p style={g.sectionSub}>Practice real interview scenarios, get AI-powered feedback,<br />and improve your chances of landing your dream job.</p>
       </div>
       <div style={g.logosGrid}>
         {["▲", "◈", "✦", "ƒ", "◆", "S", "⬡", "♪", "abbc", "▽", "⊕", "⊘", "≋", "◉", "⬡", "⊙", "⬡", "☁", "TT", "≡", "☁", "⬡", "✦", "✦"].map((l, i) => (
@@ -235,11 +235,10 @@ function Footer() {
     <footer style={g.footer}>
       <div style={g.footerTop}>
         <div style={g.footerBrand}>
-          <div style={g.footerLogo}><span style={{ color: "#4f84f7" }}>MH.</span> Masters Hub</div>
-          <p style={g.footerAddr}>Corporate Head Office: 3787 Jerry Dove Drive, Florence, South Carolina, 29501, United States.</p>
-          <p style={g.footerContact}><strong>Phone:</strong> 843-496-7759</p>
-          <p style={g.footerContact}><strong>Fax:</strong> 02-222264303</p>
-          <p style={g.footerContact}><strong>Email:</strong> info@mastershub.com</p>
+          <div style={g.footerLogo}><span style={{ color: "#4f84f7" }}>IX</span> InterviewX</div>
+          <p style={g.footerAddr}>Bennett University, Greater Noida,201310</p>
+          <p style={g.footerContact}><strong>Phone:</strong> 7986692544</p>
+          <p style={g.footerContact}><strong>Email:</strong> info@interviewx.com</p>
         </div>
         {[
           { title: "Quick Links", links: ["Pricing", "Jobs", "Employer", "Careers", "Contact Us"] },
@@ -253,7 +252,7 @@ function Footer() {
         ))}
       </div>
       <div style={g.footerBottom}>
-        <span style={{ color: "#aaa", fontSize: 13 }}>©2024 All rights reserved</span>
+        <span style={{ color: "#aaa", fontSize: 13 }}>©2026 All rights reserved</span>
         <div style={{ display: "flex", gap: 14 }}>
           {["📸", "✈", "🎵", "▶"].map((icon, i) => (
             <div key={i} style={g.socialIcon}>{icon}</div>
@@ -299,7 +298,7 @@ function ExpertSection({ title, experts }) {
 
 /* ─── STYLES ────────────────────────────────────────────── */
 const g = {
-  root: { fontFamily:"'Plus Jakarta Sans', sans-serif", background:"#fff", color:"#0f1117", overflowX:"hidden" },
+  root: { fontFamily:"'Plus Jakarta Sans', sans-serif", background:"#f5f6fa" , color:"#0f1117", overflowX:"hidden" },
 
   /* NAV */
   nav: { position:"sticky", top:0, zIndex:100, background:"rgba(255,255,255,0.97)", backdropFilter:"blur(8px)", borderBottom:"1px solid #ebebf0", height:64, display:"flex", alignItems:"center", justifyContent:"space-between", padding:"0 40px" },

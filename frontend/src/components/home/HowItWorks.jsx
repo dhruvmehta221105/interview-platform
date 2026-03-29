@@ -1,10 +1,27 @@
 // components/home/HowItWorks.jsx
 const HOW_STEPS = [
-  { n: "01", icon: "↩", color: "#e8f0ff", title: "Sign Up and create Account", desc: "Fill out your details and showcase your skills." },
-  { n: "02", icon: "⬆", color: "#fff3e0", title: "Upload Your Portfolio", desc: "Add your resume, videos, and more." },
-  { n: "03", icon: "⊕", color: "#f3e8ff", title: "Get Discovered", desc: "Let employers find and contact you." },
+  { 
+    n: "01", 
+    icon: "↩", 
+    color: "#e8f0ff", 
+    title: "Sign Up and Create Profile", 
+    desc: "Create your account and get started." 
+  },
+  { 
+    n: "02", 
+    icon: "⬆", 
+    color: "#fff3e0", 
+    title: "Practice Mock Interviews", 
+    desc: "Attempt real interview simulations." 
+  },
+  { 
+    n: "03", 
+    icon: "⊕", 
+    color: "#f3e8ff", 
+    title: "Get Feedback & Improve", 
+    desc: "Analyze performance and improve." 
+  },
 ];
-
 export default function HowItWorks() {
   return (
     <section style={g.section}>
