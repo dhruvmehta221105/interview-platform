@@ -13,10 +13,10 @@ export default function Navbar() {
       <ul style={s.navLinks}>
         {[
           { name: "Home", path: "/" },
-          { name: "Start Interview", path: "/" },
-          { name: "AI Chatbot", path: "/" },
-          { name: "Recordings", path: "/" },
-          { name: "Contact Us", path: "/" }
+          { name: "Interviews", path: "/interviews" },
+          { name: "Schedule", path: "/schedule-interview" },
+          { name: "Feedback", path: "/view-feedback" },
+          { name: "Contact", path: "/" }
         ].map((item) => (
           <li key={item.name}>
             <span
@@ -31,7 +31,7 @@ export default function Navbar() {
 
       <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
         <button onClick={() => navigate("/view-feedback")} style={s.navBtn}>
-          Feedback
+          View Feedback
         </button>
 
         <button onClick={() => navigate("/login")} style={s.navBtn}>
