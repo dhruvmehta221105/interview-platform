@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import Navbar from "../components/common/Navbar";
 
 function ScheduleInterview() {
   const navigate = useNavigate();
@@ -19,101 +20,101 @@ function ScheduleInterview() {
   const handleSubmit = (e) => {
     e.preventDefault();
     console.log("Scheduled:", form);
-
-    // redirect after submit
     navigate("/interviews");
   };
 
   return (
     <div style={styles.page}>
-      <div style={styles.container}>
-        
-        {/* Header */}
-        <div style={styles.header}>
-          <h1 style={styles.title}>Schedule Interview</h1>
-          <p style={styles.subtitle}>
-            Create a new interview session for a candidate
-          </p>
+      <Navbar />
+
+      <div style={styles.contentWrapper}>
+        <div style={styles.container}>
+          {/* Header */}
+          <div style={styles.header}>
+            <h1 style={styles.title}>Schedule Interview</h1>
+            <p style={styles.subtitle}>
+              Create a new interview session for a candidate
+            </p>
+          </div>
+
+          {/* Form */}
+          <form onSubmit={handleSubmit} style={styles.form}>
+            <div style={styles.row}>
+              <div style={styles.inputGroup}>
+                <label style={styles.label}>Candidate Name</label>
+                <input
+                  name="candidate"
+                  placeholder="John Doe"
+                  style={styles.input}
+                  onChange={handleChange}
+                  required
+                />
+              </div>
+
+              <div style={styles.inputGroup}>
+                <label style={styles.label}>Email</label>
+                <input
+                  name="email"
+                  type="email"
+                  placeholder="john@email.com"
+                  style={styles.input}
+                  onChange={handleChange}
+                  required
+                />
+              </div>
+            </div>
+
+            <div style={styles.row}>
+              <div style={styles.inputGroup}>
+                <label style={styles.label}>Role</label>
+                <input
+                  name="role"
+                  placeholder="Frontend Developer"
+                  style={styles.input}
+                  onChange={handleChange}
+                  required
+                />
+              </div>
+
+              <div style={styles.inputGroup}>
+                <label style={styles.label}>Date</label>
+                <input
+                  name="date"
+                  type="date"
+                  style={styles.input}
+                  onChange={handleChange}
+                  required
+                />
+              </div>
+            </div>
+
+            <div style={styles.inputGroup}>
+              <label style={styles.label}>Time</label>
+              <input
+                name="time"
+                type="time"
+                style={styles.input}
+                onChange={handleChange}
+                required
+              />
+            </div>
+
+            {/* Buttons */}
+            <div style={styles.actions}>
+              <button
+                type="button"
+                style={styles.cancel}
+                onClick={() => navigate("/interviews")}
+              >
+                Cancel
+              </button>
+
+              <button type="submit" style={styles.submit}>
+                Create Interview
+              </button>
+            </div>
+          </form>
         </div>
-
-        {/* Form */}
-        <form onSubmit={handleSubmit} style={styles.form}>
-          
-          <div style={styles.row}>
-            <div style={styles.inputGroup}>
-              <label style={styles.label}>Candidate Name</label>
-              <input
-                name="candidate"
-                placeholder="John Doe"
-                style={styles.input}
-                onChange={handleChange}
-                required
-              />
-            </div>
-
-            <div style={styles.inputGroup}>
-              <label style={styles.label}>Email</label>
-              <input
-                name="email"
-                type="email"
-                placeholder="john@email.com"
-                style={styles.input}
-                onChange={handleChange}
-                required
-              />
-            </div>
-          </div>
-
-          <div style={styles.row}>
-            <div style={styles.inputGroup}>
-              <label style={styles.label}>Role</label>
-              <input
-                name="role"
-                placeholder="Frontend Developer"
-                style={styles.input}
-                onChange={handleChange}
-                required
-              />
-            </div>
-
-            <div style={styles.inputGroup}>
-              <label style={styles.label}>Date</label>
-              <input
-                name="date"
-                type="date"
-                style={styles.input}
-                onChange={handleChange}
-                required
-              />
-            </div>
-          </div>
-
-          <div style={styles.inputGroup}>
-            <label style={styles.label}>Time</label>
-            <input
-              name="time"
-              type="time"
-              style={styles.input}
-              onChange={handleChange}
-              required
-            />
-          </div>
-
-          {/* Buttons */}
-          <div style={styles.actions}>
-            <button
-              type="button"
-              style={styles.cancel}
-              onClick={() => navigate("/interviews")}
-            >
-              Cancel
-            </button>
-
-            <button type="submit" style={styles.submit}>
-              Create Interview
-            </button>
-          </div>
-        </form>
       </div>
     </div>
   );
@@ -121,9 +122,17 @@ function ScheduleInterview() {
 
 const styles = {
   page: {
+    backgroundColor: "#f8f9fe",
+    minHeight: "100vh",
+    display: "flex",
+    flexDirection: "column",
+    fontFamily: "'Manrope', sans-serif"
+  },
+
+  contentWrapper: {
     padding: "40px",
     background: "#f8f9fe",
-    minHeight: "100vh",
+    flex: 1,
     display: "flex",
     justifyContent: "center"
   },
@@ -144,12 +153,14 @@ const styles = {
   title: {
     fontSize: "28px",
     fontWeight: "800",
-    margin: 0
+    margin: 0,
+    color: "#1a1a1a"
   },
 
   subtitle: {
+    fontSize: "15px",
     color: "#666",
-    marginTop: "5px"
+    marginTop: "8px"
   },
 
   form: {
@@ -159,52 +170,60 @@ const styles = {
   },
 
   row: {
-    display: "flex",
+    display: "grid",
+    gridTemplateColumns: "1fr 1fr",
     gap: "20px"
   },
 
   inputGroup: {
-    flex: 1,
     display: "flex",
     flexDirection: "column",
-    gap: "6px"
+    gap: "8px"
   },
 
   label: {
     fontSize: "14px",
-    fontWeight: "600"
+    fontWeight: "600",
+    color: "#1a1a1a"
   },
 
   input: {
-    padding: "12px",
-    borderRadius: "10px",
-    border: "1px solid #ddd",
-    fontSize: "14px"
+    padding: "12px 16px",
+    border: "1.5px solid #e0e1ea",
+    borderRadius: "12px",
+    fontSize: "14px",
+    fontFamily: "inherit",
+    transition: "border-color 0.2s ease"
   },
 
   actions: {
     display: "flex",
+    gap: "16px",
     justifyContent: "flex-end",
-    gap: "10px",
-    marginTop: "20px"
+    marginTop: "30px"
   },
 
   cancel: {
-    padding: "10px 18px",
-    borderRadius: "10px",
-    border: "1px solid #ccc",
-    background: "#fff",
-    cursor: "pointer"
+    padding: "12px 32px",
+    border: "1.5px solid #e0e1ea",
+    background: "transparent",
+    color: "#555",
+    borderRadius: "12px",
+    fontWeight: "600",
+    cursor: "pointer",
+    transition: "all 0.2s ease"
   },
 
   submit: {
-    padding: "10px 18px",
-    borderRadius: "10px",
-    border: "none",
-    background: "#7c5af6",
+    padding: "12px 32px",
+    background: "linear-gradient(135deg, #7c5af6, #4f8ef7)",
     color: "#fff",
+    border: "none",
+    borderRadius: "12px",
     fontWeight: "600",
-    cursor: "pointer"
+    cursor: "pointer",
+    boxShadow: "0 4px 15px rgba(124, 90, 246, 0.3)",
+    transition: "transform 0.2s ease"
   }
 };
 
