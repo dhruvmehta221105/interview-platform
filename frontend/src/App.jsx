@@ -1,16 +1,20 @@
 import { BrowserRouter as Router, Routes, Route, Link, useLocation } from "react-router-dom";
 
+// Pages
+import Homepage from "./pages/HomePage";
 import Interviews from "./pages/Interviews";
 import ScheduleInterview from "./pages/ScheduleInterview";
 import InterviewRoom from "./pages/InterviewRoom";
 import AddFeedback from "./pages/AddFeedback";
 import ViewFeedback from "./pages/ViewFeedback";
+import Login from "./pages/Login";
+import Signup from "./pages/Signup";
+import Profile from "./pages/Profile";
 
-// A small Sidebar component to navigate the app easily
+// Sidebar
 const Sidebar = () => {
   const location = useLocation();
-  
-  // Don't show sidebar in the Interview Room to keep it full-screen
+
   if (location.pathname.includes("/interview/")) return null;
 
   return (
@@ -19,14 +23,20 @@ const Sidebar = () => {
         <div style={styles.logoIcon}>IX</div>
         <span style={styles.logoText}>InterviewX</span>
       </div>
-      
+
       <nav style={styles.navLinks}>
         <Link to="/" style={{...styles.link, ...(location.pathname === "/" ? styles.activeLink : {})}}>
+          🏠 Home
+        </Link>
+
+        <Link to="/interviews" style={{...styles.link, ...(location.pathname === "/interviews" ? styles.activeLink : {})}}>
           📅 Interviews
         </Link>
+
         <Link to="/view-feedback" style={{...styles.link, ...(location.pathname === "/view-feedback" ? styles.activeLink : {})}}>
           📊 View Feedback
         </Link>
+
         <Link to="/schedule-interview" style={{...styles.link, ...(location.pathname === "/schedule-interview" ? styles.activeLink : {})}}>
           ➕ Schedule
         </Link>
@@ -40,21 +50,26 @@ function App() {
     <Router>
       <div style={styles.appLayout}>
         <Sidebar />
-        
+
         <main style={styles.mainContent}>
           <Routes>
-            {/* HOME PAGE */}
-            <Route path="/" element={<Interviews />} />
+            {/* HOME */}
+            <Route path="/" element={<Homepage />} />
 
             {/* INTERVIEW MODULE */}
             <Route path="/interviews" element={<Interviews />} />
             <Route path="/schedule-interview" element={<ScheduleInterview />} />
             <Route path="/interview/:id" element={<InterviewRoom />} />
 
-            {/* FEEDBACK MODULE */}
+            {/* FEEDBACK */}
             <Route path="/add-feedback" element={<AddFeedback />} />
             <Route path="/add-feedback/:id" element={<AddFeedback />} />
             <Route path="/view-feedback" element={<ViewFeedback />} />
+
+            {/* AUTH */}
+            <Route path="/login" element={<Login />} />
+            <Route path="/signup" element={<Signup />} />
+            <Route path="/profile" element={<Profile />} />
           </Routes>
         </main>
       </div>
@@ -113,18 +128,17 @@ const styles = {
     borderRadius: "12px",
     fontSize: "15px",
     fontWeight: 600,
-    transition: "all 0.2s ease",
   },
   activeLink: {
     backgroundColor: "#eeeafc",
     color: "#7c5af6",
   },
   mainContent: {
-  flex: 1,
-  overflowY: "auto",
-  padding: "30px",
-  width: "100%",
-}
+    flex: 1,
+    overflowY: "auto",
+    padding: "30px",
+    width: "100%",
+  }
 };
 
 export default App;
