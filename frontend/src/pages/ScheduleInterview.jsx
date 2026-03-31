@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "../components/common/Navbar";
+import API from "../api"; // ✅ ADD THIS
 
 function ScheduleInterview() {
   const navigate = useNavigate();
@@ -17,10 +18,27 @@ function ScheduleInterview() {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e) => {
+  // ✅ FIXED SUBMIT FUNCTION
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("Scheduled:", form);
-    navigate("/interviews");
+
+    try {
+      await API.post("/interviews", {
+        candidateName: form.candidate, // ✅ mapping fixed
+        email: form.email,
+        role: form.role,
+        date: form.date,
+        time: form.time
+      });
+
+      alert("Interview Scheduled Successfully");
+
+      navigate("/interviews"); // go to list page
+
+    } catch (error) {
+      console.error("Error scheduling interview:", error);
+      alert("Failed to schedule interview");
+    }
   };
 
   return (
@@ -29,7 +47,6 @@ function ScheduleInterview() {
 
       <div style={styles.contentWrapper}>
         <div style={styles.container}>
-          {/* Header */}
           <div style={styles.header}>
             <h1 style={styles.title}>Schedule Interview</h1>
             <p style={styles.subtitle}>
@@ -37,7 +54,6 @@ function ScheduleInterview() {
             </p>
           </div>
 
-          {/* Form */}
           <form onSubmit={handleSubmit} style={styles.form}>
             <div style={styles.row}>
               <div style={styles.inputGroup}>
@@ -99,7 +115,6 @@ function ScheduleInterview() {
               />
             </div>
 
-            {/* Buttons */}
             <div style={styles.actions}>
               <button
                 type="button"
@@ -128,7 +143,6 @@ const styles = {
     flexDirection: "column",
     fontFamily: "'Manrope', sans-serif"
   },
-
   contentWrapper: {
     padding: "40px",
     background: "#f8f9fe",
@@ -136,7 +150,6 @@ const styles = {
     display: "flex",
     justifyContent: "center"
   },
-
   container: {
     width: "100%",
     maxWidth: "800px",
@@ -145,64 +158,51 @@ const styles = {
     borderRadius: "20px",
     boxShadow: "0 10px 40px rgba(0,0,0,0.05)"
   },
-
-  header: {
-    marginBottom: "30px"
-  },
-
+  header: { marginBottom: "30px" },
   title: {
     fontSize: "28px",
     fontWeight: "800",
     margin: 0,
     color: "#1a1a1a"
   },
-
   subtitle: {
     fontSize: "15px",
     color: "#666",
     marginTop: "8px"
   },
-
   form: {
     display: "flex",
     flexDirection: "column",
     gap: "20px"
   },
-
   row: {
     display: "grid",
     gridTemplateColumns: "1fr 1fr",
     gap: "20px"
   },
-
   inputGroup: {
     display: "flex",
     flexDirection: "column",
     gap: "8px"
   },
-
   label: {
     fontSize: "14px",
     fontWeight: "600",
     color: "#1a1a1a"
   },
-
   input: {
     padding: "12px 16px",
     border: "1.5px solid #e0e1ea",
     borderRadius: "12px",
     fontSize: "14px",
-    fontFamily: "inherit",
-    transition: "border-color 0.2s ease"
+    fontFamily: "inherit"
   },
-
   actions: {
     display: "flex",
     gap: "16px",
     justifyContent: "flex-end",
     marginTop: "30px"
   },
-
   cancel: {
     padding: "12px 32px",
     border: "1.5px solid #e0e1ea",
@@ -210,10 +210,8 @@ const styles = {
     color: "#555",
     borderRadius: "12px",
     fontWeight: "600",
-    cursor: "pointer",
-    transition: "all 0.2s ease"
+    cursor: "pointer"
   },
-
   submit: {
     padding: "12px 32px",
     background: "linear-gradient(135deg, #7c5af6, #4f8ef7)",
@@ -221,9 +219,7 @@ const styles = {
     border: "none",
     borderRadius: "12px",
     fontWeight: "600",
-    cursor: "pointer",
-    boxShadow: "0 4px 15px rgba(124, 90, 246, 0.3)",
-    transition: "transform 0.2s ease"
+    cursor: "pointer"
   }
 };
 
