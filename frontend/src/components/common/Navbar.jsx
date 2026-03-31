@@ -15,8 +15,10 @@ export default function Navbar() {
           { name: "Home", path: "/" },
           { name: "Interviews", path: "/interviews" },
           { name: "Schedule", path: "/schedule-interview" },
+          { name: "Chatbot", path: "/chatbot" },
           { name: "Feedback", path: "/view-feedback" },
           { name: "Contact", path: "/" }
+
         ].map((item) => (
           <li key={item.name}>
             <span

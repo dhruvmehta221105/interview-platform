@@ -10,6 +10,7 @@ import ViewFeedback from "./pages/ViewFeedback";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import Profile from "./pages/Profile";
+import Chatbot from "./pages/Chatbot";
 
 function App() {
   return (
@@ -17,6 +18,8 @@ function App() {
       <Routes>
         {/* HOME */}
         <Route path="/" element={<Homepage />} />
+        {/* AI CHATBOT */}
+        <Route path="/chatbot" element={<Chatbot />} />
 
         {/* INTERVIEW MODULE */}
         <Route path="/interviews" element={<Interviews />} />
