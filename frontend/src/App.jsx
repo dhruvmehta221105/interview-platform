@@ -12,6 +12,7 @@ import Signup from "./pages/Signup";
 import Profile from "./pages/Profile";
 import Chatbot from "./pages/Chatbot";
 
+
 function App() {
   return (
     <Router>
@@ -34,7 +35,9 @@ function App() {
         {/* AUTH */}
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
-        <Route path="/profile" element={<Profile />} />
+      <Route path="/profile" element={<Profile />} />
+
+        
       </Routes>
     </Router>
   );

@@ -1,11 +1,11 @@
+import axios from "axios";
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
 import Navbar from '../components/common/Navbar';
 import AuthLayout from '../components/layout/AuthLayout';
 import Card from '../components/ui/Card';
 import Input from '../components/ui/Input';
 import Button from '../components/ui/Button';
-
+import { useNavigate, Link } from "react-router-dom";
 /* ── Icons ─────────────────────────────────────────────── */
 const EyeIcon = () => (
   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
@@ -70,16 +70,44 @@ const Login = () => {
   };
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    const e2 = validate();
-    if (Object.keys(e2).length) { setErrors(e2); return; }
-    setErrors({});
-    setLoading(true);
-    // Simulate API call
-    await new Promise((r) => setTimeout(r, 1500));
-    setLoading(false);
-    navigate('/');
-  };
+  e.preventDefault();
+
+  const e2 = validate();
+  if (Object.keys(e2).length) {
+    setErrors(e2);
+    return;
+  }
+
+  setErrors({});
+  setLoading(true);
+
+  try {
+    const res = await axios.post(
+      "http://localhost:5000/api/auth/login",
+      {
+        email: form.email,
+        password: form.password,
+      }
+    );
+
+    console.log("Login Success:", res.data);
+
+
+
+    // Redirect
+    localStorage.setItem("token", res.data.token);
+navigate("/profile");
+
+  } catch (error) {
+    console.log("Login Error:", error.response?.data);
+
+    setErrors({
+      email: "Invalid email or password",
+    });
+  }
+
+  setLoading(false);
+};
 
   const set = (key) => (e) => setForm((f) => ({ ...f, [key]: e.target.value }));
 

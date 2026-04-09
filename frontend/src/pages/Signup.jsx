@@ -1,3 +1,4 @@
+import axios from "axios";
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import Navbar from '../components/common/Navbar';
@@ -65,17 +66,45 @@ const Signup = () => {
     return e;
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    const e2 = validate();
-    if (Object.keys(e2).length) { setErrors(e2); return; }
-    setErrors({});
-    setLoading(true);
-    await new Promise((r) => setTimeout(r, 1600));
-    setLoading(false);
-    navigate('/');
-  };
+  
 
+const handleSubmit = async (e) => {
+  e.preventDefault();
+
+  const e2 = validate();
+  if (Object.keys(e2).length) {
+    setErrors(e2);
+    return;
+  }
+
+  setErrors({});
+  setLoading(true);
+
+  try {
+    const res = await axios.post(
+      "http://localhost:5000/api/auth/register",
+      {
+        name: form.name,
+        email: form.email,
+        password: form.password,
+      }
+    );
+
+    console.log("Signup Success:", res.data);
+
+    // ✅ Redirect to login after signup
+    navigate("/login");
+
+  } catch (error) {
+    console.log("Signup Error:", error.response?.data);
+
+    setErrors({
+      email: error.response?.data?.message || "Signup failed",
+    });
+  }
+
+  setLoading(false);
+};
   const set = (key) => (e) => setForm((f) => ({ ...f, [key]: e.target.value }));
 
   const styles = {
