@@ -8,24 +8,32 @@ connectDB();
 
 const app = express();
 
-// ✅ FIXED CORS (allow all origins for now)
+// 🟢 CORS (you can restrict later)
 app.use(cors());
 
-// ✅ Body parser
+// 🟢 Body parser
 app.use(express.json());
 
-// Routes
+// 🟢 Routes
 const interviewRoutes = require("./routes/InterviewRoutes");
 const feedbackRoutes = require("./routes/FeedbackRoutes");
-const userRoutes = require("./routes/UserRoutes");
+const authRoutes = require("./routes/authRoutes");
+const profileRoutes = require("./routes/profileRoutes"); // 🟢 cleaner import
 
 app.use("/api/interviews", interviewRoutes);
 app.use("/api/feedback", feedbackRoutes);
-app.use("/api/users", userRoutes);
+app.use("/api/auth", authRoutes);
+app.use("/api/profile", profileRoutes); // ✅ already correct
 
-// Test route
+// 🟢 Test route
 app.get("/", (req, res) => {
   res.send("API running...");
+});
+
+// 🟢 Global error handler (VERY USEFUL)
+app.use((err, req, res, next) => {
+  console.error("Server Error:", err.stack);
+  res.status(500).json({ message: "Something went wrong" });
 });
 
 const PORT = process.env.PORT || 5000;
