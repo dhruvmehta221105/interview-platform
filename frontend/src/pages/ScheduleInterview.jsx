@@ -5,6 +5,8 @@ import API from "../api"; // ✅ ADD THIS
 
 function ScheduleInterview() {
   const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
   const [form, setForm] = useState({
     candidate: "",
@@ -16,28 +18,47 @@ function ScheduleInterview() {
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
+    setError(""); // Clear error when user starts typing
   };
 
   // ✅ FIXED SUBMIT FUNCTION
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
+    setError("");
 
     try {
-      await API.post("/interviews", {
+      const response = await API.post("/interviews", {
         candidateName: form.candidate, // ✅ mapping fixed
         email: form.email,
         role: form.role,
         date: form.date,
-        time: form.time
+        time: form.time,
+        status: "scheduled"
       });
 
-      alert("Interview Scheduled Successfully");
+      // Reset form
+      setForm({
+        candidate: "",
+        email: "",
+        role: "",
+        date: "",
+        time: ""
+      });
 
-      navigate("/interviews"); // go to list page
+      // Navigate to interviews list with success state
+      navigate("/interviews", { 
+        state: { 
+          success: true, 
+          message: "Interview scheduled successfully!" 
+        } 
+      });
 
     } catch (error) {
       console.error("Error scheduling interview:", error);
-      alert("Failed to schedule interview");
+      setError(error.response?.data?.error || "Failed to schedule interview. Please try again.");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -54,6 +75,8 @@ function ScheduleInterview() {
             </p>
           </div>
 
+          {error && <div style={styles.errorBox}>{error}</div>}
+
           <form onSubmit={handleSubmit} style={styles.form}>
             <div style={styles.row}>
               <div style={styles.inputGroup}>
@@ -63,6 +86,7 @@ function ScheduleInterview() {
                   placeholder="John Doe"
                   style={styles.input}
                   onChange={handleChange}
+                  value={form.candidate}
                   required
                 />
               </div>
@@ -75,6 +99,7 @@ function ScheduleInterview() {
                   placeholder="john@email.com"
                   style={styles.input}
                   onChange={handleChange}
+                  value={form.email}
                   required
                 />
               </div>
@@ -83,13 +108,18 @@ function ScheduleInterview() {
             <div style={styles.row}>
               <div style={styles.inputGroup}>
                 <label style={styles.label}>Role</label>
-                <input
+                <select
                   name="role"
-                  placeholder="Frontend Developer"
                   style={styles.input}
                   onChange={handleChange}
+                  value={form.role}
                   required
-                />
+                >
+                  <option value="">Select a role...</option>
+                  <option value="Frontend Developer">Frontend Developer</option>
+                  <option value="Backend Developer">Backend Developer</option>
+                  <option value="Full Stack Developer">Full Stack Developer</option>
+                </select>
               </div>
 
               <div style={styles.inputGroup}>
@@ -99,6 +129,7 @@ function ScheduleInterview() {
                   type="date"
                   style={styles.input}
                   onChange={handleChange}
+                  value={form.date}
                   required
                 />
               </div>
@@ -111,6 +142,7 @@ function ScheduleInterview() {
                 type="time"
                 style={styles.input}
                 onChange={handleChange}
+                value={form.time}
                 required
               />
             </div>
@@ -124,8 +156,12 @@ function ScheduleInterview() {
                 Cancel
               </button>
 
-              <button type="submit" style={styles.submit}>
-                Create Interview
+              <button 
+                type="submit" 
+                style={{...styles.submit, opacity: loading ? 0.7 : 1}}
+                disabled={loading}
+              >
+                {loading ? "Scheduling..." : "Create Interview"}
               </button>
             </div>
           </form>
@@ -170,6 +206,15 @@ const styles = {
     color: "#666",
     marginTop: "8px"
   },
+  errorBox: {
+    background: "#fee",
+    color: "#c33",
+    padding: "12px 16px",
+    borderRadius: "8px",
+    marginBottom: "20px",
+    border: "1px solid #fcc",
+    fontSize: "14px"
+  },
   form: {
     display: "flex",
     flexDirection: "column",
@@ -195,7 +240,8 @@ const styles = {
     border: "1.5px solid #e0e1ea",
     borderRadius: "12px",
     fontSize: "14px",
-    fontFamily: "inherit"
+    fontFamily: "inherit",
+    transition: "border-color 0.2s"
   },
   actions: {
     display: "flex",

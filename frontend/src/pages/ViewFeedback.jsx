@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import FeedbackNav from "../components/common/FeedbackNav";
+import Navbar from "../components/common/Navbar";
 import FeedbackTable from "../components/viewFeedback/FeedbackTable";
 import DetailPanel from "../components/viewFeedback/DetailPanel";
 import { filterFeedbacks, sortFeedbacks } from "../utils/helpers";
@@ -58,7 +58,7 @@ function ViewFeedback() {
 
   return (
     <div style={s.root}>
-      <FeedbackNav />
+      <Navbar />
 
       {/* Hero */}
       <div style={s.hero}>

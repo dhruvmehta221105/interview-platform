@@ -5,6 +5,7 @@ import Homepage from "./pages/HomePage";
 import Interviews from "./pages/Interviews";
 import ScheduleInterview from "./pages/ScheduleInterview";
 import InterviewRoom from "./pages/InterviewRoom";
+import InterviewResult from "./pages/InterviewResult";
 import AddFeedback from "./pages/AddFeedback";
 import ViewFeedback from "./pages/ViewFeedback";
 import Login from "./pages/Login";
@@ -26,6 +27,7 @@ function App() {
         <Route path="/interviews" element={<Interviews />} />
         <Route path="/schedule-interview" element={<ScheduleInterview />} />
         <Route path="/interview/:id" element={<InterviewRoom />} />
+        <Route path="/interview-result/:id" element={<InterviewResult />} />
 
         {/* FEEDBACK */}
         <Route path="/add-feedback" element={<AddFeedback />} />
