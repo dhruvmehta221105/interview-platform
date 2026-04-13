@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import FeedbackNav from "../components/common/FeedbackNav";
+import Navbar from "../components/common/Navbar";
 import FeedbackForm from "../components/feedback/FeedbackForm";
 
 function AddFeedback() {
@@ -8,7 +8,7 @@ function AddFeedback() {
 
   return (
     <div style={s.root}>
-      <FeedbackNav />
+      <Navbar />
 
       {/* Hero */}
       <div style={s.hero}>
