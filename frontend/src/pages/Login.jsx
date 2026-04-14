@@ -6,6 +6,7 @@ import Card from '../components/ui/Card';
 import Input from '../components/ui/Input';
 import Button from '../components/ui/Button';
 import { useNavigate, Link } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";   // 🔥 ADD THIS
 /* ── Icons ─────────────────────────────────────────────── */
 const EyeIcon = () => (
   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
@@ -54,6 +55,7 @@ const GithubIcon = () => (
 
 const Login = () => {
   const navigate = useNavigate();
+  const { login } = useAuth();   // 🔥 ADD THIS
   const [form, setForm] = useState({ email: '', password: '' });
   const [showPwd, setShowPwd] = useState(false);
   const [remember, setRemember] = useState(false);
@@ -90,13 +92,13 @@ const Login = () => {
       }
     );
 
-    console.log("Login Success:", res.data);
+   console.log("Login Success:", res.data);
 
+// 🔥 STORE USER + TOKEN USING CONTEXT
+login(res.data);
 
-
-    // Redirect
-    localStorage.setItem("token", res.data.token);
-navigate("/profile");
+// 🔥 REDIRECT TO HOME (NOT PROFILE)
+navigate("/");
 
   } catch (error) {
     console.log("Login Error:", error.response?.data);

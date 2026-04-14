@@ -1,11 +1,6 @@
 const User = require("../models/User");
 const bcrypt = require("bcryptjs");
-const jwt = require("jsonwebtoken");
-
-// Token
-const generateToken = (id) => {
-  return jwt.sign({ id }, "secretkey", { expiresIn: "30d" });
-};
+const generateToken = require("../utils/generateToken");
 
 // REGISTER
 const registerUser = async (req, res) => {
@@ -30,11 +25,13 @@ const registerUser = async (req, res) => {
     });
 
     res.status(201).json({
-      _id: user._id,
-      email: user.email,
-      token: generateToken(user._id),
-    });
-
+  user: {
+    _id: user._id,
+    name: user.name,
+    email: user.email,
+  },
+  token: generateToken(user._id),
+});
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -51,14 +48,28 @@ console.log("Entered Password:", password);
     console.log("DB User:", user);
 
     if (user && (await bcrypt.compare(password, user.password))) {
-      res.json({
-        _id: user._id,
-        email: user.email,
-        token: generateToken(user._id),
-      });
+     res.json({
+  user: {
+    _id: user._id,
+    name: user.name,   // 🔥 IMPORTANT
+    email: user.email,
+  },
+  token: generateToken(user._id),
+});
     } else {
       res.status(401).json({ message: "Invalid credentials" });
-    }
+    }if (user && (await bcrypt.compare(password, user.password))) {
+  res.json({
+    user: {
+      _id: user._id,
+      name: user.name,   // 🔥 IMPORTANT (you missed this)
+      email: user.email,
+    },
+    token: generateToken(user._id),
+  });
+} else {
+  res.status(401).json({ message: "Invalid credentials" });
+}
 
   } catch (error) {
     res.status(500).json({ message: error.message });

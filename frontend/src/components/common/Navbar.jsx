@@ -1,10 +1,13 @@
 // components/common/Navbar.jsx
 import { useNavigate, useLocation } from "react-router-dom";
+import { useAuth } from "../../context/AuthContext"; 
+// adjust path if needed
 
 export default function Navbar() {
   const navigate = useNavigate();
   const location = useLocation();
-
+  const { user, logout } = useAuth();
+    console.log("Navbar user:", user);
   // Navigation items for all pages
   const navItems = [
     { name: "Home", path: "/" },
@@ -50,22 +53,42 @@ export default function Navbar() {
 
         {/* Right Side Buttons */}
         <div style={styles.navActions}>
-          <button
-            onClick={() => navigate("/view-feedback")}
-            style={styles.navBtn}
-            title="View Interview Feedback"
-          >
-            📋 Feedback
-          </button>
+         <button
+  onClick={() =>
+    user ? navigate("/interview") : navigate("/login")
+  }
+  style={styles.navBtn}
+>
+  {user ? "🎤 Start Interview" : "📋 Feedback"}
+</button>
+ {user ? (
+  <div style={styles.userSection}>
+    <div style={styles.userBox}>
+      <div style={styles.avatar}>
+       {user?.name?.charAt(0)?.toUpperCase() || "U"}
+      </div>
+      <span style={styles.userName}>{user?.name || "User"}</span>
+    </div>
 
-          <button
-            onClick={() => navigate("/login")}
-            style={{...styles.navBtn, ...styles.navBtnPrimary}}
-            title="Login or Sign Up"
-          >
-            Login
-            <span style={styles.navCtaIcon}>↗</span>
-          </button>
+    <button
+      onClick={() => {
+        logout();
+        navigate("/");
+      }}
+      style={styles.logoutBtn}
+    >
+      Logout
+    </button>
+  </div>
+) : (
+  <button
+    onClick={() => navigate("/login")}
+    style={{ ...styles.navBtn, ...styles.navBtnPrimary }}
+  >
+    Login
+    <span style={styles.navCtaIcon}>↗</span>
+  </button>
+)}
         </div>
       </div>
     </nav>
@@ -93,7 +116,7 @@ const styles = {
     display: "flex",
     alignItems: "center",
     justifyContent: "space-between",
-    padding: "0 40px"
+    padding: "0 60px"
   },
 
   logo: {
@@ -113,8 +136,8 @@ const styles = {
     listStyle: "none",
     padding: 0,
     margin: 0,
-    flex: 1,
-    justifyContent: "center"
+    justifyContent: "center",
+    minWidth: 120
   },
 
   navLink: {
@@ -136,7 +159,9 @@ const styles = {
   navActions: {
     display: "flex",
     gap: 12,
-    alignItems: "center"
+    alignItems: "center",
+    minWidth: 250,   // ⬅️ balances right side
+  justifyContent: "flex-end"
   },
 
   navBtn: {
@@ -163,5 +188,44 @@ const styles = {
   navCtaIcon: {
     fontSize: 14,
     fontWeight: 800
-  }
+  },
+  userSection: {
+  display: "flex",
+  alignItems: "center",
+  gap: 10,
+},
+
+logoutBtn: {
+  background: "transparent",
+  border: "none",
+  color: "#ff4d4f",
+  fontSize: 12,
+  fontWeight: 600,
+  cursor: "pointer",
+},
+
+userBox: {
+  display: "flex",
+  alignItems: "center",
+  gap: 6,
+},
+
+avatar: {
+  width: 28,
+  height: 28,
+  borderRadius: "50%",
+  background: "#0f1117",
+  color: "#fff",
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+  fontSize: 13,
+  fontWeight: 700,
+},
+
+userName: {
+  fontSize: 13,
+  fontWeight: 600,
+  color: "#0f1117",
+},
 };
