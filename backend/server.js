@@ -35,7 +35,7 @@ app.use("/api/interviews", interviewRoutes);
 app.use("/api/feedback", feedbackRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/profile", profileRoutes); // ✅ already correct
-app.use("/api/whisper", whisperRoutes);
+app.use("/api/whisper", whisperRoutes); // 
 
 // 🟢 Test route
 app.get("/", (req, res) => {

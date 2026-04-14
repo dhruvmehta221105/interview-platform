@@ -1,7 +1,7 @@
+const { exec } = require("child_process");
 const fs = require("fs");
-const client = require("../config/openai.js");
 
-const transcribeAudio = async (req, res) => {
+exports.transcribeAudio = (req, res) => {
   try {
     if (!req.file) {
       return res.status(400).json({ message: "No file uploaded" });
@@ -9,32 +9,31 @@ const transcribeAudio = async (req, res) => {
 
     const filePath = req.file.path;
 
-    console.log("Transcribing file:", filePath);
+    exec(
+  `py transcribe.py "${filePath}"`,
+  { cwd: __dirname + "/.." }, // ensures backend folder
+  (err, stdout, stderr) => {
+      console.log("==== WHISPER DEBUG ====");
+      console.log("FILE:", filePath);
+      console.log("STDOUT:", stdout);
+      console.log("STDERR:", stderr);
+      console.log("ERROR:", err);
+      console.log("=======================");
 
-    const response = await client.audio.transcriptions.create({
-      file: fs.createReadStream(filePath),
-      model: "whisper-1"
-    });
+      if (err) {
+        return res.status(500).json({
+          message: "Transcription failed",
+          error: stderr || err.message,
+        });
+      }
 
-    console.log("Transcription successful:", response.text);
+      fs.unlinkSync(filePath);
 
-    // Delete file after processing (important)
-    fs.unlinkSync(filePath);
-
-    return res.status(200).json({
-      text: response.text,
+      return res.json({ text: stdout.trim() });
     });
 
   } catch (error) {
-    console.error("Whisper Error:", error.message);
-    // Don't delete file if transcription failed (for debugging)
-    if (req.file && fs.existsSync(req.file.path)) {
-      fs.unlinkSync(req.file.path);
-    }
-    return res.status(500).json({ message: error.message || "Transcription failed" });
+    console.error(error);
+    res.status(500).json({ message: "Server error" });
   }
-};
-
-module.exports = {
-  transcribeAudio,
 };
