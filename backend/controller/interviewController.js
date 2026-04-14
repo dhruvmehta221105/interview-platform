@@ -37,7 +37,7 @@ exports.updateInterview = async (req, res) => {
     const interview = await Interview.findByIdAndUpdate(
       req.params.id,
       req.body,
-      { new: true }
+      { returnDocument: 'after' }
     );
     res.json(interview);
   } catch (error) {
@@ -68,7 +68,7 @@ exports.startInterview = async (req, res) => {
         startTime: new Date(),
         currentQuestionIndex: 0
       },
-      { new: true }
+      { returnDocument: 'after' }
     );
     res.json(interview);
   } catch (error) {
@@ -194,7 +194,7 @@ exports.endInterview = async (req, res) => {
         endTime: endTime,
         duration: duration
       },
-      { new: true }
+      { returnDocument: 'after' }
     );
 
     res.json(updated);
