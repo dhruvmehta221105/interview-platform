@@ -43,7 +43,22 @@ export default function Chatbot() {
         content: m.text,
       }));
 
-      const reply = await getAIResponse(userMessage);
+      // ✅ Step 1: get AI response (keep your chatbot working)
+const reply = await getAIResponse(userMessage);
+
+// ✅ Step 2: send to backend (store in DB)
+await fetch("http://localhost:5000/api/chat/send", {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json",
+  },
+  body: JSON.stringify({
+    userId: "123",
+    message: userMessage,
+    response: reply, // ✅ ADD THIS LINE
+  }),
+});
+
 
       setMessages((prev) => [...prev, { role: "bot", text: reply }]);
     } catch (err) {
