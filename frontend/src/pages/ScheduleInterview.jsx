@@ -8,6 +8,7 @@ function ScheduleInterview() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
+  const [customRole, setCustomRole] = useState("");
   const [form, setForm] = useState({
     candidate: "",
     email: "",
@@ -26,12 +27,16 @@ function ScheduleInterview() {
     e.preventDefault();
     setLoading(true);
     setError("");
-
+    if (form.role === "Other" && customRole.trim() === "") {
+  setError("Please enter your custom role");
+  setLoading(false);
+  return;
+}
     try {
       const response = await API.post("/interviews", {
         candidateName: form.candidate, // ✅ mapping fixed
         email: form.email,
-        role: form.role,
+        role: form.role === "Other" ? customRole : form.role,
         date: form.date,
         time: form.time,
         status: "scheduled"
@@ -39,13 +44,14 @@ function ScheduleInterview() {
 
       // Reset form
       setForm({
+        
         candidate: "",
         email: "",
         role: "",
         date: "",
         time: ""
       });
-
+      setCustomRole("");
       // Navigate to interviews list with success state
       navigate("/interviews", { 
         state: { 
@@ -119,9 +125,22 @@ function ScheduleInterview() {
                   <option value="Frontend Developer">Frontend Developer</option>
                   <option value="Backend Developer">Backend Developer</option>
                   <option value="Full Stack Developer">Full Stack Developer</option>
+                  <option value="Other">Other</option>
                 </select>
               </div>
-
+              {form.role === "Other" && (
+  <div style={styles.inputGroup}>
+    <label style={styles.label}>Custom Role</label>
+    <input
+      type="text"
+      placeholder="Enter your role"
+      style={styles.input}
+      value={customRole}
+      onChange={(e) => setCustomRole(e.target.value)}
+      required
+    />
+  </div>
+)}
               <div style={styles.inputGroup}>
                 <label style={styles.label}>Date</label>
                 <input

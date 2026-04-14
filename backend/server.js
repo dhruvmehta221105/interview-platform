@@ -2,10 +2,8 @@ const express = require("express");
 const cors = require("cors");
 const dotenv = require("dotenv");
 const connectDB = require("./config/db");
-const chatRoutes = require("./routes/chatRoutes");
 
 dotenv.config();
-console.log(process.env.MONGO_URI);
 connectDB();
 
 const app = express();
@@ -25,7 +23,6 @@ const profileRoutes = require("./routes/profileRoutes"); // 🟢 cleaner import
 app.use("/api/interviews", interviewRoutes);
 app.use("/api/feedback", feedbackRoutes);
 app.use("/api/auth", authRoutes);
-app.use("/api/chat", chatRoutes);
 app.use("/api/profile", profileRoutes); // ✅ already correct
 
 // 🟢 Test route
