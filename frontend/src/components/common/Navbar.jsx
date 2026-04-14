@@ -55,7 +55,7 @@ export default function Navbar() {
         <div style={styles.navActions}>
          <button
   onClick={() =>
-    user ? navigate("/interview") : navigate("/login")
+    user ? navigate("/interviews") : navigate("/login")
   }
   style={styles.navBtn}
 >
@@ -197,7 +197,7 @@ const styles = {
 
 logoutBtn: {
   background: "transparent",
-  border: "none",
+  border: "solid 2px #040404",
   color: "#ff4d4f",
   fontSize: 12,
   fontWeight: 600,

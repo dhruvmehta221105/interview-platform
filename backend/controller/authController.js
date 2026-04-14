@@ -24,16 +24,16 @@ const registerUser = async (req, res) => {
       password: hashedPassword,
     });
 
-    res.status(201).json({
-  user: {
-    _id: user._id,
-    name: user.name,
-    email: user.email,
-  },
-  token: generateToken(user._id),
-});
+    return res.status(201).json({
+      user: {
+        _id: user._id,
+        name: user.name,
+        email: user.email,
+      },
+      token: generateToken(user._id),
+    });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    return res.status(500).json({ message: error.message });
   }
 };
 
@@ -42,35 +42,23 @@ const loginUser = async (req, res) => {
   try {
     const { email, password } = req.body;
     console.log("Entered Email:", email);
-console.log("Entered Password:", password);
+    console.log("Entered Password:", password);
 
     const user = await User.findOne({ email });
     console.log("DB User:", user);
 
     if (user && (await bcrypt.compare(password, user.password))) {
-     res.json({
-  user: {
-    _id: user._id,
-    name: user.name,   // 🔥 IMPORTANT
-    email: user.email,
-  },
-  token: generateToken(user._id),
-});
+      return res.json({
+        user: {
+          _id: user._id,
+          name: user.name,
+          email: user.email,
+        },
+        token: generateToken(user._id),
+      });
     } else {
-      res.status(401).json({ message: "Invalid credentials" });
-    }if (user && (await bcrypt.compare(password, user.password))) {
-  res.json({
-    user: {
-      _id: user._id,
-      name: user.name,   // 🔥 IMPORTANT (you missed this)
-      email: user.email,
-    },
-    token: generateToken(user._id),
-  });
-} else {
-  res.status(401).json({ message: "Invalid credentials" });
-}
-
+      return res.status(401).json({ message: "Invalid credentials" });
+    }
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
