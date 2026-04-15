@@ -62,9 +62,8 @@ function ViewFeedback() {
 
       {/* Hero */}
       <div style={s.hero}>
-        <div style={s.heroBlob} />
         <div style={s.heroInner}>
-          <p style={s.breadcrumb}>📊 Feedback Portal</p>
+          <p style={s.breadcrumb}>Feedback Portal</p>
           <h1 style={s.heroTitle}>Interview Feedback</h1>
           <p style={s.heroSub}>Review, filter, and manage all candidate evaluations in one place.</p>
         </div>
@@ -77,13 +76,13 @@ function ViewFeedback() {
         {/* Stat Cards */}
         <div style={s.statsRow}>
           {[
-            { label: "Total Reviews", value: stats.total, icon: "📋", color: "#7c5af6", bg: "#f0ecff" },
-            { label: "Recommended", value: stats.hire, icon: "✅", color: "#22d3a4", bg: "#e6faf5" },
-            { label: "Avg Score", value: stats.avg + "/5", icon: "⭐", color: "#f5c842", bg: "#fffbe6" },
-            { label: "Rejected", value: stats.noHire, icon: "❌", color: "#f25f6a", bg: "#fff0f1" },
-          ].map(({ label, value, icon, color, bg }) => (
+            { label: "Total Reviews", value: stats.total, icon: "📋", color: "#7c5af6", bg: "#f0ecff", showIcon: false },
+            { label: "Recommended", value: stats.hire, icon: "✅", color: "#22d3a4", bg: "#e6faf5", showIcon: false },
+            { label: "Avg Score", value: stats.avg + "/5", icon: "⭐", color: "#f5c842", bg: "#fffbe6", showIcon: false },
+            { label: "Rejected", value: stats.noHire, icon: "❌", color: "#f25f6a", bg: "#fff0f1", showIcon: false },
+          ].map(({ label, value, icon, color, bg, showIcon }) => (
             <div key={label} style={s.statCard}>
-              <div style={{ ...s.statIcon, background: bg }}>{icon}</div>
+              {showIcon !== false && <div style={{ ...s.statIcon, background: bg }}>{icon}</div>}
               <div>
                 <div style={{ ...s.statValue, color }}>{value}</div>
                 <div style={s.statLabel}>{label}</div>
@@ -95,14 +94,13 @@ function ViewFeedback() {
         {/* Filters Row */}
         <div style={s.filtersBar}>
           <div style={s.searchWrap}>
-            <span style={s.searchIcon}>🔍</span>
             <input
               style={s.searchInput}
               placeholder="Search by name, role, email..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
             />
-            {search && <button onClick={() => setSearch("")} style={s.clearBtn}>✕</button>}
+            {search && <button onClick={() => setSearch("")} style={s.clearBtn}>×</button>}
           </div>
           <div style={s.filterGroup}>
             <select style={s.filterSelect} value={filterRec} onChange={(e) => setFilterRec(e.target.value)}>
@@ -132,7 +130,6 @@ function ViewFeedback() {
           <div style={{ ...s.tableCard, flex: selected ? "0 0 56%" : 1 }}>
             {filtered.length === 0 ? (
               <div style={s.empty}>
-                <div style={s.emptyIcon}>🔍</div>
                 <p style={s.emptyText}>No feedback found matching your filters.</p>
                 <button onClick={() => { setSearch(""); setFilterRec("All"); setFilterRole("All"); }} style={s.btnSecondary}>Clear Filters</button>
               </div>
@@ -160,7 +157,6 @@ function ViewFeedback() {
       {deleteId && (
         <div style={s.modalOverlay} onClick={() => setDeleteId(null)}>
           <div style={s.modal} onClick={(e) => e.stopPropagation()}>
-            <div style={s.modalIcon}>🗑️</div>
             <h3 style={s.modalTitle}>Delete Feedback?</h3>
             <p style={s.modalText}>This action cannot be undone.</p>
             <div style={s.modalActions}>
@@ -177,10 +173,9 @@ function ViewFeedback() {
 const s = {
   root: { fontFamily: "'Plus Jakarta Sans', 'Segoe UI', sans-serif", background: "#f5f6fa", minHeight: "100vh", color: "#0f1117" },
 
-  hero: { background: "linear-gradient(135deg, #ede9ff 0%, #dbeaff 50%, #e8f5ff 100%)", padding: "52px 40px 40px", position: "relative", overflow: "hidden", display: "flex", alignItems: "flex-start", justifyContent: "space-between" },
-  heroBlob: { position: "absolute", width: 500, height: 500, background: "radial-gradient(circle, rgba(124,92,246,0.18) 0%, transparent 70%)", top: -150, right: -100, pointerEvents: "none" },
+  hero: { background: "#f8f9fc", padding: "52px 40px 40px", position: "relative", overflow: "hidden", display: "flex", alignItems: "flex-start", justifyContent: "space-between", borderBottom: "1px solid #e8e9f0" },
   heroInner: { position: "relative", zIndex: 1 },
-  breadcrumb: { fontSize: 13, color: "#7c5af6", fontWeight: 700, marginBottom: 10 },
+  breadcrumb: { fontSize: 13, color: "#888", fontWeight: 600, marginBottom: 10, textTransform: "uppercase", letterSpacing: 0.5 },
   heroTitle: { fontFamily: "'Manrope', sans-serif", fontSize: 36, fontWeight: 800, letterSpacing: -1, marginBottom: 8 },
   heroSub: { color: "#555f7a", fontSize: 15, maxWidth: 440 },
   heroBtn: { position: "relative", zIndex: 1, background: "linear-gradient(135deg,#7c5af6,#4f8ef7)", color: "#fff", padding: "13px 24px", borderRadius: 100, fontSize: 14, fontWeight: 700, border: "none", cursor: "pointer", boxShadow: "0 4px 16px rgba(124,90,246,0.35)", whiteSpace: "nowrap", alignSelf: "center", marginTop: 20 },
@@ -219,12 +214,11 @@ const s = {
   deleteBtn: { background: "none", border: "none", cursor: "pointer", fontSize: 16, color: "#ccc", padding: "4px", borderRadius: 6, transition: "color 0.15s" },
 
   empty: { padding: "80px 40px", textAlign: "center" },
-  emptyIcon: { fontSize: 48, marginBottom: 16 },
   emptyText: { color: "#888", fontSize: 15, marginBottom: 20 },
 
   // Detail panel
   detailPanel: { width: 320, flexShrink: 0, background: "#fff", borderRadius: 18, boxShadow: "0 2px 12px rgba(0,0,0,0.07)", overflow: "hidden" },
-  detailHeader: { background: "linear-gradient(135deg,#ede9ff,#dbeaff)", padding: "20px", display: "flex", gap: 12, alignItems: "flex-start", position: "relative" },
+  detailHeader: { background: "#f8f9fc", padding: "20px", display: "flex", gap: 12, alignItems: "flex-start", position: "relative", borderBottom: "1px solid #e8e9f0" },
   detailAvatar: { width: 48, height: 48, borderRadius: "50%", background: "linear-gradient(135deg,#7c5af6,#4f8ef7)", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 800, fontSize: 20, flexShrink: 0 },
   detailName: { fontFamily: "'Manrope', sans-serif", fontSize: 16, fontWeight: 800, color: "#0f1117" },
   detailEmail: { fontSize: 12, color: "#7c5af6", marginTop: 2 },
@@ -246,10 +240,9 @@ const s = {
 
   // Modal
   modalOverlay: { position: "fixed", inset: 0, background: "rgba(0,0,0,0.4)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 999 },
-  modal: { background: "#fff", borderRadius: 20, padding: "36px 40px", textAlign: "center", maxWidth: 360, boxShadow: "0 20px 60px rgba(0,0,0,0.15)" },
-  modalIcon: { fontSize: 40, marginBottom: 12 },
-  modalTitle: { fontFamily: "'Manrope', sans-serif", fontSize: 20, fontWeight: 800, marginBottom: 8 },
-  modalText: { color: "#888", fontSize: 14, marginBottom: 24 },
+  modal: { background: "#fff", borderRadius: 14, padding: "32px 36px", textAlign: "center", maxWidth: 360, boxShadow: "0 10px 30px rgba(0,0,0,0.1)", border: "1px solid #e8e9f0" },
+  modalTitle: { fontFamily: "'Manrope', sans-serif", fontSize: 18, fontWeight: 700, marginBottom: 12 },
+  modalText: { color: "#666", fontSize: 14, marginBottom: 24, lineHeight: 1.5 },
   modalActions: { display: "flex", gap: 12, justifyContent: "center" },
 
   btnSecondary: { background: "#fff", color: "#555", padding: "10px 22px", borderRadius: 100, fontSize: 14, fontWeight: 600, border: "1.5px solid #e0e1ea", cursor: "pointer" },

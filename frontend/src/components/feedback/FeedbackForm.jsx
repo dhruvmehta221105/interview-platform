@@ -5,14 +5,14 @@ import ScoreInput from "./ScoreInput";
 import RecommendationButtons from "./RecommendationButtons";
 import { calculateAverageScore } from "../../utils/helpers";
 
-export default function FeedbackForm() {
+export default function FeedbackForm({ initialData = {} }) {
   const navigate = useNavigate();
 
   const [formData, setFormData] = useState({
-    candidateName: "",
-    candidateEmail: "",
-    role: "",
-    date: "",
+    candidateName: initialData?.candidateName || "",
+    candidateEmail: initialData?.candidateEmail || "",
+    role: initialData?.role || "",
+    date: initialData?.date || "",
     technical: "",
     communication: "",
     problemSolving: "",
@@ -93,7 +93,6 @@ export default function FeedbackForm() {
         {/* Candidate Info Card */}
         <div style={s.card}>
           <div style={s.cardHeader}>
-            <div style={{ ...s.cardIcon, background: "#f0ecff" }}>👤</div>
             <div>
               <div style={s.cardTitle}>Candidate Information</div>
               <div style={s.cardSub}>Basic details about the interviewee</div>
@@ -171,7 +170,6 @@ export default function FeedbackForm() {
         {/* Score Card */}
         <div style={s.card}>
           <div style={s.cardHeader}>
-            <div style={{ ...s.cardIcon, background: "#e8f2ff" }}>⭐</div>
             <div>
               <div style={s.cardTitle}>Performance Scores</div>
               <div style={s.cardSub}>Rate each dimension from 1 (Poor) to 5 (Excellent)</div>
@@ -230,7 +228,6 @@ export default function FeedbackForm() {
         {/* Remarks Card */}
         <div style={s.card}>
           <div style={s.cardHeader}>
-            <div style={{ ...s.cardIcon, background: "#e6faf5" }}>📝</div>
             <div>
               <div style={s.cardTitle}>Detailed Remarks</div>
               <div style={s.cardSub}>Provide qualitative feedback for the candidate</div>
