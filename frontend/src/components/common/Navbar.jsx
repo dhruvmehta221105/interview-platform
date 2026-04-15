@@ -59,7 +59,7 @@ export default function Navbar() {
   }
   style={styles.navBtn}
 >
-  {user ? "🎤 Start Interview" : "📋 Feedback"}
+  {user ? "🎤 Start Interview" : "📋 Start Interview"}
 </button>
  {user ? (
   <div style={styles.userSection}>

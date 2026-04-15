@@ -60,11 +60,19 @@ function InterviewRoom() {
   /* ── Cleanup on unmount (master cleanup) ── */
   useEffect(() => {
     return () => {
+      // Stop timer
+      if (timerIntervalRef.current) {
+        clearInterval(timerIntervalRef.current);
+      }
       // Stop recorder
       if (mediaRecorderRef.current?.state !== 'inactive') {
-        mediaRecorderRef.current?.stop();
+        try {
+          mediaRecorderRef.current?.stop();
+        } catch (e) {
+          console.warn("Error stopping recorder:", e);
+        }
       }
-      // Stop all tracks
+      // Stop all media tracks
       if (videoStream) {
         stopAllMediaTracks(videoStream);
       }
@@ -72,22 +80,26 @@ function InterviewRoom() {
       if (videoRef.current) {
         videoRef.current.srcObject = null;
       }
-      // Clear timer
-      if (timerIntervalRef.current) {
-        clearInterval(timerIntervalRef.current);
-      }
       // Clear refs
       mediaRecorderRef.current = null;
       recordedChunksRef.current = [];
     };
-  }, []);
+  }, [videoStream]);
 
-  /* ── Init (unchanged logic) ── */
+  /* ── Init ── */
   useEffect(() => {
     const init = async () => {
       try {
         setLoading(true);
         setError(""); // Clear previous errors
+        
+        // Stop any existing streams before starting new ones
+        if (videoStream) {
+          stopAllMediaTracks(videoStream);
+          if (videoRef.current) {
+            videoRef.current.srcObject = null;
+          }
+        }
         
         const interviewRes = await API.get(`/interviews/${interviewId}`);
         setInterview(interviewRes.data);
@@ -97,7 +109,9 @@ function InterviewRoom() {
           audio: { echoCancellation: true, noiseSuppression: true },
         });
         setVideoStream(stream);
-        if (videoRef.current) videoRef.current.srcObject = stream;
+        if (videoRef.current) {
+          videoRef.current.srcObject = stream;
+        }
 
         const audioStream = new MediaStream(stream.getAudioTracks());
         const recorder    = new MediaRecorder(audioStream, { mimeType: "audio/webm" });
@@ -136,7 +150,10 @@ function InterviewRoom() {
     
     return () => {
       // 🔴 CRITICAL: Stop everything when component unmounts or interview changes
-      if (timerIntervalRef.current) clearInterval(timerIntervalRef.current);
+      if (timerIntervalRef.current) {
+        clearInterval(timerIntervalRef.current);
+        timerIntervalRef.current = null;
+      }
       
       // Stop the media recorder
       if (mediaRecorderRef.current && mediaRecorderRef.current.state !== "inactive") {
@@ -152,11 +169,16 @@ function InterviewRoom() {
         stopAllMediaTracks(videoStream);
       }
       
+      // Clear video display
+      if (videoRef.current) {
+        videoRef.current.srcObject = null;
+      }
+      
       // Clear refs
       mediaRecorderRef.current = null;
       recordedChunksRef.current = [];
     };
-  }, [interviewId]);
+  }, [interviewId, videoStream]);
 
   /* ── Keyboard shortcuts (unchanged) ── */
   useEffect(() => {
@@ -248,12 +270,39 @@ function InterviewRoom() {
     }
   };
 
-  /* ── End (unchanged) ── */
+  /* ── End ── */
   const endInterview = async () => {
     try {
-      if (videoStream) stopAllMediaTracks(videoStream);
-      if (mediaRecorderRef.current?.state !== "inactive") mediaRecorderRef.current?.stop();
-      if (timerIntervalRef.current) clearInterval(timerIntervalRef.current);
+      // Stop timer first
+      if (timerIntervalRef.current) {
+        clearInterval(timerIntervalRef.current);
+        timerIntervalRef.current = null;
+      }
+      
+      // Stop media recorder
+      if (mediaRecorderRef.current?.state !== "inactive") {
+        try {
+          mediaRecorderRef.current?.stop();
+        } catch (e) {
+          console.warn("Error stopping recorder:", e);
+        }
+      }
+      mediaRecorderRef.current = null;
+      recordedChunksRef.current = [];
+      
+      // Stop all media tracks
+      if (videoStream) {
+        stopAllMediaTracks(videoStream);
+      }
+      
+      // Clear video display
+      if (videoRef.current) {
+        videoRef.current.srcObject = null;
+      }
+      
+      setVideoStream(null);
+      setIsRecording(false);
+      
       const response = await API.post(`/interviews/${interviewId}/end`);
       navigate(`/interview-result/${interviewId}`, { state: { interview: response.data } });
     } catch (err) {
@@ -657,7 +706,7 @@ const c = {
     position: "relative",
     minHeight: 0,
   },
-  video: { width: "100%", height: "100%", objectFit: "cover", display: "block" },
+  video: { width: "100%", height: "100%", objectFit: "cover", display: "block", transform: "scaleX(-1)" },
   videoTopLeft: { position: "absolute", top: 14, left: 14 },
   videoTopRight: { position: "absolute", top: 14, right: 14 },
   recBadge: {

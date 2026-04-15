@@ -22,7 +22,7 @@ export default function FeedbackCard({ feedback, isActive, onSelect, onDelete })
       </div>
       <div style={s.td}>
         <div style={{ ...s.scoreChip, background: sc + "18", color: sc }}>
-          ★ {parseFloat(feedback.totalScore).toFixed(1)}
+          {parseFloat(feedback.totalScore).toFixed(1)}
         </div>
       </div>
       <div style={s.td}>
@@ -38,7 +38,7 @@ export default function FeedbackCard({ feedback, isActive, onSelect, onDelete })
           style={s.deleteBtn}
           onClick={onDelete}
           title="Delete"
-        >🗑</button>
+        >×</button>
       </div>
     </div>
   );

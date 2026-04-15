@@ -205,7 +205,20 @@ function InterviewResult() {
             style={styles.downloadBtn}
             onClick={() => alert("Download feature coming soon!")}
           >
-            📥 Download Report
+            Download Report
+          </button>
+          <button
+            style={styles.feedbackBtn}
+            onClick={() => navigate("/add-feedback", { 
+              state: { 
+                candidateName: interview?.candidateName,
+                candidateEmail: interview?.candidateEmail,
+                role: interview?.role,
+                date: interview?.date
+              } 
+            })}
+          >
+            Add Feedback
           </button>
           <button
             style={styles.primaryBtn}
@@ -563,6 +576,18 @@ const styles = {
     fontWeight: 700,
     cursor: "pointer",
     fontSize: "14px"
+  },
+
+  feedbackBtn: {
+    padding: "14px 32px",
+    background: "#7c5af6",
+    color: "#fff",
+    border: "none",
+    borderRadius: "12px",
+    fontWeight: 700,
+    cursor: "pointer",
+    fontSize: "14px",
+    transition: "background 0.2s"
   },
 
   primaryBtn: {

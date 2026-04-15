@@ -53,19 +53,22 @@ const s = {
 
   navContainer: {
     width: "100%",
-    maxWidth: 1200,
+    maxWidth: 1400,
     display: "flex",
     alignItems: "center",
     justifyContent: "space-between",
-    padding: "0 20px",
+    padding: "0 60px",
   },
 
   logo: {
     fontFamily: "'Manrope', sans-serif",
-    fontWeight: 800,
+    fontWeight: 900,
     fontSize: 20,
     letterSpacing: "-0.5px",
-    cursor: "pointer"
+    color: "#0f1117",
+    cursor: "pointer",
+    transition: "color 0.2s",
+    userSelect: "none"
   },
 
   navLinks: {
@@ -80,32 +83,29 @@ const s = {
     color: "#555",
     fontSize: 14,
     fontWeight: 500,
-    cursor: "pointer"
+    cursor: "pointer",
+    transition: "color 0.2s",
+    paddingBottom: "4px",
+    borderBottom: "2px solid transparent"
   },
 
   navCta: {
     background: "#fff",
     border: "1.5px solid #0f1117",
     color: "#0f1117",
-    padding: "8px 18px",
+    padding: "8px 16px",
     borderRadius: 100,
     fontSize: 13,
     fontWeight: 700,
     display: "flex",
     alignItems: "center",
     gap: 6,
-    cursor: "pointer"
+    cursor: "pointer",
+    transition: "all 0.2s"
   },
 
   navCtaIcon: {
-    background: "#0f1117",
-    color: "#fff",
-    borderRadius: "50%",
-    width: 20,
-    height: 20,
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    fontSize: 10
+    fontSize: 14,
+    fontWeight: 800
   }
 };
