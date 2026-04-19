@@ -114,9 +114,28 @@ function InterviewRoom() {
         }
 
         const audioStream = new MediaStream(stream.getAudioTracks());
-        const recorder    = new MediaRecorder(audioStream, { mimeType: "audio/webm" });
+        
+        // Check if audio tracks exist
+        if (audioStream.getAudioTracks().length === 0) {
+          throw new Error("No audio tracks available from microphone");
+        }
+
+        // Find a supported mime type for MediaRecorder
+        let mimeType = "audio/webm";
+        if (!MediaRecorder.isTypeSupported(mimeType)) {
+          mimeType = "audio/mp4";
+          if (!MediaRecorder.isTypeSupported(mimeType)) {
+            mimeType = ""; // Use browser default
+          }
+        }
+
+        const recorder = new MediaRecorder(audioStream, mimeType ? { mimeType } : {});
         recorder.ondataavailable = (e) => {
           if (e.data.size > 0) recordedChunksRef.current.push(e.data);
+        };
+        recorder.onerror = (e) => {
+          console.error("MediaRecorder error:", e.error);
+          setError(`Recording error: ${e.error}`);
         };
         mediaRecorderRef.current = recorder;
 
@@ -128,8 +147,17 @@ function InterviewRoom() {
           setTimeElapsed(Math.floor((Date.now() - startTime) / 1000));
         }, 1000);
 
-        recorder.start(1000);
-        setIsRecording(true);
+        // Wait a moment before starting recording to ensure recorder is ready
+        setTimeout(() => {
+          try {
+            recorder.start(1000);
+            setIsRecording(true);
+          } catch (e) {
+            console.error("Error starting recorder:", e);
+            setError(`Failed to start recording: ${e.message}`);
+          }
+        }, 100);
+        
         setLoading(false);
       } catch (err) {
         console.error("Init error:", err);
