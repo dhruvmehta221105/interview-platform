@@ -134,24 +134,6 @@ navigate("/");
               <p style={styles.subtitle}>Sign in to continue your interview journey</p>
             </div>
 
-          {/* Social Logins */}
-          <div style={{ display: 'flex', gap: 12, marginBottom: 20 }}>
-            <Button variant="social" fullWidth size="md" style={{ justifyContent: 'center' }}>
-              Continue with Google
-            </Button>
-            <Button variant="social" fullWidth size="md" style={{ justifyContent: 'center' }}>
-              Continue with GitHub
-            </Button>
-          </div>
-
-          {/* Divider */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 18 }}>
-            <div style={{ flex: 1, height: 1, background: '#e2e8f0' }} />
-            <span style={{ fontSize: 12, color: '#64748b', textTransform: 'uppercase', letterSpacing: 0.6 }}>
-              or continue with email
-            </span>
-            <div style={{ flex: 1, height: 1, background: '#e2e8f0' }} />
-          </div>
 
           {/* Form */}
           <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 14 }} noValidate>

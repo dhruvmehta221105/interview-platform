@@ -43,7 +43,7 @@ export default function Hero({ searchRole, setSearchRole, searchCompany, setSear
           🤖 Your #1 Platform for interview practice
         </div>
 
-        <h1 style={g.heroTitle}>Showcase Your Mastery.</h1>
+        <h1 style={g.heroTitle}>Showcase Your Mastery</h1>
 
         <p style={g.heroSubBold}>
           Practice Interviews with AI and Real HR Experts
@@ -143,7 +143,7 @@ const g = {
   },
 
   heroTitle: {
-    fontSize: 58,
+    fontSize: 65,
     fontWeight: 900,
     textAlign: "center",
   },

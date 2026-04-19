@@ -127,25 +127,6 @@ const handleSubmit = async (e) => {
                 <p style={styles.subtitle}>Start practicing smarter, get hired faster</p>
               </div>
 
-          {/* Social Logins */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-            <Button variant="social" fullWidth size="md" style={{ justifyContent: 'center' }}>
-              Sign up with Google
-            </Button>
-            <Button variant="social" fullWidth size="md" style={{ justifyContent: 'center' }}>
-              Sign up with GitHub
-            </Button>
-          </div>
-
-          {/* Divider */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginTop: 20, marginBottom: 18 }}>
-            <div style={{ flex: 1, height: 1, background: '#e2e8f0' }} />
-            <span style={{ fontSize: 12, color: '#64748b', textTransform: 'uppercase', letterSpacing: 0.6 }}>
-              or fill in the form
-            </span>
-            <div style={{ flex: 1, height: 1, background: '#e2e8f0' }} />
-          </div>
-
           {/* Form */}
           <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 14 }} noValidate>
             <Input

@@ -30,12 +30,14 @@ const feedbackRoutes = require("./routes/FeedbackRoutes");
 const authRoutes = require("./routes/authRoutes");
 const profileRoutes = require("./routes/profileRoutes");
 const whisperRoutes = require("./routes/whisperRoutes"); // ✅ added
+const chatRoutes = require("./routes/chatRoutes"); // ✅ added
 
 app.use("/api/interviews", interviewRoutes);
 app.use("/api/feedback", feedbackRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/profile", profileRoutes);
 app.use("/api/whisper", whisperRoutes); // ✅ important
+app.use("/api/chat", chatRoutes); // ✅ important
 
 // 🟢 Test route
 app.get("/", (req, res) => {
