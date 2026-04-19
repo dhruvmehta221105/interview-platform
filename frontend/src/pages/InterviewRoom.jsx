@@ -56,6 +56,7 @@ function InterviewRoom() {
   const [isSubmitting,     setIsSubmitting]     = useState(false);
   const [timeElapsed,      setTimeElapsed]      = useState(0);
   const timerIntervalRef   = useRef(null);
+  const initializeRef      = useRef(false);
 
   /* ── Cleanup on unmount (master cleanup) ── */
   useEffect(() => {
@@ -84,129 +85,217 @@ function InterviewRoom() {
       mediaRecorderRef.current = null;
       recordedChunksRef.current = [];
     };
-  }, [videoStream]);
+  }, []);
 
   /* ── Init ── */
   useEffect(() => {
+    // Only initialize once per component mount
+    if (initializeRef.current) return;
+    initializeRef.current = true;
+
     const init = async () => {
       try {
         setLoading(true);
-        setError(""); // Clear previous errors
+        setError("");
         
-        // Stop any existing streams before starting new ones
-        if (videoStream) {
-          stopAllMediaTracks(videoStream);
-          if (videoRef.current) {
-            videoRef.current.srcObject = null;
-          }
-        }
-        
+        // Fetch interview data
         const interviewRes = await API.get(`/interviews/${interviewId}`);
         setInterview(interviewRes.data);
 
-        const stream = await navigator.mediaDevices.getUserMedia({
-          video: { width: { ideal: 1280 }, height: { ideal: 720 } },
-          audio: { echoCancellation: true, noiseSuppression: true },
-        });
+        // ✅ REQUEST USER MEDIA (Audio + Video)
+        console.log("[Init] Requesting camera and microphone access...");
+        let stream;
+        try {
+          stream = await navigator.mediaDevices.getUserMedia({
+            video: { 
+              width: { ideal: 1280 }, 
+              height: { ideal: 720 },
+              facingMode: "user"
+            },
+            audio: { 
+              echoCancellation: true, 
+              noiseSuppression: true,
+              autoGainControl: true
+            },
+          });
+        } catch (err) {
+          if (err.name === "NotAllowedError") {
+            throw new Error("Please allow camera and microphone access in your browser settings.");
+          } else if (err.name === "NotFoundError") {
+            throw new Error("No camera or microphone detected. Please check your devices.");
+          }
+          throw err;
+        }
+
+        console.log("[Init] Stream obtained. Checking tracks...");
+        console.log(`  - Video tracks: ${stream.getVideoTracks().length}`);
+        console.log(`  - Audio tracks: ${stream.getAudioTracks().length}`);
+
+        // Validate streams
+        if (stream.getVideoTracks().length === 0) {
+          throw new Error("No video track available from camera");
+        }
+        if (stream.getAudioTracks().length === 0) {
+          throw new Error("No audio track available from microphone");
+        }
+
         setVideoStream(stream);
         if (videoRef.current) {
           videoRef.current.srcObject = stream;
         }
 
+        // ✅ CREATE AUDIO-ONLY STREAM FOR RECORDING
+        console.log("[Init] Creating audio-only stream for recording...");
         const audioStream = new MediaStream(stream.getAudioTracks());
         
-        // Check if audio tracks exist
-        if (audioStream.getAudioTracks().length === 0) {
-          throw new Error("No audio tracks available from microphone");
-        }
+        // ✅ INITIALIZE MEDIA RECORDER WITH PROPER MIME TYPES
+        console.log("[Init] Initializing MediaRecorder...");
+        
+        const mimeTypes = [
+          "audio/webm",
+          "audio/webm;codecs=opus",
+          "audio/mp4",
+          "audio/wav",
+          "audio/ogg",
+          "" // Browser default
+        ];
 
-        // Find a supported mime type for MediaRecorder
-        let mimeType = "audio/webm";
-        if (!MediaRecorder.isTypeSupported(mimeType)) {
-          mimeType = "audio/mp4";
-          if (!MediaRecorder.isTypeSupported(mimeType)) {
-            mimeType = ""; // Use browser default
+        let recorder = null;
+        let selectedMime = "";
+
+        for (const mime of mimeTypes) {
+          try {
+            // Skip if MIME type is specified but not supported
+            if (mime && !MediaRecorder.isTypeSupported(mime)) {
+              console.log(`[Init] MIME type not supported: ${mime}`);
+              continue;
+            }
+
+            // Create recorder with this MIME type
+            const options = mime ? { mimeType: mime } : {};
+            recorder = new MediaRecorder(audioStream, options);
+            selectedMime = mime || "default";
+            console.log(`[Init] ✅ Using MIME type: ${selectedMime}`);
+            break;
+          } catch (err) {
+            console.warn(`[Init] Failed to create recorder with MIME ${mime}:`, err.message);
+            continue;
           }
         }
 
-        const recorder = new MediaRecorder(audioStream, mimeType ? { mimeType } : {});
-        recorder.ondataavailable = (e) => {
-          if (e.data.size > 0) recordedChunksRef.current.push(e.data);
+        if (!recorder) {
+          throw new Error("Failed to create MediaRecorder with any supported MIME type");
+        }
+
+        // ✅ SET UP EVENT HANDLERS
+        recorder.ondataavailable = (event) => {
+          if (event.data && event.data.size > 0) {
+            recordedChunksRef.current.push(event.data);
+            console.log(`[Recorder] Data collected: ${event.data.size} bytes`);
+          }
         };
-        recorder.onerror = (e) => {
-          console.error("MediaRecorder error:", e.error);
-          setError(`Recording error: ${e.error}`);
+
+        recorder.onstart = () => {
+          console.log("[Recorder] ✅ Recording started");
+          setIsRecording(true);
         };
+
+        recorder.onstop = () => {
+          console.log(`[Recorder] ✅ Recording stopped. Total chunks: ${recordedChunksRef.current.length}`);
+          setIsRecording(false);
+        };
+
+        recorder.onerror = (event) => {
+          console.error("[Recorder] ❌ Error:", event.error);
+          setError(`Recording error: ${event.error}`);
+        };
+
         mediaRecorderRef.current = recorder;
 
+        // ✅ START RECORDING
+        console.log("[Init] Starting recording...");
+        try {
+          // Ensure recorder is in correct state before starting
+          if (recorder.state === "recording") {
+            console.warn("[Init] Recorder already in recording state, stopping first...");
+            recorder.stop();
+            await new Promise(resolve => setTimeout(resolve, 100));
+          }
+
+          recorder.start();
+          console.log("[Init] ✅ Recording started successfully");
+        } catch (err) {
+          console.error("[Init] ❌ Failed to start recording:", err);
+          throw new Error(`Failed to start recording: ${err.message}`);
+        }
+
+        // ✅ FETCH FIRST QUESTION
         const questionRes = await API.get(`/interviews/${interviewId}/question`);
         setCurrentQuestion(questionRes.data);
 
+        // ✅ START TIMER
         const startTime = Date.now();
         timerIntervalRef.current = setInterval(() => {
           setTimeElapsed(Math.floor((Date.now() - startTime) / 1000));
         }, 1000);
 
-        // Wait a moment before starting recording to ensure recorder is ready
-        setTimeout(() => {
-          try {
-            recorder.start(1000);
-            setIsRecording(true);
-          } catch (e) {
-            console.error("Error starting recorder:", e);
-            setError(`Failed to start recording: ${e.message}`);
-          }
-        }, 100);
-        
         setLoading(false);
+        console.log("[Init] ✅ Interview room initialized successfully");
+
       } catch (err) {
-        console.error("Init error:", err);
+        console.error("[Init] ❌ Initialization error:", err);
+        initializeRef.current = false; // Allow retry
         
-        // Handle permission denied
         if (err.name === "NotAllowedError") {
-          setError("Camera/Microphone permission denied. Please check your browser settings and try again.");
+          setError("Camera/Microphone permission denied. Please allow access and refresh.");
         } else if (err.name === "NotFoundError") {
-          setError("No camera or microphone found. Please connect a device and try again.");
+          setError("No camera or microphone found. Please connect devices and refresh.");
         } else {
-          setError(err.response?.data?.error || err.message || "Failed to initialize interview room");
+          setError(err.message || "Failed to initialize interview room");
         }
         
         setLoading(false);
       }
     };
+
     init();
     
     return () => {
-      // 🔴 CRITICAL: Stop everything when component unmounts or interview changes
+      console.log("[Cleanup] Cleaning up resources...");
+      
+      // Stop timer
       if (timerIntervalRef.current) {
         clearInterval(timerIntervalRef.current);
         timerIntervalRef.current = null;
       }
       
-      // Stop the media recorder
-      if (mediaRecorderRef.current && mediaRecorderRef.current.state !== "inactive") {
+      // Stop recorder properly
+      if (mediaRecorderRef.current) {
         try {
-          mediaRecorderRef.current.stop();
+          if (mediaRecorderRef.current.state !== "inactive") {
+            mediaRecorderRef.current.stop();
+          }
         } catch (e) {
-          console.warn("Error stopping recorder:", e);
+          console.warn("[Cleanup] Error stopping recorder:", e);
         }
+        mediaRecorderRef.current = null;
       }
       
-      // Stop all media tracks
+      // Stop media tracks
       if (videoStream) {
+        console.log("[Cleanup] Stopping media tracks...");
         stopAllMediaTracks(videoStream);
       }
       
-      // Clear video display
+      // Clear video element
       if (videoRef.current) {
         videoRef.current.srcObject = null;
       }
       
-      // Clear refs
-      mediaRecorderRef.current = null;
       recordedChunksRef.current = [];
+      console.log("[Cleanup] ✅ Cleanup complete");
     };
-  }, [interviewId, videoStream]);
+  }, [interviewId]);
 
   /* ── Keyboard shortcuts (unchanged) ── */
   useEffect(() => {
@@ -254,44 +343,139 @@ function InterviewRoom() {
   const submitAnswer = async () => {
     try {
       const recorder = mediaRecorderRef.current;
-      if (!recorder) { setError("Recording not initialized"); return; }
-      if (recordedChunksRef.current.length === 0) { setError("No audio recorded. Please try again."); return; }
+      if (!recorder) { 
+        setError("Recording not initialized"); 
+        return; 
+      }
+      
       setIsSubmitting(true);
+      console.log("[Submit] Stopping recorder and collecting data...");
 
-      await new Promise((resolve) => { recorder.onstop = resolve; recorder.stop(); });
+      // Stop recording and wait for onstop event
+      if (recorder.state === "recording") {
+        await new Promise((resolve) => { 
+          recorder.onstop = resolve; 
+          recorder.stop(); 
+        });
+      }
 
+      // Give data time to be processed
+      await new Promise(resolve => setTimeout(resolve, 150));
+
+      console.log(`[Submit] Recorded chunks: ${recordedChunksRef.current.length}`);
+      console.log(`[Submit] Total data size: ${recordedChunksRef.current.reduce((sum, chunk) => sum + chunk.size, 0)} bytes`);
+
+      if (recordedChunksRef.current.length === 0) { 
+        console.warn("[Submit] No audio data recorded!");
+        setError("No audio recorded. Please speak into the microphone and try again.");
+        setIsSubmitting(false);
+        
+        // Restart recording
+        try {
+          if (mediaRecorderRef.current && mediaRecorderRef.current.state === "inactive") {
+            mediaRecorderRef.current.start();
+            setIsRecording(true);
+            console.log("[Submit] Recording restarted");
+          }
+        } catch (e) {
+          console.error("[Submit] Failed to restart recording:", e);
+        }
+        return; 
+      }
+
+      // Create audio blob
       const audioBlob = new Blob(recordedChunksRef.current, { type: "audio/webm" });
-      if (audioBlob.size === 0) throw new Error("Audio blob is empty");
+      console.log(`[Submit] Audio blob created: ${audioBlob.size} bytes`);
+      
+      if (audioBlob.size === 0) {
+        throw new Error("Audio blob is empty - no data recorded");
+      }
 
+      // Transcribe audio
       let transcript = "";
-      try { transcript = await transcribeAudio(audioBlob); }
-      catch { transcript = "Unable to transcribe."; }
+      try { 
+        console.log("[Submit] Sending to transcription service...");
+        transcript = await transcribeAudio(audioBlob); 
+        console.log("[Submit] Transcription complete");
+      }
+      catch (err) { 
+        console.error("[Submit] Transcription error:", err);
+        transcript = "Unable to transcribe."; 
+      }
 
+      // Submit answer
+      console.log("[Submit] Submitting answer to API...");
       await API.post(`/interviews/${interviewId}/answer`, {
         questionId: currentQuestion.questionId,
         transcript,
       });
 
+      // Clear chunks and fetch next question
       recordedChunksRef.current = [];
       const next = await API.get(`/interviews/${interviewId}/question`);
 
       if (next.data.isLastQuestion) {
+        console.log("[Submit] Last question reached, ending interview");
         endInterview();
       } else {
+        console.log("[Submit] Fetching next question");
         setCurrentQuestion(next.data);
+        
+        // Restart recording for next question
         if (videoStream && mediaRecorderRef.current) {
-          const audioStream  = new MediaStream(videoStream.getAudioTracks());
-          const newRecorder  = new MediaRecorder(audioStream, { mimeType: "audio/webm" });
-          newRecorder.ondataavailable = (e) => {
-            if (e.data.size > 0) recordedChunksRef.current.push(e.data);
-          };
-          mediaRecorderRef.current = newRecorder;
-          newRecorder.start(1000);
-          setIsRecording(true);
+          try {
+            // Create new recorder for next question
+            const audioStream = new MediaStream(videoStream.getAudioTracks());
+            
+            // Find supported MIME type again
+            const mimeTypes = [
+              "audio/webm",
+              "audio/webm;codecs=opus",
+              "audio/mp4",
+              "audio/wav",
+              "audio/ogg",
+              ""
+            ];
+
+            let newRecorder = null;
+            for (const mime of mimeTypes) {
+              try {
+                if (mime && !MediaRecorder.isTypeSupported(mime)) continue;
+                newRecorder = new MediaRecorder(audioStream, mime ? { mimeType: mime } : {});
+                console.log(`[Submit] New recorder created with MIME: ${mime || "default"}`);
+                break;
+              } catch (e) {
+                continue;
+              }
+            }
+
+            if (newRecorder) {
+              newRecorder.ondataavailable = (e) => {
+                if (e.data && e.data.size > 0) {
+                  recordedChunksRef.current.push(e.data);
+                }
+              };
+              newRecorder.onerror = (e) => {
+                console.error("[Submit] New recorder error:", e.error);
+              };
+              
+              mediaRecorderRef.current = newRecorder;
+              newRecorder.start();
+              setIsRecording(true);
+              console.log("[Submit] ✅ New recording started");
+            }
+          } catch (err) {
+            console.error("[Submit] Failed to restart recording:", err);
+            setError("Failed to restart recording for next question");
+          }
         }
       }
+      
       setError("");
+      console.log("[Submit] ✅ Answer submitted successfully");
+      
     } catch (err) {
+      console.error("[Submit] Error:", err);
       setError(err.response?.data?.error || err.message || "Failed to submit answer.");
     } finally {
       setIsSubmitting(false);
