@@ -108,3 +108,134 @@ export default function Navbar() {
     </>
   );
 }
+
+const styles = {
+  nav: {
+    position: "sticky",
+    top: 0,
+    zIndex: 100,
+    background: "rgba(255, 255, 255, 0.97)",
+    backdropFilter: "blur(8px)",
+    borderBottom: "1px solid #ebebf0",
+    height: 64,
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    boxShadow: "0 2px 8px rgba(0, 0, 0, 0.04)"
+  },
+
+  navContainer: {
+    width: "100%",
+    maxWidth: 1400,
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "space-between",
+    padding: "0 60px"
+  },
+
+  logo: {
+    fontFamily: "'Manrope', sans-serif",
+    fontWeight: 900,
+    fontSize: 20,
+    letterSpacing: "-0.5px",
+    color: "#0f1117",
+    cursor: "pointer",
+    transition: "color 0.2s",
+    userSelect: "none"
+  },
+
+  navLinks: {
+    display: "flex",
+    gap: 32,
+    listStyle: "none",
+    padding: 0,
+    margin: 0,
+    justifyContent: "center",
+    minWidth: 120
+  },
+
+  navLink: {
+    fontSize: 14,
+    fontWeight: 500,
+    color: "#555",
+    cursor: "pointer",
+    transition: "color 0.2s",
+    paddingBottom: "4px",
+    borderBottom: "2px solid transparent"
+  },
+
+  navLinkActive: {
+    color: "#7c5af6",
+    borderBottomColor: "#7c5af6",
+    fontWeight: 600
+  },
+
+  navActions: {
+    display: "flex",
+    gap: 12,
+    alignItems: "center",
+    minWidth: 250,
+    justifyContent: "flex-end"
+  },
+
+  navBtn: {
+    background: "#fff",
+    border: "1.5px solid #0f1117",
+    color: "#0f1117",
+    padding: "8px 16px",
+    borderRadius: 100,
+    fontSize: 13,
+    fontWeight: 700,
+    display: "flex",
+    alignItems: "center",
+    gap: 6,
+    cursor: "pointer",
+    transition: "all 0.2s"
+  },
+
+  navBtnPrimary: {
+    background: "linear-gradient(135deg, #7c5af6, #4f8ef7)",
+    border: "none",
+    color: "#fff"
+  },
+
+  userSection: {
+    display: "flex",
+    alignItems: "center",
+    gap: 10,
+  },
+
+  logoutBtn: {
+    background: "transparent",
+    border: "solid 2px #040404",
+    color: "#ff4d4f",
+    fontSize: 12,
+    fontWeight: 600,
+    cursor: "pointer",
+  },
+
+  userBox: {
+    display: "flex",
+    alignItems: "center",
+    gap: 6,
+  },
+
+  avatar: {
+    width: 28,
+    height: 28,
+    borderRadius: "50%",
+    background: "#0f1117",
+    color: "#fff",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    fontSize: 13,
+    fontWeight: 700,
+  },
+
+  userName: {
+    fontSize: 13,
+    fontWeight: 600,
+    color: "#0f1117",
+  },
+};
