@@ -1,97 +1,119 @@
 // components/common/Navbar.jsx
+import { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { useAuth } from "../../context/AuthContext"; 
-// adjust path if needed
+import { useAuth } from "../../context/AuthContext";
+import LoginPromptModal from "../LoginPromptModal";
 
 export default function Navbar() {
   const navigate = useNavigate();
   const location = useLocation();
   const { user, logout } = useAuth();
-    console.log("Navbar user:", user);
-  // Navigation items for all pages
+  const [showLoginModal, setShowLoginModal] = useState(false);
+
+  // ✅ ALL navigation items (shown for everyone)
   const navItems = [
     { name: "Home", path: "/" },
-    { name: "Interviews", path: "/interviews" },
-    { name: "Schedule", path: "/schedule-interview" },
-    { name: "AI Chat", path: "/chatbot" },
-    { name: "Feedback", path: "/view-feedback" }
+    { name: "Interviews", path: "/interviews", protected: true },
+    { name: "Schedule", path: "/schedule-interview", protected: true },
+    { name: "AI Chat", path: "/chatbot", protected: true },
+    { name: "Feedback", path: "/view-feedback", protected: true }
   ];
 
   // Check if link is active
   const isActive = (path) => location.pathname === path;
 
+  // ✅ Handle protected link clicks - show modal if not logged in
+  const handleNavClick = (path, isProtected) => {
+    if (isProtected && !user) {
+      setShowLoginModal(true);
+    } else {
+      navigate(path);
+    }
+  };
+
   return (
-    <nav style={styles.nav}>
-      <div style={styles.navContainer}>
-        {/* Logo */}
-        <span
-          style={styles.logo}
-          onClick={() => navigate("/")}
-          title="Go to Home"
-        >
-          InterviewX
-        </span>
+    <>
+      <nav style={styles.nav}>
+        <div style={styles.navContainer}>
+          {/* Logo */}
+          <span
+            style={styles.logo}
+            onClick={() => navigate("/")}
+            title="Go to Home"
+          >
+            InterviewX
+          </span>
 
-        {/* Navigation Links */}
-        <ul style={styles.navLinks}>
-          {navItems.map((item) => (
-            <li key={item.name}>
-              <span
-                onClick={() => navigate(item.path)}
-                style={{
-                  ...styles.navLink,
-                  ...(isActive(item.path)
-                    ? styles.navLinkActive
-                    : {})
-                }}
+          {/* Navigation Links */}
+          <ul style={styles.navLinks}>
+            {navItems.map((item) => (
+              <li key={item.name}>
+                <span
+                  onClick={() => handleNavClick(item.path, item.protected)}
+                  style={{
+                    ...styles.navLink,
+                    ...(isActive(item.path) ? styles.navLinkActive : {}),
+                  }}
+                  title={item.protected && !user ? "Sign in to access" : ""}
+                >
+                  {item.name}
+                </span>
+              </li>
+            ))}
+          </ul>
+
+          {/* Right Side Buttons */}
+          <div style={styles.navActions}>
+            <button
+              onClick={() => {
+                if (!user) {
+                  setShowLoginModal(true);
+                } else {
+                  navigate("/interviews");
+                }
+              }}
+              style={styles.navBtn}
+            >
+              {user ? "🎤 Start Interview" : "🎤 Start Interview"}
+            </button>
+            {user ? (
+              <div style={styles.userSection}>
+                <div style={styles.userBox}>
+                  <div style={styles.avatar}>
+                    {user?.name?.charAt(0)?.toUpperCase() || "U"}
+                  </div>
+                  <span style={styles.userName}>{user?.name || "User"}</span>
+                </div>
+
+                <button
+                  onClick={() => {
+                    logout();
+                    navigate("/");
+                  }}
+                  style={styles.logoutBtn}
+                >
+                  Logout
+                </button>
+              </div>
+            ) : (
+              <button
+                onClick={() => navigate("/login")}
+                style={{ ...styles.navBtn, ...styles.navBtnPrimary }}
               >
-                {item.name}
-              </span>
-            </li>
-          ))}
-        </ul>
-
-        {/* Right Side Buttons */}
-        <div style={styles.navActions}>
-         <button
-  onClick={() =>
-    user ? navigate("/interviews") : navigate("/login")
-  }
-  style={styles.navBtn}
->
-  {user ? "🎤 Start Interview" : "📋 Feedback"}
-</button>
- {user ? (
-  <div style={styles.userSection}>
-    <div style={styles.userBox}>
-      <div style={styles.avatar}>
-       {user?.name?.charAt(0)?.toUpperCase() || "U"}
-      </div>
-      <span style={styles.userName}>{user?.name || "User"}</span>
-    </div>
-
-    <button
-      onClick={() => {
-        logout();
-        navigate("/");
-      }}
-      style={styles.logoutBtn}
-    >
-      Logout
-    </button>
-  </div>
-) : (
-  <button
-    onClick={() => navigate("/login")}
-    style={{ ...styles.navBtn, ...styles.navBtnPrimary }}
-  >
-    Login
-    <span style={styles.navCtaIcon}>↗</span>
-  </button>
-)}
+                Login
+                <span style={styles.navCtaIcon}>↗</span>
+              </button>
+            )}
+          </div>
         </div>
-      </div>
-    </nav>
+      </nav>
+
+      {/* Login Prompt Modal */}
+      <LoginPromptModal
+        isOpen={showLoginModal}
+        onClose={() => setShowLoginModal(false)}
+      />
+    </>
   );
 }
 
@@ -160,8 +182,8 @@ const styles = {
     display: "flex",
     gap: 12,
     alignItems: "center",
-    minWidth: 250,   // ⬅️ balances right side
-  justifyContent: "flex-end"
+    minWidth: 250,
+    justifyContent: "flex-end"
   },
 
   navBtn: {
@@ -189,43 +211,44 @@ const styles = {
     fontSize: 14,
     fontWeight: 800
   },
+
   userSection: {
-  display: "flex",
-  alignItems: "center",
-  gap: 10,
-},
+    display: "flex",
+    alignItems: "center",
+    gap: 10,
+  },
 
-logoutBtn: {
-  background: "transparent",
-  border: "solid 2px #040404",
-  color: "#ff4d4f",
-  fontSize: 12,
-  fontWeight: 600,
-  cursor: "pointer",
-},
+  logoutBtn: {
+    background: "transparent",
+    border: "solid 2px #040404",
+    color: "#ff4d4f",
+    fontSize: 12,
+    fontWeight: 600,
+    cursor: "pointer",
+  },
 
-userBox: {
-  display: "flex",
-  alignItems: "center",
-  gap: 6,
-},
+  userBox: {
+    display: "flex",
+    alignItems: "center",
+    gap: 6,
+  },
 
-avatar: {
-  width: 28,
-  height: 28,
-  borderRadius: "50%",
-  background: "#0f1117",
-  color: "#fff",
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "center",
-  fontSize: 13,
-  fontWeight: 700,
-},
+  avatar: {
+    width: 28,
+    height: 28,
+    borderRadius: "50%",
+    background: "#0f1117",
+    color: "#fff",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    fontSize: 13,
+    fontWeight: 700,
+  },
 
-userName: {
-  fontSize: 13,
-  fontWeight: 600,
-  color: "#0f1117",
-},
+  userName: {
+    fontSize: 13,
+    fontWeight: 600,
+    color: "#0f1117",
+  },
 };
