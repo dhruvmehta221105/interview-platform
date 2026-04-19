@@ -1,15 +1,15 @@
 // components/feedback/RecommendationButtons.jsx
 export default function RecommendationButtons({ recommendation, onSelect }) {
   const recommendations = [
-    { value: "Strongly Hire", color: "#22d3a4", bg: "#e6faf5", icon: "🚀" },
-    { value: "Hire", color: "#4f8ef7", bg: "#e8f2ff", icon: "✅" },
-    { value: "Maybe", color: "#f5c842", bg: "#fffbe6", icon: "🤔" },
-    { value: "No Hire", color: "#f25f6a", bg: "#fff0f1", icon: "❌" },
+    { value: "Strongly Hire", color: "#22d3a4", bg: "#e6faf5", icon: "" },
+    { value: "Hire", color: "#4f8ef7", bg: "#e8f2ff", icon: "" },
+    { value: "Maybe", color: "#f5c842", bg: "#fffbe6", icon: "" },
+    { value: "No Hire", color: "#f25f6a", bg: "#fff0f1", icon: "" },
   ];
 
   return (
     <div style={s.recOptions}>
-      {recommendations.map(({ value, color, bg, icon }) => (
+      {recommendations.map(({ value, color, bg }) => (
         <button
           key={value}
           type="button"
@@ -23,7 +23,7 @@ export default function RecommendationButtons({ recommendation, onSelect }) {
             boxShadow: recommendation === value ? `0 2px 12px ${color}33` : "none",
           }}
         >
-          <span>{icon}</span> {value}
+          {value}
         </button>
       ))}
     </div>

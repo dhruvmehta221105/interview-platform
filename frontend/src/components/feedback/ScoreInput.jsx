@@ -27,7 +27,7 @@ export default function ScoreInput({ field, label, value, hoveredStars, onStarCl
             onMouseEnter={() => onMouseEnter(field, n)}
             onMouseLeave={() => onMouseLeave(field, 0)}
           >
-            ★
+            ◆
           </span>
         ))}
       </div>
