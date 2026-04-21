@@ -3,6 +3,7 @@ import { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import LoginPromptModal from "../LoginPromptModal";
+import logo from "../../assets/logo.png";
 
 export default function Navbar() {
   const navigate = useNavigate();
@@ -34,9 +35,13 @@ export default function Navbar() {
         <div style={styles.navContainer}>
 
           {/* Logo */}
-          <span style={styles.logo} onClick={() => navigate("/")}>
-            InterviewX
-          </span>
+          <div
+  onClick={() => navigate("/")}
+  style={{ display: "flex", alignItems: "center", gap: "8px", cursor: "pointer" }}
+>
+  <img src={logo} alt="logo" style={{ width: "32px", height: "32px" }} />
+  <span style={styles.logo}>InterviewX</span>
+</div>
 
           {/* Navigation Links */}
           <ul style={styles.navLinks}>
