@@ -8,16 +8,25 @@ import logo from "../../assets/logo.png";
 export default function Navbar() {
   const navigate = useNavigate();
   const location = useLocation();
-  const { user, logout } = useAuth();
+  const { user, logout, isAdmin } = useAuth();
   const [showLoginModal, setShowLoginModal] = useState(false);
 
-  const navItems = [
+  // Base navigation items for all users
+  const baseItems = [
     { name: "Home", path: "/" },
     { name: "Interviews", path: "/interviews", protected: true },
     { name: "Schedule", path: "/schedule-interview", protected: true },
     { name: "AI Chat", path: "/chatbot", protected: true },
-    { name: "Feedback", path: "/view-feedback", protected: true }
+    { name: "View Feedback", path: "/view-feedback", protected: true }
   ];
+
+  // Add "Add Feedback" only for admins
+  const navItems = isAdmin()
+    ? [
+        ...baseItems,
+        { name: "Add Feedback", path: "/add-feedback", protected: true, adminOnly: true }
+      ]
+    : baseItems;
 
   const isActive = (path) => location.pathname === path;
 
@@ -52,6 +61,7 @@ export default function Navbar() {
                   style={{
                     ...styles.navLink,
                     ...(isActive(item.path) ? styles.navLinkActive : {}),
+                    ...(item.adminOnly ? { color: "#ff6b6b", fontWeight: 600 } : {}),
                   }}
                 >
                   {item.name}
@@ -80,6 +90,11 @@ export default function Navbar() {
                   <span style={styles.userName}>
                     {user?.name || "User"}
                   </span>
+                  {isAdmin() && (
+                    <span style={{ fontSize: 10, color: "#ff6b6b", fontWeight: 700, marginLeft: 4 }}>
+                      ADMIN
+                    </span>
+                  )}
                 </div>
 
                 <button

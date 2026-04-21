@@ -1,8 +1,26 @@
 // components/common/FeedbackNav.jsx
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../../context/AuthContext";
 
 export default function FeedbackNav() {
   const navigate = useNavigate();
+  const { user, logout, isAdmin } = useAuth();
+
+  const baseLinks = [
+    { name: "Home", path: "/" },
+    { name: "Start Interview", path: "/" },
+    { name: "AI Chatbot", path: "/" },
+    { name: "View Feedback", path: "/view-feedback" }
+  ];
+
+  // Add "Add Feedback" only for admins
+  const navLinks = isAdmin()
+    ? [
+        ...baseLinks.filter(item => item.name !== "View Feedback"),
+        { name: "Add Feedback", path: "/add-feedback", adminOnly: true },
+        { name: "View Feedback", path: "/view-feedback" }
+      ]
+    : baseLinks;
 
   return (
     <nav style={s.nav}>
@@ -13,24 +31,45 @@ export default function FeedbackNav() {
         </span>
 
         <ul style={s.navLinks}>
-          {[
-            { name: "Home", path: "/" },
-            { name: "Start Interview", path: "/" },
-            { name: "AI Chatbot", path: "/" },
-            { name: "Recordings", path: "/" },
-            { name: "Feedback", path: "/view-feedback" }
-          ].map((item) => (
+          {navLinks.map((item) => (
             <li key={item.name}>
-              <span onClick={() => navigate(item.path)} style={s.navLink}>
+              <span 
+                onClick={() => navigate(item.path)} 
+                style={{
+                  ...s.navLink,
+                  ...(item.adminOnly ? { color: "#ff6b6b", fontWeight: 700 } : {}),
+                }}
+              >
                 {item.name}
               </span>
             </li>
           ))}
         </ul>
 
-        <button style={s.navCta}>
-          Login / Sign Up <span style={s.navCtaIcon}>↗</span>
-        </button>
+        {user ? (
+          <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
+            <span style={{ fontSize: 14, fontWeight: 500 }}>
+              {user.name}
+              {isAdmin() && <span style={{ color: "#ff6b6b", marginLeft: 8 }}>👑 ADMIN</span>}
+            </span>
+            <button
+              onClick={() => {
+                logout();
+                navigate("/");
+              }}
+              style={s.navCta}
+            >
+              Logout
+            </button>
+          </div>
+        ) : (
+          <button
+            onClick={() => navigate("/login")}
+            style={s.navCta}
+          >
+            Login / Sign Up <span style={s.navCtaIcon}>↗</span>
+          </button>
+        )}
 
       </div>
     </nav>

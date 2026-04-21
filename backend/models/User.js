@@ -17,8 +17,8 @@ const userSchema = new mongoose.Schema(
     },
     role: {
       type: String,
-      enum: ["candidate", "interviewer"],
-      default: "candidate",
+      enum: ["user", "admin"],
+      default: "user",
     },
     totalInterviews: { type: Number, default: 0 },
 avgScore: { type: Number, default: 0 },

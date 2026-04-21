@@ -22,6 +22,7 @@ const registerUser = async (req, res) => {
       name,
       email,
       password: hashedPassword,
+      role: "user", // Always register as user, not admin
     });
 
     return res.status(201).json({
@@ -29,6 +30,7 @@ const registerUser = async (req, res) => {
         _id: user._id,
         name: user.name,
         email: user.email,
+        role: user.role,
       },
       token: generateToken(user._id),
     });
@@ -53,6 +55,7 @@ const loginUser = async (req, res) => {
           _id: user._id,
           name: user.name,
           email: user.email,
+          role: user.role,
         },
         token: generateToken(user._id),
       });
