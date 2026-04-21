@@ -1,3 +1,5 @@
+import { useEffect, useState } from "react";
+
 export default function Hero({ searchRole, setSearchRole, searchCompany, setSearchCompany }) {
   const profiles = [
     {
@@ -31,6 +33,18 @@ export default function Hero({ searchRole, setSearchRole, searchCompany, setSear
       label: "Data Scientist"
     }
   ];
+
+  const loopProfiles = [...profiles, ...profiles];
+
+  // 🔥 Scroll logic (auto sliding)
+  const [scroll, setScroll] = useState(0);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setScroll((prev) => (prev >= 1000 ? 0 : prev + 1));
+    }, 20);
+    return () => clearInterval(interval);
+  }, []);
 
   return (
     <section style={g.hero}>
@@ -79,16 +93,25 @@ export default function Hero({ searchRole, setSearchRole, searchCompany, setSear
         </div>
       </div>
 
-      {/* Cards */}
-      <div style={g.photoStrip}>
-        {profiles.map((p, i) => (
-          <div key={i} style={g.photoWrapper}>
-            <div style={{ ...g.photoCard, background: p.bg }}>
-              <img src={p.img} alt={p.label} style={g.photoImg} />
+      {/* 🔥 Sliding Cards */}
+      <div style={{ overflow: "hidden", width: "100%", marginTop: 40 }}>
+        <div
+          style={{
+            display: "flex",
+            gap: 16,
+            transform: `translateX(-${scroll}px)`,
+            transition: "transform 0.03s linear",
+          }}
+        >
+          {loopProfiles.map((p, i) => (
+            <div key={i} style={g.photoWrapper}>
+              <div style={{ ...g.photoCard, background: p.bg }}>
+                <img src={p.img} alt={p.label} style={g.photoImg} />
+              </div>
+              <div style={g.photoLabel}>{p.label}</div>
             </div>
-            <div style={g.photoLabel}>{p.label}</div>
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
     </section>
   );
@@ -192,12 +215,6 @@ const g = {
     border: "none",
     borderRadius: 100,
     padding: "8px 16px",
-  },
-
-  photoStrip: {
-    display: "flex",
-    gap: 16,
-    marginTop: 40,
   },
 
   photoWrapper: {

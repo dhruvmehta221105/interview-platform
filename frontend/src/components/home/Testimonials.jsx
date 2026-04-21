@@ -1,3 +1,4 @@
+
 // components/home/Testimonials.jsx
 const TESTIMONIALS = [
   { name: "Manuel Rikob", title: "CEO of Intel", text: "Working with Master in me has been an incredibly painless experience.", dark: true },
