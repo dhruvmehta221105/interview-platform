@@ -1,5 +1,6 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import ProtectedRoute from "./components/ProtectedRoute";
+import AdminRoute from "./components/AdminRoute";
 
 // Pages
 import Homepage from "./pages/HomePage";
@@ -45,14 +46,18 @@ function App() {
           path="/interview-result/:id" 
           element={<ProtectedRoute><InterviewResult /></ProtectedRoute>} 
         />
+        
+        {/* 🔴 ADMIN ONLY PAGES - Only admins can access */}
         <Route 
           path="/add-feedback" 
-          element={<ProtectedRoute><AddFeedback /></ProtectedRoute>} 
+          element={<AdminRoute><AddFeedback /></AdminRoute>} 
         />
         <Route 
           path="/add-feedback/:id" 
-          element={<ProtectedRoute><AddFeedback /></ProtectedRoute>} 
+          element={<AdminRoute><AddFeedback /></AdminRoute>} 
         />
+        
+        {/* 🔴 PROTECTED PAGES - All logged-in users can view feedback */}
         <Route 
           path="/view-feedback" 
           element={<ProtectedRoute><ViewFeedback /></ProtectedRoute>} 

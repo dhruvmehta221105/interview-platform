@@ -61,29 +61,49 @@ function InterviewRoom() {
   /* ── Cleanup on unmount (master cleanup) ── */
   useEffect(() => {
     return () => {
+      console.log("[Cleanup] Component unmounting, cleaning up all resources...");
+      
       // Stop timer
       if (timerIntervalRef.current) {
         clearInterval(timerIntervalRef.current);
+        timerIntervalRef.current = null;
+        console.log("[Cleanup] ✅ Timer stopped");
       }
+      
       // Stop recorder
-      if (mediaRecorderRef.current?.state !== 'inactive') {
+      if (mediaRecorderRef.current) {
         try {
-          mediaRecorderRef.current?.stop();
+          if (mediaRecorderRef.current.state !== 'inactive') {
+            mediaRecorderRef.current.stop();
+          }
         } catch (e) {
-          console.warn("Error stopping recorder:", e);
+          console.warn("[Cleanup] Error stopping recorder:", e);
         }
+        mediaRecorderRef.current = null;
       }
+      console.log("[Cleanup] ✅ Recorder cleaned up");
+      
       // Stop all media tracks
       if (videoStream) {
+        console.log("[Cleanup] Stopping media tracks...");
         stopAllMediaTracks(videoStream);
+        console.log("[Cleanup] ✅ Media tracks stopped");
       }
+      
       // Clear video display
       if (videoRef.current) {
-        videoRef.current.srcObject = null;
+        try {
+          videoRef.current.pause();
+          videoRef.current.srcObject = null;
+          console.log("[Cleanup] ✅ Video element cleared");
+        } catch (e) {
+          console.warn("[Cleanup] Error clearing video:", e);
+        }
       }
+      
       // Clear refs
-      mediaRecorderRef.current = null;
       recordedChunksRef.current = [];
+      console.log("[Cleanup] ✅ All cleanup complete");
     };
   }, []);
 
@@ -139,9 +159,29 @@ function InterviewRoom() {
           throw new Error("No audio track available from microphone");
         }
 
+        console.log("[Init] Setting video stream to ref...");
         setVideoStream(stream);
+        
+        // Attach stream to video element with proper error handling
         if (videoRef.current) {
-          videoRef.current.srcObject = stream;
+          try {
+            console.log("[Init] Video element found, attaching stream...");
+            videoRef.current.srcObject = stream;
+            
+            // Ensure video autoplays
+            videoRef.current.play().catch(err => {
+              console.log("[Init] Auto-play blocked:", err);
+              // This is OK, user gesture might be required
+            });
+            
+            console.log("[Init] ✅ Stream attached to video element");
+          } catch (err) {
+            console.error("[Init] ❌ Error attaching stream to video:", err);
+            throw new Error(`Failed to attach stream to video element: ${err.message}`);
+          }
+        } else {
+          console.warn("[Init] ⚠️ Video ref not found!");
+          throw new Error("Video element reference not available");
         }
 
         // ✅ CREATE AUDIO-ONLY STREAM FOR RECORDING
@@ -297,7 +337,36 @@ function InterviewRoom() {
     };
   }, [interviewId]);
 
-  /* ── Keyboard shortcuts (unchanged) ── */
+  /* ── Handle page unload/leave ── */
+  useEffect(() => {
+    const handleBeforeUnload = (e) => {
+      if (videoStream) {
+        // Stop camera immediately on page leave
+        console.log("[BeforeUnload] Stopping camera as user is leaving page...");
+        try {
+          stopAllMediaTracks(videoStream);
+          if (videoRef.current) {
+            videoRef.current.pause();
+            videoRef.current.srcObject = null;
+          }
+        } catch (err) {
+          console.error("[BeforeUnload] Error stopping camera:", err);
+        }
+      }
+      
+      // Show warning if interview is active
+      if (isRecording || (videoStream && !loading)) {
+        e.preventDefault();
+        e.returnValue = '';
+        return '';
+      }
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+    };
+  }, [videoStream, isRecording, loading]);
   useEffect(() => {
     const handler = (e) => {
       if (e.code === "KeyM")  toggleMicrophone();
@@ -485,40 +554,83 @@ function InterviewRoom() {
   /* ── End ── */
   const endInterview = async () => {
     try {
-      // Stop timer first
+      console.log("[EndInterview] Starting interview end sequence...");
+      
+      // 1️⃣ Stop timer first
       if (timerIntervalRef.current) {
         clearInterval(timerIntervalRef.current);
         timerIntervalRef.current = null;
+        console.log("[EndInterview] ✅ Timer stopped");
       }
       
-      // Stop media recorder
-      if (mediaRecorderRef.current?.state !== "inactive") {
+      // 2️⃣ Stop media recorder
+      if (mediaRecorderRef.current) {
         try {
-          mediaRecorderRef.current?.stop();
+          if (mediaRecorderRef.current.state !== "inactive") {
+            console.log("[EndInterview] Stopping media recorder...");
+            mediaRecorderRef.current.stop();
+            // Wait briefly for final data
+            await new Promise(resolve => setTimeout(resolve, 100));
+          }
         } catch (e) {
-          console.warn("Error stopping recorder:", e);
+          console.warn("[EndInterview] Error stopping recorder:", e);
         }
       }
-      mediaRecorderRef.current = null;
-      recordedChunksRef.current = [];
+      console.log("[EndInterview] ✅ Recorder stopped");
       
-      // Stop all media tracks
+      // 3️⃣ Stop all media tracks (camera + microphone)
       if (videoStream) {
-        stopAllMediaTracks(videoStream);
+        console.log("[EndInterview] Stopping all media tracks (camera/mic)...");
+        try {
+          const videoTracks = videoStream.getVideoTracks();
+          const audioTracks = videoStream.getAudioTracks();
+          
+          videoTracks.forEach(track => {
+            console.log("[EndInterview] Stopping video track:", track.label);
+            track.stop();
+            track.enabled = false;
+          });
+          
+          audioTracks.forEach(track => {
+            console.log("[EndInterview] Stopping audio track:", track.label);
+            track.stop();
+            track.enabled = false;
+          });
+          
+          console.log(`[EndInterview] ✅ Stopped ${videoTracks.length} video track(s) and ${audioTracks.length} audio track(s)`);
+        } catch (e) {
+          console.error("[EndInterview] Error stopping tracks:", e);
+        }
       }
       
-      // Clear video display
+      // 4️⃣ Clear video element and disconnect stream
       if (videoRef.current) {
-        videoRef.current.srcObject = null;
+        console.log("[EndInterview] Clearing video element...");
+        try {
+          videoRef.current.pause();
+          videoRef.current.srcObject = null;
+          console.log("[EndInterview] ✅ Video element cleared");
+        } catch (e) {
+          console.warn("[EndInterview] Error clearing video element:", e);
+        }
       }
       
+      // 5️⃣ Clean up state
       setVideoStream(null);
       setIsRecording(false);
+      mediaRecorderRef.current = null;
+      recordedChunksRef.current = [];
+      console.log("[EndInterview] ✅ State cleaned up");
       
+      // 6️⃣ Submit end request and navigate
+      console.log("[EndInterview] Sending end request to API...");
       const response = await API.post(`/interviews/${interviewId}/end`);
+      console.log("[EndInterview] ✅ Interview ended successfully");
+      
       navigate(`/interview-result/${interviewId}`, { state: { interview: response.data } });
     } catch (err) {
-      setError("Failed to end interview");
+      console.error("[EndInterview] ❌ Error ending interview:", err);
+      setError("Failed to end interview: " + (err.message || "Unknown error"));
     }
   };
 
@@ -590,7 +702,17 @@ function InterviewRoom() {
 
           {/* Video */}
           <div style={c.videoWrap}>
-            <video ref={videoRef} autoPlay playsInline muted style={c.video} />
+            <video 
+              ref={videoRef} 
+              autoPlay={true}
+              playsInline={true}
+              muted={true}
+              style={c.video}
+              onLoadedMetadata={() => console.log("[Video] Metadata loaded - camera stream active")}
+              onCanPlay={() => console.log("[Video] Ready to play - camera is ON")}
+              onPlay={() => console.log("[Video] Video playing - camera feed visible")}
+              onError={(e) => console.error("[Video] Error:", e)}
+            />
 
             {/* overlay badges */}
             <div style={c.videoTopLeft}>
@@ -918,7 +1040,7 @@ const c = {
     position: "relative",
     minHeight: 0,
   },
-  video: { width: "100%", height: "100%", objectFit: "cover", display: "block", transform: "scaleX(-1)" },
+  video: { width: "100%", height: "100%", objectFit: "cover", display: "block" },
   videoTopLeft: { position: "absolute", top: 14, left: 14 },
   videoTopRight: { position: "absolute", top: 14, right: 14 },
   recBadge: {

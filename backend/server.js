@@ -28,6 +28,7 @@ app.use(express.urlencoded({ limit: "50mb", extended: true }));
 const interviewRoutes = require("./routes/InterviewRoutes");
 const feedbackRoutes = require("./routes/FeedbackRoutes");
 const authRoutes = require("./routes/authRoutes");
+const adminRoutes = require("./routes/adminRoutes");
 const profileRoutes = require("./routes/profileRoutes");
 const whisperRoutes = require("./routes/whisperRoutes"); // ✅ added
 const chatRoutes = require("./routes/chatRoutes"); // ✅ added
@@ -35,6 +36,7 @@ const chatRoutes = require("./routes/chatRoutes"); // ✅ added
 app.use("/api/interviews", interviewRoutes);
 app.use("/api/feedback", feedbackRoutes);
 app.use("/api/auth", authRoutes);
+app.use("/api/admin", adminRoutes);
 app.use("/api/profile", profileRoutes);
 app.use("/api/whisper", whisperRoutes); // ✅ important
 app.use("/api/chat", chatRoutes); // ✅ important
