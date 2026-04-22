@@ -32,6 +32,7 @@ const adminRoutes = require("./routes/adminRoutes");
 const profileRoutes = require("./routes/profileRoutes");
 const whisperRoutes = require("./routes/whisperRoutes"); // ✅ added
 const chatRoutes = require("./routes/chatRoutes"); // ✅ added
+const subscriberRoutes = require("./routes/subscriberRoutes");
 
 app.use("/api/interviews", interviewRoutes);
 app.use("/api/feedback", feedbackRoutes);
@@ -40,6 +41,7 @@ app.use("/api/admin", adminRoutes);
 app.use("/api/profile", profileRoutes);
 app.use("/api/whisper", whisperRoutes); // ✅ important
 app.use("/api/chat", chatRoutes); // ✅ important
+app.use("/api/subscribe", subscriberRoutes);
 
 // 🟢 Test route
 app.get("/", (req, res) => {

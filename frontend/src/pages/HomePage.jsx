@@ -5,6 +5,7 @@ import Hero from "../components/home/Hero";
 import WhyChoose from "../components/home/WhyChoose";
 import HowItWorks from "../components/home/HowItWorks";
 import Testimonials from "../components/home/Testimonials";
+import { useAuth } from "../context/AuthContext";
 
 /* ─── DATA ─────────────────────────────────────────────── */
 const LOGOS = ["▲","R7","✦","ƒ","◆","Ⓢ","⬡","♫","abbc","▽","⊕","⊘","≋","◉","⬡","☟","⬡","☁","🎵","≡","✦","⬡","✦"];
@@ -44,13 +45,24 @@ const FAQS = [
 /* ─── COMPONENT ─────────────────────────────────────────── */
 export default function HomePage() {
   const navigate = useNavigate();
+  const { user } = useAuth();
+const [showPopup, setShowPopup] = useState(false);
   const [activeCategory, setActiveCategory] = useState("UI Designer");
   const [openFaq, setOpenFaq] = useState(3);
   const [email, setEmail] = useState("");
   const [portfolioIdx, setPortfolioIdx] = useState(0);
   const [searchRole, setSearchRole] = useState("");
   const [searchCompany, setSearchCompany] = useState("");
+const handleProtectedClick = (path) => {
+  console.log("CLICKED, user:", user);
 
+  if (!user) {
+    console.log("SETTING POPUP TRUE");
+    setShowPopup(true);
+  } else {
+    navigate(path);
+  }
+};
   return (
     <div style={g.root}>
       <style>{`
@@ -83,20 +95,59 @@ export default function HomePage() {
         .float-card2 { animation: float 5s ease-in-out infinite 1s; }
       `}</style>
 
-      <Navbar />
+    <Navbar setShowPopup={setShowPopup} />
       <Hero searchRole={searchRole} setSearchRole={setSearchRole} searchCompany={searchCompany} setSearchCompany={setSearchCompany} />
       <WhyChoose />
       <ClientLogos />
       <HowItWorks />
       <Testimonials />
 
-      <TopTalentPortfolio portfolioIdx={portfolioIdx} setPortfolioIdx={setPortfolioIdx} />
-      <DiscoverMasters activeCategory={activeCategory} setActiveCategory={setActiveCategory} />
-      <Faqs openFaq={openFaq} setOpenFaq={setOpenFaq} />
+     <TopTalentPortfolio 
+  portfolioIdx={portfolioIdx} 
+  setPortfolioIdx={setPortfolioIdx}
+  handleProtectedClick={handleProtectedClick}
+/>
+     <DiscoverMasters 
+  activeCategory={activeCategory} 
+  setActiveCategory={setActiveCategory} 
+  handleProtectedClick={handleProtectedClick}
+  showPopup={showPopup}
+  setShowPopup={setShowPopup}
+/>
       <NewsletterCta email={email} setEmail={setEmail} />
       <Footer />
+
+{/* Popup */}
+{showPopup && (
+  <div style={popupStyles.overlay}>
+    <div style={popupStyles.box}>
+      <h3 style={{ marginBottom: 10 }}>Login Required</h3>
+      <p style={{ fontSize: 14, color: "#555", marginBottom: 20 }}>
+        Please login or sign up to access this feature.
+      </p>
+
+      <div style={{ display: "flex", gap: 10, justifyContent: "center" }}>
+        <button
+          onClick={() => navigate("/login")}
+          style={popupStyles.primaryBtn}
+        >
+          Login
+        </button>
+
+        <button
+          onClick={() => setShowPopup(false)}
+          style={popupStyles.secondaryBtn}
+        >
+          Cancel
+        </button>
+      </div>
     </div>
-  );
+  </div>
+)}
+
+  </div>
+);
+  
 }
 
 /* ─── CLIENT LOGOS COMPONENT ─────────────────────────────────────── */
@@ -119,7 +170,7 @@ function ClientLogos() {
 }
 
 /* ─── TOP TALENT PORTFOLIO COMPONENT ─────────────────────────────────────── */
-function TopTalentPortfolio({ portfolioIdx, setPortfolioIdx }) {
+function TopTalentPortfolio({ portfolioIdx, setPortfolioIdx, handleProtectedClick }) {
   const visiblePortfolio = PORTFOLIO.slice(portfolioIdx, portfolioIdx + 3);
 
   return (
@@ -134,7 +185,13 @@ function TopTalentPortfolio({ portfolioIdx, setPortfolioIdx }) {
 
       <div style={g.portfolioGrid}>
         {visiblePortfolio.map((p, i) => (
-          <div key={i} className="portfolio-card" style={{ ...g.portfolioCard, background: `linear-gradient(180deg, ${p.bg}88 0%, ${p.bg} 100%)` }}>
+         <div 
+  key={i} 
+  className="portfolio-card" 
+  style={
+    {...g.portfolioCard}}
+  onClick={() => handleProtectedClick("/interviews")}
+>
             <div style={g.portfolioAvatar}>{p.name.charAt(0)}</div>
             <div style={g.portfolioInfo}>
               <div style={{ fontSize: 18, fontWeight: 700, color: "#fff" }}>{p.name}</div>
@@ -149,7 +206,13 @@ function TopTalentPortfolio({ portfolioIdx, setPortfolioIdx }) {
 }
 
 /* ─── DISCOVER MASTERS COMPONENT ─────────────────────────────────────── */
-function DiscoverMasters({ activeCategory, setActiveCategory }) {
+function DiscoverMasters({ 
+  activeCategory, 
+  setActiveCategory, 
+  handleProtectedClick,
+  showPopup,
+  setShowPopup
+}) {
   return (
     <section style={{ ...g.section, background: "#f8f9fc" }}>
       <div style={g.sectionCenter}>
@@ -175,12 +238,28 @@ function DiscoverMasters({ activeCategory, setActiveCategory }) {
 
       {/* Expert grid */}
       <div style={g.expertsWrap}>
-        <ExpertSection title="Technical Evaluator" experts={EXPERTS.technical} />
-        <ExpertSection title="HR Evaluator" experts={EXPERTS.hr} />
+<ExpertSection 
+  title="Technical Evaluator" 
+  experts={EXPERTS.technical} 
+  handleProtectedClick={handleProtectedClick}
+  showPopup={showPopup}
+  setShowPopup={setShowPopup}
+/>
+
+<ExpertSection 
+  title="HR Evaluator" 
+  experts={EXPERTS.hr} 
+  handleProtectedClick={handleProtectedClick}
+  showPopup={showPopup}
+  setShowPopup={setShowPopup}
+/>
       </div>
 
       <div style={{ textAlign: "center", marginTop: 32 }}>
-        <button style={g.viewAllBtn}>View All <span style={g.viewAllIcon}>↗</span></button>
+       <button 
+  style={g.viewAllBtn}
+  onClick={() => handleProtectedClick("/interviews")}
+>View All <span style={g.viewAllIcon}>↗</span></button>
       </div>
     </section>
   );
@@ -211,24 +290,69 @@ function Faqs({ openFaq, setOpenFaq }) {
     </section>
   );
 }
-
-/* ─── NEWSLETTER CTA COMPONENT ─────────────────────────────────────── */
 function NewsletterCta({ email, setEmail }) {
+  const [status, setStatus] = useState({ msg: "", type: "" });
+  const [loading, setLoading] = useState(false);
+
+  const handleSubmit = async () => {
+    if (!email || !email.includes("@")) {
+      setStatus({ msg: "Please enter a valid email.", type: "error" });
+      return;
+    }
+
+    setLoading(true);
+    setStatus({ msg: "", type: "" });
+
+    try {
+      const res = await fetch("http://localhost:5000/api/subscribe", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
+      });
+
+      const data = await res.json();
+
+      if (data.success) {
+        setStatus({ msg: "🎉 Successfully registered! Check your inbox.", type: "success" });
+        setEmail("");
+      } else {
+        setStatus({ msg: data.message, type: "error" });
+      }
+    } catch (err) {
+      setStatus({ msg: "Server error. Please try again.", type: "error" });
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <section style={g.ctaSection}>
-      <h2 style={{ fontSize: 36, fontWeight: 800, color: "#0f1117", marginBottom: 12, maxWidth: 500, lineHeight: 1.2 }}>Join ambitious professionals and unlock your dream career today</h2>
-      <p style={{ color: "#666", marginBottom: 28, maxWidth: 460, textAlign: "center" }}>Unlock your true potential and discover a world of opportunities that align with your skills, interests, and aspirations</p>
+      <h2>Join ambitious professionals...</h2>
+
       <div style={g.ctaForm}>
         <div style={g.ctaInput}>
-          <span style={{ color: "#aaa" }}>✉</span>
-          <input style={{ border: "none", outline: "none", flex: 1, fontSize: 14, fontFamily: "inherit", background: "transparent", color: "#0f1117" }} placeholder="Your mail address" value={email} onChange={e => setEmail(e.target.value)} />
+          <span>✉</span>
+          <input
+            placeholder="Your mail address"
+            value={email}
+            onChange={e => setEmail(e.target.value)}
+            onKeyDown={e => e.key === "Enter" && handleSubmit()}
+          />
         </div>
-        <button style={g.ctaBtn}>Join Us</button>
+
+        <button onClick={handleSubmit} disabled={loading} style={{ ...g.ctaBtn, opacity: loading ? 0.7 : 1 }}>
+          {loading ? "Joining..." : "Join Us"}
+        </button>
       </div>
+
+      {status.msg && (
+        <p style={{ marginTop: 14, fontSize: 14, fontWeight: 600, color: status.type === "success" ? "#16a34a" : "#dc2626" }}>
+          {status.msg}
+        </p>
+      )}
     </section>
   );
 }
-
 /* ─── FOOTER COMPONENT ─────────────────────────────────────── */
 function Footer() {
   return (
@@ -264,13 +388,19 @@ function Footer() {
 }
 
 /* ─── Expert Section Sub-component ─────────────────────── */
-function ExpertSection({ title, experts }) {
+function ExpertSection({ title, experts, handleProtectedClick, showPopup, setShowPopup }) {
+  const navigate = useNavigate();
   return (
     <div style={{ flex:1 }}>
       <div style={es.header}>{title}</div>
       <div style={es.grid}>
         {experts.map((e, i) => (
-          <div key={i} className="expert-card" style={{ ...es.card, ...(e.featured ? es.cardFeatured : {}), transition:"all 0.25s" }}>
+          <div 
+  key={i} 
+  className="expert-card" 
+  style={es.card}
+  onClick={() => handleProtectedClick("/interviews")}
+>
             <div style={es.avatarWrap}>
               <div style={{ ...es.avatar, background: ["#b8c8e8","#d4b0c0","#c8b8d8","#b0c8d0"][i%4] }}>
                 {e.name.charAt(0)}
@@ -292,6 +422,7 @@ function ExpertSection({ title, experts }) {
           </div>
         ))}
       </div>
+    
     </div>
   );
 }
@@ -428,4 +559,45 @@ const es = {
   role: { fontSize:12, color:"#888" },
   tags: { display:"flex", flexWrap:"wrap", gap:4, justifyContent:"center", marginTop:4 },
   tag: { fontSize:11, color:"#666", background:"#f5f6fa", padding:"3px 8px", borderRadius:100, border:"1px solid #e8e9f0", cursor:"pointer" },
+};
+const popupStyles = {
+  overlay: {
+    position: "fixed",
+    top: 0,
+    left: 0,
+    width: "100%",
+    height: "100%",
+    background: "rgba(0,0,0,0.5)",
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+    zIndex: 999,
+  },
+
+  box: {
+    background: "#fff",
+    padding: "30px",
+    borderRadius: 12,
+    width: 320,
+    textAlign: "center",
+    boxShadow: "0 10px 30px rgba(0,0,0,0.2)",
+  },
+
+  primaryBtn: {
+    background: "#1a73e8",
+    color: "#fff",
+    border: "none",
+    padding: "10px 20px",
+    borderRadius: 8,
+    cursor: "pointer",
+    fontWeight: 600,
+  },
+
+  secondaryBtn: {
+    background: "#eee",
+    border: "none",
+    padding: "10px 20px",
+    borderRadius: 8,
+    cursor: "pointer",
+  },
 };
