@@ -34,18 +34,23 @@ export default function Hero({ searchRole, setSearchRole, searchCompany, setSear
     }
   ];
 
-  const loopProfiles = [...profiles, ...profiles];
+  const isSearching = searchRole.trim() !== "";
 
+const filteredProfiles = isSearching
+  ? profiles.filter(p => p.label.toLowerCase().includes(searchRole.toLowerCase()))
+  : profiles;
+
+const loopProfiles = [...profiles, ...profiles];
   // 🔥 Scroll logic (auto sliding)
   const [scroll, setScroll] = useState(0);
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      setScroll((prev) => (prev >= 1000 ? 0 : prev + 1));
-    }, 20);
-    return () => clearInterval(interval);
-  }, []);
-
+  if (isSearching) return;
+  const interval = setInterval(() => {
+    setScroll((prev) => (prev >= 1000 ? 0 : prev + 1));
+  }, 20);
+  return () => clearInterval(interval);
+}, [isSearching]);
   return (
     <section style={g.hero}>
       <div style={g.blob1} />
@@ -94,25 +99,44 @@ export default function Hero({ searchRole, setSearchRole, searchCompany, setSear
       </div>
 
       {/* 🔥 Sliding Cards */}
-      <div style={{ overflow: "hidden", width: "100%", marginTop: 40 }}>
-        <div
-          style={{
-            display: "flex",
-            gap: 16,
-            transform: `translateX(-${scroll}px)`,
-            transition: "transform 0.03s linear",
-          }}
-        >
-          {loopProfiles.map((p, i) => (
-            <div key={i} style={g.photoWrapper}>
-              <div style={{ ...g.photoCard, background: p.bg }}>
-                <img src={p.img} alt={p.label} style={g.photoImg} />
-              </div>
-              <div style={g.photoLabel}>{p.label}</div>
-            </div>
-          ))}
+<div style={{ width: "100%", marginTop: 40, overflow: "hidden" }}>
+
+  {/* No results */}
+  {isSearching && filteredProfiles.length === 0 && (
+    <p style={{ textAlign: "center", color: "#888", fontSize: 14, padding: "20px 0" }}>
+      No profiles found for "{searchRole}"
+    </p>
+  )}
+
+  {/* Search result — static, no scroll */}
+  {isSearching && filteredProfiles.length > 0 && (
+    <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "center", gap: 16, padding: "0 40px" }}>
+      {filteredProfiles.map((p, i) => (
+        <div key={i} style={g.photoWrapper}>
+          <div style={{ ...g.photoCard, background: p.bg }}>
+            <img src={p.img} alt={p.label} style={g.photoImg} />
+          </div>
+          <div style={g.photoLabel}>{p.label}</div>
         </div>
-      </div>
+      ))}
+    </div>
+  )}
+
+  {/* Default — auto scrolling */}
+  {!isSearching && (
+    <div style={{ display: "flex", gap: 16, transform: `translateX(-${scroll}px)`, transition: "transform 0.03s linear" }}>
+      {loopProfiles.map((p, i) => (
+        <div key={i} style={g.photoWrapper}>
+          <div style={{ ...g.photoCard, background: p.bg }}>
+            <img src={p.img} alt={p.label} style={g.photoImg} />
+          </div>
+          <div style={g.photoLabel}>{p.label}</div>
+        </div>
+      ))}
+    </div>
+  )}
+
+</div>
     </section>
   );
 }

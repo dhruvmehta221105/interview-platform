@@ -337,6 +337,7 @@ function NewsletterCta({ email, setEmail }) {
             value={email}
             onChange={e => setEmail(e.target.value)}
             onKeyDown={e => e.key === "Enter" && handleSubmit()}
+            style={{ outline: "none", border: "none", background: "transparent", flex: 1 }}
           />
         </div>
 
