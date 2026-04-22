@@ -124,6 +124,18 @@ function InterviewRoom() {
 
         // ✅ REQUEST USER MEDIA (Audio + Video)
         console.log("[Init] Requesting camera and microphone access...");
+        
+        // Check browser support first
+        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+          throw new Error("Your browser doesn't support camera access. Please use Chrome, Firefox, Safari, or Edge.");
+        }
+        
+        // Check HTTPS/localhost requirement
+        const protocol = window.location.protocol;
+        if (protocol !== "https:" && !window.location.hostname.includes("localhost")) {
+          throw new Error("Camera access requires HTTPS or localhost. This is a browser security requirement.");
+        }
+        
         let stream;
         try {
           stream = await navigator.mediaDevices.getUserMedia({
@@ -139,12 +151,19 @@ function InterviewRoom() {
             },
           });
         } catch (err) {
+          console.error(`[Init] getUserMedia error - ${err.name}:`, err.message);
+          
           if (err.name === "NotAllowedError") {
-            throw new Error("Please allow camera and microphone access in your browser settings.");
+            throw new Error("❌ Camera/Microphone permission denied. Please click the lock icon in your address bar and allow camera & microphone access.");
           } else if (err.name === "NotFoundError") {
-            throw new Error("No camera or microphone detected. Please check your devices.");
+            throw new Error("❌ No camera or microphone detected. Please check if your devices are connected and not in use by another application.");
+          } else if (err.name === "NotReadableError") {
+            throw new Error("❌ Camera/Microphone is in use by another app. Please close other apps using the camera (Zoom, Teams, etc.).");
+          } else if (err.name === "SecurityError") {
+            throw new Error("❌ Security error: Camera access only works on HTTPS or localhost.");
+          } else {
+            throw new Error(`Camera error: ${err.name} - ${err.message}`);
           }
-          throw err;
         }
 
         console.log("[Init] Stream obtained. Checking tracks...");
@@ -161,28 +180,6 @@ function InterviewRoom() {
 
         console.log("[Init] Setting video stream to ref...");
         setVideoStream(stream);
-        
-        // Attach stream to video element with proper error handling
-        if (videoRef.current) {
-          try {
-            console.log("[Init] Video element found, attaching stream...");
-            videoRef.current.srcObject = stream;
-            
-            // Ensure video autoplays
-            videoRef.current.play().catch(err => {
-              console.log("[Init] Auto-play blocked:", err);
-              // This is OK, user gesture might be required
-            });
-            
-            console.log("[Init] ✅ Stream attached to video element");
-          } catch (err) {
-            console.error("[Init] ❌ Error attaching stream to video:", err);
-            throw new Error(`Failed to attach stream to video element: ${err.message}`);
-          }
-        } else {
-          console.warn("[Init] ⚠️ Video ref not found!");
-          throw new Error("Video element reference not available");
-        }
 
         // ✅ CREATE AUDIO-ONLY STREAM FOR RECORDING
         console.log("[Init] Creating audio-only stream for recording...");
@@ -263,6 +260,8 @@ function InterviewRoom() {
           }
 
           recorder.start();
+          // Manually set recording state since onstart might not fire immediately
+          setIsRecording(true);
           console.log("[Init] ✅ Recording started successfully");
         } catch (err) {
           console.error("[Init] ❌ Failed to start recording:", err);
@@ -271,14 +270,18 @@ function InterviewRoom() {
 
         // ✅ FETCH FIRST QUESTION
         const questionRes = await API.get(`/interviews/${interviewId}/question`);
+        console.log("[Init] Question fetched:", questionRes.data);
         setCurrentQuestion(questionRes.data);
 
         // ✅ START TIMER
-        const startTime = Date.now();
+        let seconds = 0;
         timerIntervalRef.current = setInterval(() => {
-          setTimeElapsed(Math.floor((Date.now() - startTime) / 1000));
+          seconds += 1;
+          setTimeElapsed(seconds);
+          console.log(`[Timer] Elapsed: ${seconds}s`);
         }, 1000);
 
+        setError(""); // Clear any initial errors
         setLoading(false);
         console.log("[Init] ✅ Interview room initialized successfully");
 
@@ -337,6 +340,44 @@ function InterviewRoom() {
     };
   }, [interviewId]);
 
+  /* ── Attach stream to video element when both are ready ── */
+  useEffect(() => {
+    if (videoStream && videoRef.current) {
+      try {
+        console.log("[StreamAttach] Video element found, attaching stream...");
+        videoRef.current.srcObject = videoStream;
+        
+        // Wait a tick to ensure stream is attached, then play
+        setTimeout(async () => {
+          try {
+            const playPromise = videoRef.current.play();
+            if (playPromise !== undefined) {
+              await playPromise;
+              console.log("[StreamAttach] ✅ Video playing successfully");
+            } else {
+              console.log("[StreamAttach] ✅ Play called (old browser)");
+            }
+          } catch (err) {
+            console.warn("[StreamAttach] Auto-play blocked or failed:", err.message);
+            // Try a user gesture approach - this is normal on some browsers
+            videoRef.current.muted = true;
+            try {
+              await videoRef.current.play();
+              console.log("[StreamAttach] ✅ Video playing with muted fallback");
+            } catch (err2) {
+              console.error("[StreamAttach] ❌ Failed to play video even with muted:", err2);
+            }
+          }
+        }, 0);
+        
+        console.log("[StreamAttach] Stream attached to video element, play initiated");
+      } catch (err) {
+        console.error("[StreamAttach] ❌ Error attaching stream to video:", err);
+        setError(`Failed to attach camera stream: ${err.message}`);
+      }
+    }
+  }, [videoStream]);
+
   /* ── Handle page unload/leave ── */
   useEffect(() => {
     const handleBeforeUnload = (e) => {
@@ -378,11 +419,24 @@ function InterviewRoom() {
     return () => window.removeEventListener("keydown", handler);
   }, [isRecording]);
 
-  /* ── Media controls (unchanged) ── */
+  /* ── Media controls ── */
   const toggleCamera = () => {
     if (videoStream) {
-      videoStream.getVideoTracks().forEach((t) => { t.enabled = !t.enabled; });
+      const videoTracks = videoStream.getVideoTracks();
+      console.log(`[ToggleCamera] Found ${videoTracks.length} video track(s)`);
+      
+      videoTracks.forEach((track) => {
+        const wasEnabled = track.enabled;
+        track.enabled = !track.enabled;
+        console.log(`[ToggleCamera] Track state changed: ${wasEnabled} → ${track.enabled}`);
+      });
+      
       setIsCameraOn((v) => !v);
+      
+      // Ensure video element is visible/hidden properly
+      if (videoRef.current) {
+        videoRef.current.style.opacity = videoStream.getVideoTracks()[0]?.enabled ? "1" : "0.3";
+      }
     }
   };
   const toggleMicrophone = () => {
@@ -481,22 +535,46 @@ function InterviewRoom() {
 
       // Clear chunks and fetch next question
       recordedChunksRef.current = [];
-      const next = await API.get(`/interviews/${interviewId}/question`);
+      console.log("[Submit] Fetching next question from API...");
+      let next;
+      try {
+        next = await API.get(`/interviews/${interviewId}/question`);
+        console.log("[Submit] Next question response:", next.data);
+      } catch (err) {
+        console.error("[Submit] Failed to fetch next question:", err);
+        throw new Error(`Failed to fetch next question: ${err.message}`);
+      }
+
+      if (!next.data) {
+        throw new Error("No question data received from server");
+      }
 
       if (next.data.isLastQuestion) {
         console.log("[Submit] Last question reached, ending interview");
         endInterview();
       } else {
-        console.log("[Submit] Fetching next question");
+        console.log("[Submit] Setting next question and restarting recording");
         setCurrentQuestion(next.data);
+        console.log("[Submit] Question updated to:", next.data);
         
+        let recorderRestartSuccess = true;
         // Restart recording for next question
         if (videoStream && mediaRecorderRef.current) {
           try {
-            // Create new recorder for next question
-            const audioStream = new MediaStream(videoStream.getAudioTracks());
+            console.log("[Submit] Restarting recording for next question...");
             
-            // Find supported MIME type again
+            // Wait a moment for old recorder to fully stop
+            await new Promise(resolve => setTimeout(resolve, 200));
+            
+            // Create new recorder for next question
+            const audioTracks = videoStream.getAudioTracks();
+            if (audioTracks.length === 0) {
+              throw new Error("No audio tracks available for new recording");
+            }
+            
+            const audioStream = new MediaStream(audioTracks);
+            
+            // Find supported MIME type
             const mimeTypes = [
               "audio/webm",
               "audio/webm;codecs=opus",
@@ -509,38 +587,74 @@ function InterviewRoom() {
             let newRecorder = null;
             for (const mime of mimeTypes) {
               try {
-                if (mime && !MediaRecorder.isTypeSupported(mime)) continue;
+                if (mime && !MediaRecorder.isTypeSupported(mime)) {
+                  console.log(`[Submit] MIME not supported: ${mime}`);
+                  continue;
+                }
                 newRecorder = new MediaRecorder(audioStream, mime ? { mimeType: mime } : {});
-                console.log(`[Submit] New recorder created with MIME: ${mime || "default"}`);
+                console.log(`[Submit] ✅ New recorder created with MIME: ${mime || "default"}`);
                 break;
               } catch (e) {
+                console.warn(`[Submit] Failed with MIME ${mime}:`, e.message);
                 continue;
               }
             }
 
-            if (newRecorder) {
-              newRecorder.ondataavailable = (e) => {
-                if (e.data && e.data.size > 0) {
-                  recordedChunksRef.current.push(e.data);
-                }
-              };
-              newRecorder.onerror = (e) => {
-                console.error("[Submit] New recorder error:", e.error);
-              };
-              
-              mediaRecorderRef.current = newRecorder;
-              newRecorder.start();
+            if (!newRecorder) {
+              throw new Error("Could not create MediaRecorder with any supported MIME type");
+            }
+
+            // Set up event handlers for new recorder
+            newRecorder.ondataavailable = (e) => {
+              if (e.data && e.data.size > 0) {
+                console.log(`[NewRecorder] Data collected: ${e.data.size} bytes`);
+                recordedChunksRef.current.push(e.data);
+              }
+            };
+            
+            newRecorder.onstart = () => {
+              console.log("[NewRecorder] ✅ Recording started");
               setIsRecording(true);
-              console.log("[Submit] ✅ New recording started");
+            };
+            
+            newRecorder.onstop = () => {
+              console.log(`[NewRecorder] ✅ Recording stopped. Total chunks: ${recordedChunksRef.current.length}`);
+              setIsRecording(false);
+            };
+            
+            newRecorder.onerror = (e) => {
+              console.error("[NewRecorder] ❌ Error:", e.error);
+              setError(`Recording error: ${e.error}`);
+            };
+              
+            mediaRecorderRef.current = newRecorder;
+            
+            // Start the new recorder
+            try {
+              newRecorder.start();
+              // Manually set recording state since onstart might not fire immediately
+              setIsRecording(true);
+              console.log("[Submit] ✅ New recording started successfully");
+            } catch (err) {
+              console.error("[Submit] Failed to start new recorder:", err);
+              throw err;
             }
           } catch (err) {
             console.error("[Submit] Failed to restart recording:", err);
-            setError("Failed to restart recording for next question");
+            setError(`Failed to restart recording: ${err.message}`);
+            recorderRestartSuccess = false;
           }
+        } else {
+          console.warn("[Submit] ⚠️ Cannot restart recording - missing stream or recorder ref");
+          recorderRestartSuccess = false;
+        }
+        
+        // Only clear error if recorder restarted successfully
+        if (recorderRestartSuccess) {
+          setError("");
         }
       }
       
-      setError("");
       console.log("[Submit] ✅ Answer submitted successfully");
       
     } catch (err) {
@@ -708,10 +822,22 @@ function InterviewRoom() {
               playsInline={true}
               muted={true}
               style={c.video}
-              onLoadedMetadata={() => console.log("[Video] Metadata loaded - camera stream active")}
-              onCanPlay={() => console.log("[Video] Ready to play - camera is ON")}
-              onPlay={() => console.log("[Video] Video playing - camera feed visible")}
-              onError={(e) => console.error("[Video] Error:", e)}
+              onLoadedMetadata={() => console.log("[Video] ✅ Metadata loaded - camera stream active")}
+              onCanPlay={() => console.log("[Video] ✅ Ready to play - camera is ON")}
+              onPlay={() => console.log("[Video] ✅ Video playing - camera feed visible")}
+              onError={(e) => {
+                console.error("[Video] ❌ Error:", e);
+                const errorCode = e.target.error?.code;
+                const errorMsg = {
+                  1: "MEDIA_ERR_ABORTED",
+                  2: "MEDIA_ERR_NETWORK",
+                  3: "MEDIA_ERR_DECODE",
+                  4: "MEDIA_ERR_SRC_NOT_SUPPORTED"
+                }[errorCode] || "Unknown error";
+                console.error(`[Video] Error code: ${errorCode} (${errorMsg})`);
+              }}
+              onStalled={() => console.warn("[Video] ⚠️ Video stalled - buffering...")}
+              onSuspend={() => console.warn("[Video] ⚠️ Media loading suspended")}
             />
 
             {/* overlay badges */}
