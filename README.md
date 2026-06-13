@@ -4,18 +4,18 @@ InterviewX is a full-stack web application designed to help users practice inter
 
 This platform allows:
 
-🎯 Practice interviews
+1. Practice interviews
 
-🤖 AI chatbot interaction
+2. AI chatbot interaction
 
-📝 Feedback collection system
+3. Feedback collection system
 
-📊 Interview performance tracking
+4. Interview performance tracking
 -----------------------------------------
 
 📌 Features
 
-✅ Frontend
+Frontend
 Modern React (Vite) setup
 
 Clean UI based on Figma design
@@ -27,8 +27,8 @@ Feedback summary page
 React Router for page navigation
 
 Local storage integration (temporary frontend storage)
-
-✅ Backend (Planned / In Progress)
+------------------------------------------------------------------
+Backend (Planned / In Progress)
 REST API for feedback submission
 
 MongoDB database integration
@@ -38,8 +38,8 @@ Authentication system
 Interview data storage
 
 Role-based access control
-
-🛠️ Tech Stack
+------------------------------------------
+Tech Stack
 Frontend
 
 React 18
@@ -65,4 +65,4 @@ Mongoose
 
 📜 License
 
-This project is for educational purposes
+This project is for educational purposes only.
