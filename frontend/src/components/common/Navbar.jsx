@@ -1,261 +1,205 @@
-// components/common/Navbar.jsx
-import { useState } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
-import { useAuth } from "../../context/AuthContext";
-import LoginPromptModal from "../LoginPromptModal";
-import logo from "../../assets/logo.png";
+import { useState, useEffect } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext';
+import { Menu, X, ChevronDown, LogOut, User, LayoutDashboard } from 'lucide-react';
 
 export default function Navbar() {
+  const [scrolled, setScrolled] = useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
+  const [profileOpen, setProfileOpen] = useState(false);
+  const { user, logout } = useAuth();
   const navigate = useNavigate();
-  const location = useLocation();
-  const { user, logout, isAdmin } = useAuth();
-  const [showLoginModal, setShowLoginModal] = useState(false);
 
-  // Base navigation items for all users
-  const baseItems = [
-    { name: "Home", path: "/" },
-    { name: "Interviews", path: "/interviews", protected: true },
-    { name: "Schedule", path: "/schedule-interview", protected: true },
-    { name: "AI Chat", path: "/chatbot", protected: true },
-    { name: "View Feedback", path: "/view-feedback", protected: true }
-  ];
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 10);
+    window.addEventListener('scroll', onScroll);
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
 
-  // Add "Add Feedback" only for admins
-  const navItems = isAdmin()
-    ? [
-        ...baseItems,
-        { name: "Add Feedback", path: "/add-feedback", protected: true, adminOnly: true }
-      ]
-    : baseItems;
-
-  const isActive = (path) => location.pathname === path;
-
-  const handleNavClick = (path, isProtected) => {
-    if (isProtected && !user) {
-      setShowLoginModal(true);
+  useEffect(() => {
+    if (mobileOpen) {
+      document.body.style.overflow = 'hidden';
     } else {
-      navigate(path);
+      document.body.style.overflow = '';
     }
+    return () => { document.body.style.overflow = ''; };
+  }, [mobileOpen]);
+
+  const handleLogout = () => {
+    logout();
+    setProfileOpen(false);
+    navigate('/');
   };
 
+  const navLinks = [
+    { label: 'Features', href: '#features' },
+    { label: 'How It Works', href: '#how-it-works' },
+    { label: 'Pricing', href: '#pricing' },
+    { label: 'Companies', href: '#companies' },
+  ];
+
   return (
-    <>
-      <nav style={styles.nav}>
-        <div style={styles.navContainer}>
+    <nav
+      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+        scrolled
+          ? 'bg-white/95 backdrop-blur-md shadow-[0_1px_3px_rgba(0,0,0,0.06)]'
+          : 'bg-transparent'
+      }`}
+    >
+      <div className="max-w-[1200px] mx-auto px-6 h-[72px] flex items-center justify-between">
+        <Link to="/" className="flex items-center gap-2 group">
+          <div className="w-8 h-8 bg-accent rounded-lg flex items-center justify-center">
+            <span className="text-white font-bold text-sm">IX</span>
+          </div>
+          <span className="text-[18px] font-bold text-text tracking-[-0.5px]">
+            InterviewX
+          </span>
+        </Link>
 
-          {/* Logo */}
-          <div
-  onClick={() => navigate("/")}
-  style={{ display: "flex", alignItems: "center", gap: "8px", cursor: "pointer" }}
->
-  <img src={logo} alt="logo" style={{ width: "32px", height: "32px" }} />
-  <span style={styles.logo}>InterviewX</span>
-</div>
-
-          {/* Navigation Links */}
-          <ul style={styles.navLinks}>
-            {navItems.map((item) => (
-              <li key={item.name}>
-                <span
-                  onClick={() => handleNavClick(item.path, item.protected)}
-                  style={{
-                    ...styles.navLink,
-                    ...(isActive(item.path) ? styles.navLinkActive : {}),
-                    ...(item.adminOnly ? { color: "#ff6b6b", fontWeight: 600 } : {}),
-                  }}
-                >
-                  {item.name}
-                </span>
-              </li>
-            ))}
-          </ul>
-
-          {/* Right Section */}
-          <div style={styles.navActions}>
-            <button
-              onClick={() =>
-                user ? navigate("/interviews") : setShowLoginModal(true)
-              }
-              style={styles.navBtn}
+        <div className="hidden lg:flex items-center gap-8">
+          {navLinks.map((link) => (
+            <a
+              key={link.label}
+              href={link.href}
+              className="text-[14px] font-medium text-text-secondary hover:text-text transition-colors duration-200"
             >
-              🎤 Start Interview
-            </button>
+              {link.label}
+            </a>
+          ))}
+        </div>
 
-            {user ? (
-              <div style={styles.userSection}>
-                <div style={styles.userBox}>
-                  <div style={styles.avatar}>
-                    {user?.name?.charAt(0)?.toUpperCase() || "U"}
-                  </div>
-                  <span style={styles.userName}>
-                    {user?.name || "User"}
-                  </span>
-                  {isAdmin() && (
-                    <span style={{ fontSize: 10, color: "#ff6b6b", fontWeight: 700, marginLeft: 4 }}>
-                      ADMIN
-                    </span>
-                  )}
-                </div>
-
-                <button
-                  onClick={() => {
-                    logout();
-                    navigate("/");
-                  }}
-                  style={styles.logoutBtn}
-                >
-                  Logout
-                </button>
-              </div>
-            ) : (
+        <div className="hidden lg:flex items-center gap-3">
+          {user ? (
+            <div className="relative">
               <button
-                onClick={() => navigate("/login")}
-                style={{ ...styles.navBtn, ...styles.navBtnPrimary }}
+                onClick={() => setProfileOpen(!profileOpen)}
+                className="flex items-center gap-2 px-3 py-2 rounded-xl hover:bg-bg-secondary transition-colors duration-200"
               >
-                Login ↗
+                <div className="w-8 h-8 bg-accent rounded-full flex items-center justify-center">
+                  <span className="text-white text-xs font-semibold">
+                    {user.name?.charAt(0)?.toUpperCase() || 'U'}
+                  </span>
+                </div>
+                <span className="text-sm font-medium text-text">{user.name?.split(' ')[0] || 'User'}</span>
+                <ChevronDown className="w-4 h-4 text-text-secondary" />
               </button>
+              {profileOpen && (
+                <>
+                  <div className="fixed inset-0 z-40" onClick={() => setProfileOpen(false)} />
+                  <div className="absolute right-0 top-full mt-2 w-52 bg-bg-card rounded-2xl shadow-[0_8px_32px_rgba(0,0,0,0.1)] border border-border py-2 z-50">
+                    <Link
+                      to="/profile"
+                      onClick={() => setProfileOpen(false)}
+                      className="flex items-center gap-3 px-4 py-2.5 text-sm text-text-secondary hover:bg-bg-secondary hover:text-text transition-colors"
+                    >
+                      <User className="w-4 h-4" />
+                      Profile
+                    </Link>
+                    <Link
+                      to="/interviews"
+                      onClick={() => setProfileOpen(false)}
+                      className="flex items-center gap-3 px-4 py-2.5 text-sm text-text-secondary hover:bg-bg-secondary hover:text-text transition-colors"
+                    >
+                      <LayoutDashboard className="w-4 h-4" />
+                      Dashboard
+                    </Link>
+                    <div className="h-px bg-border mx-3 my-1" />
+                    <button
+                      onClick={handleLogout}
+                      className="flex items-center gap-3 px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 transition-colors w-full"
+                    >
+                      <LogOut className="w-4 h-4" />
+                      Sign Out
+                    </button>
+                  </div>
+                </>
+              )}
+            </div>
+          ) : (
+            <>
+              <Link
+                to="/login"
+                className="text-[14px] font-medium text-text-secondary hover:text-text transition-colors duration-200 px-4 py-2"
+              >
+                Sign In
+              </Link>
+              <Link
+                to="/signup"
+                className="text-[14px] font-semibold text-white bg-accent hover:bg-accent-dark px-5 py-2.5 rounded-xl transition-all duration-200"
+              >
+                Start Free
+              </Link>
+            </>
+          )}
+        </div>
+
+        <button
+          onClick={() => setMobileOpen(!mobileOpen)}
+          className="lg:hidden p-2 rounded-xl hover:bg-bg-secondary transition-colors"
+          aria-label="Toggle menu"
+        >
+          {mobileOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+        </button>
+      </div>
+
+      {mobileOpen && (
+        <div className="lg:hidden fixed inset-0 top-[72px] bg-white z-40">
+          <div className="p-6 flex flex-col gap-1">
+            {navLinks.map((link) => (
+              <a
+                key={link.label}
+                href={link.href}
+                onClick={() => setMobileOpen(false)}
+                className="text-[16px] font-medium text-text py-3 px-4 rounded-xl hover:bg-bg-secondary transition-colors"
+              >
+                {link.label}
+              </a>
+            ))}
+            <div className="h-px bg-border my-4" />
+            {user ? (
+              <>
+                <Link
+                  to="/profile"
+                  onClick={() => setMobileOpen(false)}
+                  className="text-[16px] font-medium text-text py-3 px-4 rounded-xl hover:bg-bg-secondary transition-colors"
+                >
+                  Profile
+                </Link>
+                <Link
+                  to="/interviews"
+                  onClick={() => setMobileOpen(false)}
+                  className="text-[16px] font-medium text-text py-3 px-4 rounded-xl hover:bg-bg-secondary transition-colors"
+                >
+                  Dashboard
+                </Link>
+                <button
+                  onClick={() => { handleLogout(); setMobileOpen(false); }}
+                  className="text-[16px] font-medium text-red-600 py-3 px-4 rounded-xl hover:bg-red-50 transition-colors text-left"
+                >
+                  Sign Out
+                </button>
+              </>
+            ) : (
+              <div className="flex flex-col gap-3 mt-2">
+                <Link
+                  to="/login"
+                  onClick={() => setMobileOpen(false)}
+                  className="text-center text-[15px] font-medium text-text py-3 px-4 rounded-xl border border-border hover:bg-bg-secondary transition-colors"
+                >
+                  Sign In
+                </Link>
+                <Link
+                  to="/signup"
+                  onClick={() => setMobileOpen(false)}
+                  className="text-center text-[15px] font-semibold text-white bg-accent py-3 px-4 rounded-xl hover:bg-accent-dark transition-colors"
+                >
+                  Start Free
+                </Link>
+              </div>
             )}
           </div>
-
         </div>
-      </nav>
-
-      {/* Modal */}
-      <LoginPromptModal
-        isOpen={showLoginModal}
-        onClose={() => setShowLoginModal(false)}
-      />
-    </>
+      )}
+    </nav>
   );
 }
-
-const styles = {
-  nav: {
-    position: "sticky",
-    top: 0,
-    zIndex: 100,
-    background: "rgba(255, 255, 255, 0.97)",
-    backdropFilter: "blur(8px)",
-    borderBottom: "1px solid #ebebf0",
-    height: 64,
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    boxShadow: "0 2px 8px rgba(0, 0, 0, 0.04)"
-  },
-
-  navContainer: {
-    width: "100%",
-    maxWidth: 1400,
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "space-between",
-    padding: "0 60px"
-  },
-
-  logo: {
-    fontFamily: "'Manrope', sans-serif",
-    fontWeight: 900,
-    fontSize: 20,
-    letterSpacing: "-0.5px",
-    color: "#0f1117",
-    cursor: "pointer",
-    transition: "color 0.2s",
-    userSelect: "none"
-  },
-
-  navLinks: {
-    display: "flex",
-    gap: 32,
-    listStyle: "none",
-    padding: 0,
-    margin: 0,
-    justifyContent: "center",
-    minWidth: 120
-  },
-
-  navLink: {
-    fontSize: 14,
-    fontWeight: 500,
-    color: "#555",
-    cursor: "pointer",
-    transition: "color 0.2s",
-    paddingBottom: "4px",
-    borderBottom: "2px solid transparent"
-  },
-
-  navLinkActive: {
-    color: "#7c5af6",
-    borderBottomColor: "#7c5af6",
-    fontWeight: 600
-  },
-
-  navActions: {
-    display: "flex",
-    gap: 12,
-    alignItems: "center",
-    minWidth: 250,
-    justifyContent: "flex-end"
-  },
-
-  navBtn: {
-    background: "#fff",
-    border: "1.5px solid #0f1117",
-    color: "#0f1117",
-    padding: "8px 16px",
-    borderRadius: 100,
-    fontSize: 13,
-    fontWeight: 700,
-    display: "flex",
-    alignItems: "center",
-    gap: 6,
-    cursor: "pointer",
-    transition: "all 0.2s"
-  },
-
-  navBtnPrimary: {
-    background: "linear-gradient(135deg, #7c5af6, #4f8ef7)",
-    border: "none",
-    color: "#fff"
-  },
-
-  userSection: {
-    display: "flex",
-    alignItems: "center",
-    gap: 10,
-  },
-
-  logoutBtn: {
-    background: "transparent",
-    border: "solid 2px #040404",
-    color: "#ff4d4f",
-    fontSize: 12,
-    fontWeight: 600,
-    cursor: "pointer",
-  },
-
-  userBox: {
-    display: "flex",
-    alignItems: "center",
-    gap: 6,
-  },
-
-  avatar: {
-    width: 28,
-    height: 28,
-    borderRadius: "50%",
-    background: "#0f1117",
-    color: "#fff",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    fontSize: 13,
-    fontWeight: 700,
-  },
-
-  userName: {
-    fontSize: 13,
-    fontWeight: 600,
-    color: "#0f1117",
-  },
-};

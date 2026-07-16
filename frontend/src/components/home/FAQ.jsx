@@ -1,152 +1,101 @@
-import { useState } from "react";
+import { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Plus, Minus } from 'lucide-react';
 
-const FAQS = [
+const faqs = [
   {
-    q: "Is InterviewX free to use?",
-    a: "Yes! Our Free plan gives you 5 AI-powered interview sessions per month at no cost. You can upgrade to Pro anytime for unlimited access and advanced features like speech analysis and eye contact detection.",
+    q: 'How does the AI interview work?',
+    a: 'Our AI interviewer uses advanced language models to simulate real interview conversations. It adapts questions based on your responses, evaluates your answers in real-time, and provides detailed scoring across communication, technical accuracy, and problem-solving dimensions.',
   },
   {
-    q: "How realistic are the AI interview questions?",
-    a: "Very realistic. Our AI is trained on thousands of actual interview questions from top companies. It also adapts based on your resume and the role you're targeting, and asks follow-up questions just like a real interviewer.",
+    q: 'Can I practice for specific companies?',
+    a: 'Yes. We offer curated question banks and interview simulations for 50+ companies including Google, Amazon, Microsoft, Meta, Adobe, and more. Each simulation mirrors the company\'s actual interview format, question style, and evaluation criteria.',
   },
   {
-    q: "Does InterviewX support coding interviews?",
-    a: "Yes. We have a dedicated Coding Round module that includes DSA challenges, system design questions, and code quality review. You can practice in our built-in code editor with AI evaluation.",
+    q: 'What does the ATS resume review include?',
+    a: 'Our ATS review scans your resume against the same systems top companies use. You\'ll receive a compatibility score, keyword optimization suggestions, formatting fixes, and specific recommendations to improve your callback rate.',
   },
   {
-    q: "How does the AI feedback work?",
-    a: "After each interview, our AI generates a comprehensive report covering communication, confidence, vocabulary, grammar, eye contact, speech pace, and technical accuracy. Each dimension is scored and explained with specific improvement tips.",
+    q: 'How are HR expert sessions conducted?',
+    a: 'HR expert sessions are one-on-one video calls with experienced recruiters and hiring managers from top companies. They conduct realistic interviews and provide detailed feedback on your performance, body language, and areas for improvement.',
   },
   {
-    q: "Can I practice for non-tech roles?",
-    a: "Absolutely. InterviewX covers 50+ categories including Product Management, Finance, Marketing, Sales, Healthcare, Consulting, and more. Each category has role-specific question banks.",
+    q: 'Can I cancel my subscription anytime?',
+    a: 'Absolutely. All paid plans can be cancelled at any time with no questions asked. You\'ll continue to have access to your plan\'s features until the end of your current billing period. No long-term contracts or hidden fees.',
   },
   {
-    q: "Is my interview data secure and private?",
-    a: "Your privacy is our top priority. Interview sessions are encrypted, never shared with third parties, and you can delete your data at any time from your profile settings. We're fully GDPR compliant.",
-  },
-  {
-    q: "Can I review my past interviews?",
-    a: "Yes, on Pro plan all your interview sessions are recorded and saved. You can replay them, re-read transcripts, and compare your scores over time to track improvement.",
-  },
-  {
-    q: "Do you offer team or university plans?",
-    a: "Yes! Our Enterprise plan is designed for coding bootcamps, universities, and corporate training teams. Contact our sales team for custom pricing and dedicated onboarding.",
+    q: 'Is my interview data private and secure?',
+    a: 'Yes. We take privacy seriously. All interview recordings and data are encrypted and stored securely. We never share your personal information or interview data with third parties. You can delete your data at any time.',
   },
 ];
 
 export default function FAQ() {
-  const [openIndex, setOpenIndex] = useState(null);
-
-  const toggle = (i) => setOpenIndex(openIndex === i ? null : i);
+  const [openIndex, setOpenIndex] = useState(0);
 
   return (
-    <section id="faq" style={{ padding: "120px 60px", background: "#fff" }}>
-      <div style={{ maxWidth: 800, margin: "0 auto" }}>
-        {/* Header */}
-        <div style={{ textAlign: "center", marginBottom: 64 }}>
-          <div style={{
-            display: "inline-flex", alignItems: "center", gap: 8,
-            fontSize: 12, fontWeight: 600, letterSpacing: "0.08em",
-            textTransform: "uppercase", color: "#8a8a9a",
-            background: "#f8f9fb", border: "1px solid #e8e8f0",
-            borderRadius: 9999, padding: "6px 16px", marginBottom: 24,
-          }}>
+    <section className="py-24 lg:py-32 bg-bg-secondary">
+      <div className="max-w-[720px] mx-auto px-6">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.5 }}
+          className="text-center mb-14"
+        >
+          <span className="inline-block text-[13px] font-semibold text-accent uppercase tracking-[2px] mb-4">
             FAQ
-          </div>
-          <h2 style={{
-            fontSize: "clamp(32px, 4vw, 52px)", fontWeight: 800,
-            letterSpacing: "-0.03em", color: "#0a0a0a", lineHeight: 1.1, marginBottom: 16,
-          }}>
-            Frequently Asked
+          </span>
+          <h2 className="text-[36px] sm:text-[42px] font-extrabold text-text tracking-[-1.5px] leading-[1.1] mb-5">
+            Common questions, answered.
           </h2>
-          <p style={{ fontSize: 18, color: "#5a5a6a", maxWidth: 380, margin: "0 auto", lineHeight: 1.7 }}>
-            Everything you need to know about InterviewX.
-          </p>
-        </div>
+        </motion.div>
 
-        {/* Accordion */}
-        <div style={{ display: "flex", flexDirection: "column", gap: 0 }}>
-          {FAQS.map((faq, index) => (
-            <div
-              key={index}
-              style={{
-                borderBottom: "1px solid #f0f0f5",
-              }}
-            >
-              {/* Question Row */}
-              <button
-                onClick={() => toggle(index)}
-                style={{
-                  width: "100%", display: "flex",
-                  alignItems: "center", justifyContent: "space-between",
-                  padding: "22px 0",
-                  background: "transparent", border: "none",
-                  cursor: "pointer", textAlign: "left",
-                  gap: 16,
-                }}
+        <div className="space-y-3">
+          {faqs.map((faq, i) => {
+            const isOpen = openIndex === i;
+            return (
+              <motion.div
+                key={i}
+                initial={{ opacity: 0, y: 12 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.35, delay: i * 0.05 }}
+                className={`bg-bg-card rounded-2xl border transition-all duration-300 overflow-hidden ${
+                  isOpen ? 'border-accent/20 shadow-[0_4px_16px_rgba(0,0,0,0.04)]' : 'border-border/60'
+                }`}
               >
-                <span style={{
-                  fontSize: 16, fontWeight: 600,
-                  color: openIndex === index ? "#0a0a0a" : "#2a2a3a",
-                  letterSpacing: "-0.01em",
-                  flex: 1,
-                  transition: "color 0.15s",
-                }}>
-                  {faq.q}
-                </span>
-                <div style={{
-                  width: 28, height: 28, borderRadius: "50%",
-                  background: openIndex === index ? "#0a0a0a" : "#f8f9fb",
-                  border: `1px solid ${openIndex === index ? "#0a0a0a" : "#e8e8f0"}`,
-                  display: "flex", alignItems: "center", justifyContent: "center",
-                  flexShrink: 0,
-                  transition: "all 0.2s ease",
-                }}>
-                  <svg
-                    width="12" height="12"
-                    fill="none"
-                    stroke={openIndex === index ? "#fff" : "#4a4a5a"}
-                    strokeWidth="2.5" viewBox="0 0 24 24"
-                    style={{
-                      transform: openIndex === index ? "rotate(45deg)" : "none",
-                      transition: "transform 0.2s ease",
-                    }}
-                  >
-                    <path d="M12 5v14M5 12h14" strokeLinecap="round"/>
-                  </svg>
-                </div>
-              </button>
-
-              {/* Answer */}
-              <div style={{
-                maxHeight: openIndex === index ? "300px" : "0",
-                overflow: "hidden",
-                transition: "max-height 0.35s ease",
-              }}>
-                <p style={{
-                  fontSize: 15, color: "#5a5a6a", lineHeight: 1.75,
-                  paddingBottom: 22, paddingRight: 48,
-                }}>
-                  {faq.a}
-                </p>
-              </div>
-            </div>
-          ))}
-        </div>
-
-        {/* Bottom note */}
-        <div style={{ textAlign: "center", marginTop: 56 }}>
-          <p style={{ fontSize: 15, color: "#8a8a9a" }}>
-            Still have questions?{" "}
-            <a href="mailto:info@interviewx.com" style={{
-              color: "#0a0a0a", fontWeight: 700,
-              textDecoration: "underline",
-              textUnderlineOffset: "3px",
-            }}>
-              Email us directly
-            </a>
-          </p>
+                <button
+                  onClick={() => setOpenIndex(isOpen ? -1 : i)}
+                  className="flex items-center justify-between w-full text-left px-6 py-5 group"
+                >
+                  <span className={`text-[15px] font-semibold pr-4 transition-colors duration-200 ${isOpen ? 'text-text' : 'text-text group-hover:text-text'}`}>
+                    {faq.q}
+                  </span>
+                  <div className={`w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0 transition-all duration-200 ${
+                    isOpen ? 'bg-accent text-white' : 'bg-bg text-text-secondary'
+                  }`}>
+                    {isOpen ? <Minus className="w-3.5 h-3.5" /> : <Plus className="w-3.5 h-3.5" />}
+                  </div>
+                </button>
+                <AnimatePresence>
+                  {isOpen && (
+                    <motion.div
+                      initial={{ height: 0, opacity: 0 }}
+                      animate={{ height: 'auto', opacity: 1 }}
+                      exit={{ height: 0, opacity: 0 }}
+                      transition={{ duration: 0.25, ease: [0.25, 0.46, 0.45, 0.94] }}
+                    >
+                      <div className="px-6 pb-5">
+                        <p className="text-[14px] text-text-secondary leading-[1.8]">
+                          {faq.a}
+                        </p>
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </motion.div>
+            );
+          })}
         </div>
       </div>
     </section>

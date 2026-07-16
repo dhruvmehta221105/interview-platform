@@ -1,238 +1,147 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { motion } from 'framer-motion';
+import { Check } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
-const PLANS = [
+const plans = [
   {
-    id: "free",
-    name: "Free",
-    price: "₹0",
-    period: "forever",
-    desc: "Perfect to get started and explore the platform.",
-    cta: "Get Started Free",
+    name: 'Free',
+    price: '0',
+    period: 'forever',
+    description: 'Get started with basic interview practice.',
     features: [
-      "5 AI interviews / month",
-      "Basic AI feedback report",
-      "1 interview category",
-      "Text transcript",
-      "Community support",
+      '3 AI mock interviews/month',
+      'Basic feedback reports',
+      '5 company question banks',
+      'Resume upload',
+      'Community access',
     ],
-    missing: [
-      "Speech & voice analysis",
-      "Eye contact detection",
-      "Resume analyzer",
-      "Unlimited interviews",
-    ],
-    featured: false,
+    cta: 'Get Started',
+    highlighted: false,
   },
   {
-    id: "pro",
-    name: "Pro",
-    price: "₹499",
-    period: "per month",
-    desc: "Everything you need to land your dream role fast.",
-    cta: "Start Pro Trial",
+    name: 'Pro',
+    price: '29',
+    period: '/month',
+    description: 'For serious candidates preparing for top companies.',
     features: [
-      "Unlimited AI interviews",
-      "Full AI feedback + radar chart",
-      "All 50+ interview categories",
-      "Speech & voice analysis",
-      "Eye contact detection",
-      "Resume analyzer (ATS score)",
-      "Interview recording & replay",
-      "Priority AI processing",
-      "Email support",
+      'Unlimited AI interviews',
+      'Detailed AI analysis & scoring',
+      'All 50+ company question banks',
+      'ATS resume review',
+      'Performance analytics',
+      'HR expert sessions (2/month)',
+      'Company-specific prep paths',
+      'Priority support',
     ],
-    missing: [],
-    featured: true,
-    badge: "Most Popular",
+    cta: 'Start Pro Trial',
+    highlighted: true,
   },
   {
-    id: "enterprise",
-    name: "Enterprise",
-    price: "Custom",
-    period: "tailored plan",
-    desc: "For teams, bootcamps, and universities at scale.",
-    cta: "Contact Sales",
+    name: 'Premium',
+    price: '79',
+    period: '/month',
+    description: 'Maximum preparation for high-stakes interviews.',
     features: [
-      "Everything in Pro",
-      "Multi-seat team accounts",
-      "Custom interview templates",
-      "Bulk candidate management",
-      "Advanced analytics dashboard",
-      "API access",
-      "Dedicated account manager",
-      "SLA & custom contracts",
+      'Everything in Pro',
+      'Unlimited HR expert sessions',
+      'Personal interview coach',
+      'Custom preparation plans',
+      'Video interview analysis',
+      'Salary negotiation prep',
+      'Executive interview training',
+      'Dedicated account manager',
     ],
-    missing: [],
-    featured: false,
+    cta: 'Contact Sales',
+    highlighted: false,
   },
 ];
 
 export default function Pricing() {
-  const [hoveredId, setHoveredId] = useState(null);
-  const navigate = useNavigate();
-
   return (
-    <section id="pricing" style={{ padding: "120px 60px", background: "#f8f9fb" }}>
-      <div style={{ maxWidth: 1200, margin: "0 auto" }}>
-        {/* Header */}
-        <div style={{ textAlign: "center", marginBottom: 64 }}>
-          <div style={{
-            display: "inline-flex", alignItems: "center", gap: 8,
-            fontSize: 12, fontWeight: 600, letterSpacing: "0.08em",
-            textTransform: "uppercase", color: "#8a8a9a",
-            background: "#fff", border: "1px solid #e8e8f0",
-            borderRadius: 9999, padding: "6px 16px", marginBottom: 24,
-          }}>
-            Simple Pricing
-          </div>
-          <h2 style={{
-            fontSize: "clamp(32px, 4vw, 52px)", fontWeight: 800,
-            letterSpacing: "-0.03em", color: "#0a0a0a", lineHeight: 1.1, marginBottom: 16,
-          }}>
-            Invest in Your Career
+    <section id="pricing" className="py-24 lg:py-32">
+      <div className="max-w-[1200px] mx-auto px-6">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.5 }}
+          className="text-center mb-16"
+        >
+          <span className="inline-block text-[13px] font-semibold text-accent uppercase tracking-[2px] mb-4">
+            Pricing
+          </span>
+          <h2 className="text-[36px] sm:text-[42px] lg:text-[48px] font-extrabold text-text tracking-[-1.5px] leading-[1.1] mb-5">
+            Simple, transparent pricing.
           </h2>
-          <p style={{ fontSize: 18, color: "#5a5a6a", maxWidth: 420, margin: "0 auto", lineHeight: 1.7 }}>
-            Start free, upgrade when you're ready. No hidden fees.
+          <p className="text-[17px] text-text-secondary max-w-[460px] mx-auto leading-[1.7]">
+            Choose the plan that fits your preparation needs.
+            Upgrade or cancel anytime.
           </p>
-        </div>
+        </motion.div>
 
-        {/* Plans Grid */}
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 20, alignItems: "start" }}>
-          {PLANS.map((plan) => (
-            <div
-              key={plan.id}
-              onMouseEnter={() => setHoveredId(plan.id)}
-              onMouseLeave={() => setHoveredId(null)}
-              style={{
-                background: plan.featured ? "#0b0b0f" : "#fff",
-                border: `1px solid ${plan.featured ? "transparent" : hoveredId === plan.id ? "#c8c8d8" : "#e8e8f0"}`,
-                borderRadius: 24,
-                padding: "36px 32px",
-                position: "relative",
-                transition: "all 0.25s ease",
-                transform: plan.featured || hoveredId === plan.id ? "translateY(-4px)" : "none",
-                boxShadow: plan.featured
-                  ? "0 24px 60px rgba(0,0,0,0.2)"
-                  : hoveredId === plan.id
-                    ? "0 12px 40px rgba(0,0,0,0.1)"
-                    : "0 2px 8px rgba(0,0,0,0.04)",
-              }}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-5 max-w-[960px] mx-auto">
+          {plans.map((plan, i) => (
+            <motion.div
+              key={plan.name}
+              initial={{ opacity: 0, y: 24 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.45, delay: i * 0.08 }}
+              className={`rounded-2xl p-7 border transition-all duration-300 ${
+                plan.highlighted
+                  ? 'bg-text border-text shadow-[0_12px_40px_rgba(0,0,0,0.12)] relative'
+                  : 'bg-bg-card border-border/60 hover:border-border hover:shadow-[0_8px_28px_rgba(0,0,0,0.04)]'
+              }`}
             >
-              {/* Badge */}
-              {plan.badge && (
-                <div style={{
-                  position: "absolute", top: -14, left: "50%",
-                  transform: "translateX(-50%)",
-                  background: "#fff", color: "#0a0a0a",
-                  fontSize: 11, fontWeight: 700, letterSpacing: "0.04em",
-                  padding: "5px 16px", borderRadius: 9999,
-                  border: "1px solid #e8e8f0",
-                  boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
-                  whiteSpace: "nowrap",
-                }}>
-                  ★ {plan.badge}
+              {plan.highlighted && (
+                <div className="absolute -top-3 left-1/2 -translate-x-1/2">
+                  <span className="text-[11px] font-bold text-text bg-accent px-3 py-1 rounded-full text-white">
+                    Most Popular
+                  </span>
                 </div>
               )}
 
-              {/* Plan name */}
-              <div style={{
-                fontSize: 13, fontWeight: 700, letterSpacing: "0.06em",
-                textTransform: "uppercase",
-                color: plan.featured ? "rgba(255,255,255,0.5)" : "#8a8a9a",
-                marginBottom: 16,
-              }}>
-                {plan.name}
-              </div>
-
-              {/* Price */}
-              <div style={{ display: "flex", alignItems: "baseline", gap: 4, marginBottom: 6 }}>
-                <span style={{
-                  fontSize: 44, fontWeight: 800, letterSpacing: "-0.04em",
-                  color: plan.featured ? "#fff" : "#0a0a0a", lineHeight: 1,
-                }}>
-                  {plan.price}
-                </span>
-                {plan.price !== "Custom" && (
-                  <span style={{ fontSize: 14, color: plan.featured ? "rgba(255,255,255,0.4)" : "#8a8a9a" }}>
-                    /{plan.period}
+              <div className="mb-6">
+                <h3 className={`text-[16px] font-bold mb-2 ${plan.highlighted ? 'text-white' : 'text-text'}`}>
+                  {plan.name}
+                </h3>
+                <div className="flex items-baseline gap-1 mb-2">
+                  <span className={`text-[40px] font-extrabold tracking-[-1px] ${plan.highlighted ? 'text-white' : 'text-text'}`}>
+                    ${plan.price}
                   </span>
-                )}
+                  <span className={`text-[14px] font-medium ${plan.highlighted ? 'text-white/60' : 'text-text-secondary'}`}>
+                    {plan.period}
+                  </span>
+                </div>
+                <p className={`text-[13px] leading-relaxed ${plan.highlighted ? 'text-white/60' : 'text-text-secondary'}`}>
+                  {plan.description}
+                </p>
               </div>
-              {plan.price === "Custom" && (
-                <div style={{ fontSize: 14, color: "rgba(255,255,255,0.3)", marginBottom: 6 }}>{plan.period}</div>
-              )}
 
-              <p style={{
-                fontSize: 14, lineHeight: 1.6, marginBottom: 28,
-                color: plan.featured ? "rgba(255,255,255,0.55)" : "#6a6a7a",
-              }}>
-                {plan.desc}
-              </p>
-
-              {/* CTA Button */}
-              <button
-                onClick={() => navigate("/signup")}
-                style={{
-                  width: "100%", padding: "13px",
-                  borderRadius: 12,
-                  background: plan.featured ? "#fff" : "#0a0a0a",
-                  color: plan.featured ? "#0a0a0a" : "#fff",
-                  fontSize: 14, fontWeight: 700,
-                  border: "none", cursor: "pointer",
-                  transition: "all 0.2s",
-                  letterSpacing: "-0.01em",
-                  marginBottom: 28,
-                }}
-                onMouseEnter={(e) => { e.currentTarget.style.transform = "translateY(-1px)"; }}
-                onMouseLeave={(e) => { e.currentTarget.style.transform = "none"; }}
+              <Link
+                to="/signup"
+                className={`block w-full text-center py-3 rounded-xl text-[14px] font-semibold transition-all duration-200 mb-6 ${
+                  plan.highlighted
+                    ? 'bg-accent text-white hover:bg-accent-dark'
+                    : 'bg-bg border border-border text-text hover:bg-bg-secondary'
+                }`}
               >
                 {plan.cta}
-              </button>
+              </Link>
 
-              {/* Divider */}
-              <div style={{ height: 1, background: plan.featured ? "rgba(255,255,255,0.07)" : "#f0f0f5", marginBottom: 24 }} />
-
-              {/* Features */}
-              <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+              <div className="space-y-3">
                 {plan.features.map((feature) => (
-                  <div key={feature} style={{ display: "flex", alignItems: "flex-start", gap: 10 }}>
-                    <div style={{
-                      width: 18, height: 18, borderRadius: "50%",
-                      background: plan.featured ? "rgba(255,255,255,0.1)" : "#f0f0f5",
-                      display: "flex", alignItems: "center", justifyContent: "center",
-                      flexShrink: 0, marginTop: 1,
-                    }}>
-                      <svg width="10" height="10" fill="none" stroke={plan.featured ? "#22c55e" : "#0a0a0a"} strokeWidth="2.5" viewBox="0 0 24 24">
-                        <path d="M20 6L9 17l-5-5" strokeLinecap="round" strokeLinejoin="round"/>
-                      </svg>
-                    </div>
-                    <span style={{ fontSize: 14, color: plan.featured ? "rgba(255,255,255,0.75)" : "#4a4a5a", lineHeight: 1.4 }}>
+                  <div key={feature} className="flex items-start gap-2.5">
+                    <Check className={`w-4 h-4 mt-0.5 flex-shrink-0 ${plan.highlighted ? 'text-accent' : 'text-accent'}`} />
+                    <span className={`text-[13px] leading-snug ${plan.highlighted ? 'text-white/80' : 'text-text-secondary'}`}>
                       {feature}
                     </span>
                   </div>
                 ))}
-                {plan.missing.map((feature) => (
-                  <div key={feature} style={{ display: "flex", alignItems: "flex-start", gap: 10, opacity: 0.4 }}>
-                    <div style={{
-                      width: 18, height: 18, borderRadius: "50%", background: "#f0f0f5",
-                      display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, marginTop: 1,
-                    }}>
-                      <svg width="10" height="10" fill="none" stroke="#8a8a9a" strokeWidth="2.5" viewBox="0 0 24 24">
-                        <path d="M18 6L6 18M6 6l12 12" strokeLinecap="round" strokeLinejoin="round"/>
-                      </svg>
-                    </div>
-                    <span style={{ fontSize: 14, color: "#8a8a9a", lineHeight: 1.4 }}>{feature}</span>
-                  </div>
-                ))}
               </div>
-            </div>
+            </motion.div>
           ))}
         </div>
-
-        <p style={{ textAlign: "center", fontSize: 13, color: "#8a8a9a", marginTop: 40 }}>
-          All plans include a 7-day free trial on Pro. No credit card required for Free plan.
-        </p>
       </div>
     </section>
   );
