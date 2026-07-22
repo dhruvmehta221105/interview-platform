@@ -6,7 +6,7 @@ export default function Chatbot() {
   const [messages, setMessages] = useState([
     {
       role: "bot",
-      text: "👋 Hi! I'm your AI Interview Bot from InterviewX.\n\nI can help you:\n• Practice technical & HR interview questions\n• Give feedback on your answers\n• Improve your communication & confidence\n\nWhat role are you preparing for today just let me know?",
+      text: " Hi! I'm your AI Interview Bot from InterviewX.\n\nI can help you:\n• Practice technical & HR interview questions\n• Give feedback on your answers\n• Improve your communication & confidence\n\nWhat role are you preparing for today just let me know?",
     },
   ]);
   const [input, setInput] = useState("");
