@@ -12,7 +12,7 @@ async function sendWelcomeEmail(toEmail) {
   const mailOptions = {
     from: `"InterviewX" <${process.env.EMAIL_USER}>`,
     to: toEmail,
-    subject: "🎉 Welcome to InterviewX — Your Dream Career Awaits!",
+    subject: "Welcome to InterviewX — Your Dream Career Awaits!",
     html: `
       <div style="font-family:'Segoe UI',Arial,sans-serif;background:#f0f2ff;padding:40px 0;">
         <div style="max-width:600px;margin:0 auto;background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.08);">
