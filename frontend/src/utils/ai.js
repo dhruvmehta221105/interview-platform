@@ -79,18 +79,3 @@ export async function getAIResponse(prompt) {
     return "Error fetching response";
   }
 }
-
-export async function testAIAPI() {
-  console.log("\n========== OPENROUTER API TEST ==========");
-  console.log("[Test] Starting API test with fixed prompt...");
-
-  const testPrompt = "Hello, respond with a single sentence confirming you are working.";
-  const response = await getAIResponse(testPrompt);
-
-  console.log("[Test] Test Response:", response);
-  console.log("[Test] Response Type:", typeof response);
-  console.log("[Test] Response Length:", response?.length || 0);
-  console.log("========== TEST COMPLETE ==========\n");
-
-  return response;
-}

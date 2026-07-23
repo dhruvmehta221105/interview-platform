@@ -20,8 +20,6 @@ export const formatDateLong = (dateString) => {
   return new Date(dateString).toLocaleDateString("en-IN", { dateStyle: "long" });
 };
 
-export const padNumber = (num) => String(num).padStart(2, "0");
-
 // ===== CALCULATION HELPERS =====
 export const calculateAverageScore = (t, c, p) => {
   return ((parseFloat(t) + parseFloat(c) + parseFloat(p)) / 3).toFixed(1);
