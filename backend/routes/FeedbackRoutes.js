@@ -6,13 +6,14 @@ const checkAdmin = require("../middleware/checkAdmin");
 
 const {
   addFeedback,
-  getFeedback
+  getFeedback,
+  deleteFeedback
 } = require("../controller/feedbackController");
 
-// Routes
-// ✅ Only admins can add feedback
+// Admins manage the feedback queue; candidates can read feedback for their own interview.
 router.post("/", auth, checkAdmin, addFeedback);
-// ✅ Any logged-in user can view feedback
+router.get("/", auth, checkAdmin, getFeedback);
+router.delete("/:id", auth, checkAdmin, deleteFeedback);
 router.get("/:id", auth, getFeedback);
 
 module.exports = router;

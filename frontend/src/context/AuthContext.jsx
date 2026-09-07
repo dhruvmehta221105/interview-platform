@@ -1,6 +1,5 @@
-import { createContext, useContext, useState } from "react";
-
-const AuthContext = createContext();
+import { useState } from "react";
+import { AuthContext } from "./authContextValue";
 
 export const AuthProvider = ({ children }) => {
   // ✅ safe parse (fixes JSON error)
@@ -25,7 +24,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   // Helper function to check if user is admin
-  const isAdmin = () => user?.role === "admin";
+  const isAdmin = user?.role === "admin";
 
   return (
     <AuthContext.Provider value={{ user, login, logout, isAdmin }}>
@@ -34,5 +33,3 @@ export const AuthProvider = ({ children }) => {
   );
 };
 
-// ✅ THIS WAS MISSING BEFORE (your error)
-export const useAuth = () => useContext(AuthContext);

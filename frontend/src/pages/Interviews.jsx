@@ -63,9 +63,9 @@ function Interviews() {
       <div style={styles.container}>
         <header style={styles.header}>
           <div>
-            <h1 style={styles.title}>Upcoming Interviews</h1>
+            <h1 style={styles.title}>Your Practice Interviews</h1>
             <p style={styles.subtitle}>
-              Manage your scheduled candidate evaluations
+              Prepare, complete, and review your interview practice sessions.
             </p>
           </div>
 

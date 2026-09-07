@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 import {
   LayoutDashboard,
   User,
@@ -12,6 +13,7 @@ import {
 } from "lucide-react";
 
 export default function Profile() {
+  const navigate = useNavigate();
   const [user, setUser] = useState(null);
 
   useEffect(() => {
@@ -35,8 +37,8 @@ export default function Profile() {
 
         <div style={menu}>
           <Menu icon={<User size={18} />} text="Profile" active />
-          <Menu icon={<LayoutDashboard size={18} />} text="Dashboard" />
-          <Menu icon={<Briefcase size={18} />} text="Interviews" />
+          <Menu icon={<LayoutDashboard size={18} />} text="Dashboard" onClick={() => navigate("/interviews")} />
+          <Menu icon={<Briefcase size={18} />} text="Interviews" onClick={() => navigate("/interviews")} />
           <Menu icon={<Settings size={18} />} text="Settings" />
         </div>
       </div>
@@ -137,8 +139,9 @@ export default function Profile() {
 
 /* COMPONENTS */
 
-const Menu = ({ icon, text, active }) => (
+const Menu = ({ icon, text, active, onClick }) => (
   <div
+    onClick={onClick}
     style={{
       display: "flex",
       gap: 10,

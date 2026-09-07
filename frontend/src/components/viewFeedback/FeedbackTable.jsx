@@ -1,5 +1,4 @@
 // components/viewFeedback/FeedbackTable.jsx
-import { scoreColor, recConfig, formatDate } from "../../utils/helpers";
 import FeedbackCard from "./FeedbackCard";
 
 export default function FeedbackTable({ filtered, selected, onSelect, onDelete }) {

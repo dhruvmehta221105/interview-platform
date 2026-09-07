@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { getAIResponse } from "../utils/ai";
 import Navbar from "../components/common/Navbar";
+import API from "../api";
 
 export default function Chatbot() {
   const [messages, setMessages] = useState([
@@ -37,27 +38,11 @@ export default function Chatbot() {
     setLoading(true);
 
     try {
-      // Build history for context (exclude greeting)
-      const history = messages.slice(1).map((m) => ({
-        role: m.role === "user" ? "user" : "assistant",
-        content: m.text,
-      }));
-
       // ✅ Step 1: get AI response (keep your chatbot working)
 const reply = await getAIResponse(userMessage);
 
 // ✅ Step 2: send to backend (store in DB)
-await fetch("http://localhost:5000/api/chat/send", {
-  method: "POST",
-  headers: {
-    "Content-Type": "application/json",
-  },
-  body: JSON.stringify({
-    userId: "123",
-    message: userMessage,
-    response: reply, // ✅ ADD THIS LINE
-  }),
-});
+await API.post("/chat/send", { message: userMessage, response: reply });
 
 
       setMessages((prev) => [...prev, { role: "bot", text: reply }]);

@@ -1,10 +1,13 @@
 // backend/controller/InterviewController.js
 const Interview = require("../models/Interview");
 
+const canAccess = (interview, user) =>
+  user.role === "admin" || interview.userId?.toString() === user.id;
+
 // Create Interview
 exports.createInterview = async (req, res) => {
   try {
-    const interview = await Interview.create(req.body);
+    const interview = await Interview.create({ ...req.body, userId: req.user.id });
     res.status(201).json(interview);
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -14,7 +17,8 @@ exports.createInterview = async (req, res) => {
 // Get All Interviews
 exports.getInterviews = async (req, res) => {
   try {
-    const interviews = await Interview.find();
+    const filter = req.user.role === "admin" ? {} : { userId: req.user.id };
+    const interviews = await Interview.find(filter).sort({ createdAt: -1 });
     res.json(interviews);
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -25,6 +29,8 @@ exports.getInterviews = async (req, res) => {
 exports.getInterviewById = async (req, res) => {
   try {
     const interview = await Interview.findById(req.params.id);
+    if (!interview) return res.status(404).json({ error: "Interview not found" });
+    if (!canAccess(interview, req.user)) return res.status(403).json({ error: "Access denied" });
     res.json(interview);
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -34,11 +40,11 @@ exports.getInterviewById = async (req, res) => {
 // Update Interview Status
 exports.updateInterview = async (req, res) => {
   try {
-    const interview = await Interview.findByIdAndUpdate(
-      req.params.id,
-      req.body,
-      { returnDocument: 'after' }
-    );
+    const interview = await Interview.findById(req.params.id);
+    if (!interview) return res.status(404).json({ error: "Interview not found" });
+    if (!canAccess(interview, req.user)) return res.status(403).json({ error: "Access denied" });
+    Object.assign(interview, req.body);
+    await interview.save();
     res.json(interview);
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -48,7 +54,10 @@ exports.updateInterview = async (req, res) => {
 // Delete Interview
 exports.deleteInterview = async (req, res) => {
   try {
-    await Interview.findByIdAndDelete(req.params.id);
+    const interview = await Interview.findById(req.params.id);
+    if (!interview) return res.status(404).json({ error: "Interview not found" });
+    if (!canAccess(interview, req.user)) return res.status(403).json({ error: "Access denied" });
+    await interview.deleteOne();
     res.json({ message: "Interview deleted" });
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -61,15 +70,13 @@ exports.deleteInterview = async (req, res) => {
 exports.startInterview = async (req, res) => {
   try {
     const { interviewId } = req.params;
-    const interview = await Interview.findByIdAndUpdate(
-      interviewId,
-      {
-        status: "in-progress",
-        startTime: new Date(),
-        currentQuestionIndex: 0
-      },
-      { returnDocument: 'after' }
-    );
+    const existing = await Interview.findById(interviewId);
+    if (!existing) return res.status(404).json({ error: "Interview not found" });
+    if (!canAccess(existing, req.user)) return res.status(403).json({ error: "Access denied" });
+    existing.status = "in-progress";
+    existing.startTime = new Date();
+    existing.currentQuestionIndex = 0;
+    const interview = await existing.save();
     res.json(interview);
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -85,6 +92,7 @@ exports.getQuestion = async (req, res) => {
     if (!interview) {
       return res.status(404).json({ error: "Interview not found" });
     }
+    if (!canAccess(interview, req.user)) return res.status(403).json({ error: "Access denied" });
 
     // Mock AI questions based on role
     const questionBank = {
@@ -148,6 +156,7 @@ exports.submitAnswer = async (req, res) => {
     if (!interview) {
       return res.status(404).json({ error: "Interview not found" });
     }
+    if (!canAccess(interview, req.user)) return res.status(403).json({ error: "Access denied" });
 
     // Get the question text from the question bank
     const questionBank = {
@@ -211,6 +220,7 @@ exports.endInterview = async (req, res) => {
     if (!interview) {
       return res.status(404).json({ error: "Interview not found" });
     }
+    if (!canAccess(interview, req.user)) return res.status(403).json({ error: "Access denied" });
 
     const endTime = new Date();
     const duration = Math.round(

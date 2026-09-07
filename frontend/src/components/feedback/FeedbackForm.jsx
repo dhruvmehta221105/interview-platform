@@ -4,13 +4,15 @@ import { useNavigate } from "react-router-dom";
 import ScoreInput from "./ScoreInput";
 import RecommendationButtons from "./RecommendationButtons";
 import { calculateAverageScore } from "../../utils/helpers";
+import API from "../../api";
 
-export default function FeedbackForm({ initialData = {} }) {
+export default function FeedbackForm({ initialData = {}, interviews = [] }) {
   const navigate = useNavigate();
 
   const [formData, setFormData] = useState({
     candidateName: initialData?.candidateName || "",
     candidateEmail: initialData?.candidateEmail || "",
+    interviewId: initialData?.interviewId || "",
     role: initialData?.role || "",
     date: initialData?.date || "",
     technical: "",
@@ -28,7 +30,19 @@ export default function FeedbackForm({ initialData = {} }) {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    const updated = { ...formData, [name]: value };
+    const selectedInterview = name === "interviewId"
+      ? interviews.find((interview) => interview._id === value)
+      : null;
+    const updated = {
+      ...formData,
+      [name]: value,
+      ...(selectedInterview && {
+        candidateName: selectedInterview.candidateName,
+        candidateEmail: selectedInterview.email,
+        role: selectedInterview.role,
+        date: selectedInterview.date,
+      }),
+    };
     setFormData(updated);
 
     if (
@@ -48,13 +62,19 @@ export default function FeedbackForm({ initialData = {} }) {
     handleChange(e);
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    const existing = JSON.parse(localStorage.getItem("feedbacks") || "[]");
-    const newEntry = { ...formData, totalScore, id: Date.now() };
-    localStorage.setItem("feedbacks", JSON.stringify([newEntry, ...existing]));
-    setSubmitted(true);
-    setTimeout(() => navigate("/view-feedback"), 1500);
+    try {
+      await API.post("/feedback", {
+        interviewId: formData.interviewId,
+        rating: totalScore,
+        ...formData,
+      });
+      setSubmitted(true);
+      setTimeout(() => navigate("/view-feedback"), 800);
+    } catch (error) {
+      window.alert(error.response?.data?.error || "Unable to submit feedback.");
+    }
   };
 
   const scoreColor =
@@ -90,6 +110,27 @@ export default function FeedbackForm({ initialData = {} }) {
       </div>
 
       <form onSubmit={handleSubmit}>
+        {!initialData.interviewId && (
+          <div style={s.card}>
+            <div style={s.cardBody}>
+              <label style={s.label}>Completed Interview <span style={s.req}>*</span></label>
+              <select
+                style={s.select}
+                name="interviewId"
+                value={formData.interviewId}
+                onChange={handleChange}
+                required
+              >
+                <option value="">Select an interview...</option>
+                {interviews.filter((interview) => interview.status === "completed").map((interview) => (
+                  <option key={interview._id} value={interview._id}>
+                    {interview.candidateName} - {interview.role} ({interview.date})
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+        )}
         {/* Candidate Info Card */}
         <div style={s.card}>
           <div style={s.cardHeader}>

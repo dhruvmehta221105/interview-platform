@@ -2,16 +2,18 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "../components/common/Navbar";
 import API from "../api"; // ✅ ADD THIS
+import { useAuth } from "../context/useAuth";
 
 function ScheduleInterview() {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
   const [customRole, setCustomRole] = useState("");
   const [form, setForm] = useState({
-    candidate: "",
-    email: "",
+    candidate: user?.name || "",
+    email: user?.email || "",
     role: "",
     date: "",
     time: ""
@@ -33,7 +35,7 @@ function ScheduleInterview() {
   return;
 }
     try {
-      const response = await API.post("/interviews", {
+      await API.post("/interviews", {
         candidateName: form.candidate, // ✅ mapping fixed
         email: form.email,
         role: form.role === "Other" ? customRole : form.role,
@@ -75,9 +77,9 @@ function ScheduleInterview() {
       <div style={styles.contentWrapper}>
         <div style={styles.container}>
           <div style={styles.header}>
-            <h1 style={styles.title}>Schedule Interview</h1>
+            <h1 style={styles.title}>Set Up Practice Interview</h1>
             <p style={styles.subtitle}>
-              Create a new interview session for a candidate
+              Choose a role and schedule a focused practice session for yourself.
             </p>
           </div>
 
@@ -86,19 +88,20 @@ function ScheduleInterview() {
           <form onSubmit={handleSubmit} style={styles.form}>
             <div style={styles.row}>
               <div style={styles.inputGroup}>
-                <label style={styles.label}>Candidate Name</label>
+                <label style={styles.label}>Your Name</label>
                 <input
                   name="candidate"
                   placeholder="John Doe"
                   style={styles.input}
                   onChange={handleChange}
                   value={form.candidate}
+                  readOnly
                   required
                 />
               </div>
 
               <div style={styles.inputGroup}>
-                <label style={styles.label}>Email</label>
+                <label style={styles.label}>Account Email</label>
                 <input
                   name="email"
                   type="email"
@@ -106,6 +109,7 @@ function ScheduleInterview() {
                   style={styles.input}
                   onChange={handleChange}
                   value={form.email}
+                  readOnly
                   required
                 />
               </div>

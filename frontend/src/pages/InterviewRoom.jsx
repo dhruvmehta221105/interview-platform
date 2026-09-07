@@ -452,7 +452,11 @@ function InterviewRoom() {
       if (!audioBlob || audioBlob.size === 0) throw new Error("Audio blob is empty");
       const formData = new FormData();
       formData.append("audio", audioBlob, "recording.webm");
-      const res  = await fetch("http://localhost:5000/api/whisper/transcribe", { method: "POST", body: formData });
+      const res  = await fetch("http://localhost:5000/api/whisper/transcribe", {
+        method: "POST",
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+        body: formData
+      });
       const data = await res.json();
       if (!res.ok) throw new Error(data.message || "Transcription failed");
       return data.text || "Unable to transcribe.";

@@ -208,19 +208,6 @@ function InterviewResult() {
             Download Report
           </button>
           <button
-            style={styles.feedbackBtn}
-            onClick={() => navigate("/add-feedback", { 
-              state: { 
-                candidateName: interview?.candidateName,
-                candidateEmail: interview?.candidateEmail,
-                role: interview?.role,
-                date: interview?.date
-              } 
-            })}
-          >
-            Add Feedback
-          </button>
-          <button
             style={styles.primaryBtn}
             onClick={() => navigate("/interviews")}
           >

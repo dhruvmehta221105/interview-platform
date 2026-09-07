@@ -32,7 +32,7 @@ const registerUser = async (req, res) => {
         email: user.email,
         role: user.role,
       },
-      token: generateToken(user._id),
+      token: generateToken(user._id, user.role),
     });
   } catch (error) {
     return res.status(500).json({ message: error.message });
@@ -57,7 +57,7 @@ const loginUser = async (req, res) => {
           email: user.email,
           role: user.role,
         },
-        token: generateToken(user._id),
+        token: generateToken(user._id, user.role),
       });
     } else {
       return res.status(401).json({ message: "Invalid credentials" });

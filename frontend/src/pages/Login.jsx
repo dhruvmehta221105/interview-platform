@@ -1,8 +1,8 @@
 import axios from 'axios';
 import { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
 import { motion } from 'framer-motion';
+import { useNavigate, Link } from 'react-router-dom';
+import { useAuth } from '../context/useAuth';
 import { Eye, EyeOff, Mail, Lock, ArrowRight } from 'lucide-react';
 
 export default function Login() {
@@ -39,7 +39,7 @@ export default function Login() {
         password: form.password,
       });
       login(res.data);
-      navigate('/');
+      navigate(res.data.user?.role === "admin" ? "/view-feedback" : "/interviews");
     } catch (error) {
       setErrors({ email: error.response?.data?.message || 'Invalid email or password' });
     }

@@ -1,12 +1,17 @@
-import { useState } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { useLocation } from "react-router-dom";
 import Navbar from "../components/common/Navbar";
 import FeedbackForm from "../components/feedback/FeedbackForm";
+import API from "../api";
 
 function AddFeedback() {
-  const navigate = useNavigate();
   const location = useLocation();
   const interviewData = location.state || {};
+  const [interviews, setInterviews] = useState([]);
+
+  useEffect(() => {
+    API.get("/interviews").then((res) => setInterviews(res.data || []));
+  }, []);
 
   return (
     <div style={s.root}>
@@ -25,7 +30,7 @@ function AddFeedback() {
 
       {/* Form */}
       <div style={s.contentWrap}>
-        <FeedbackForm initialData={interviewData} />
+        <FeedbackForm initialData={interviewData} interviews={interviews} />
       </div>
     </div>
   );

@@ -1,13 +1,13 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { useAuth } from '../../context/AuthContext';
+import { useAuth } from '../../context/useAuth';
 import { Menu, X, ChevronDown, LogOut, User, LayoutDashboard } from 'lucide-react';
 
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
-  const { user, logout } = useAuth();
+  const { user, logout, isAdmin } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -104,6 +104,16 @@ export default function Navbar() {
                       <LayoutDashboard className="w-4 h-4" />
                       Dashboard
                     </Link>
+                    {isAdmin && (
+                      <Link
+                        to="/view-feedback"
+                        onClick={() => setProfileOpen(false)}
+                        className="flex items-center gap-3 px-4 py-2.5 text-sm text-text-secondary hover:bg-bg-secondary hover:text-text transition-colors"
+                      >
+                        <LayoutDashboard className="w-4 h-4" />
+                        Feedback workspace
+                      </Link>
+                    )}
                     <div className="h-px bg-border mx-3 my-1" />
                     <button
                       onClick={handleLogout}
@@ -173,6 +183,15 @@ export default function Navbar() {
                 >
                   Dashboard
                 </Link>
+                {isAdmin && (
+                  <Link
+                    to="/view-feedback"
+                    onClick={() => setMobileOpen(false)}
+                    className="text-[16px] font-medium text-text py-3 px-4 rounded-xl hover:bg-bg-secondary transition-colors"
+                  >
+                    Feedback workspace
+                  </Link>
+                )}
                 <button
                   onClick={() => { handleLogout(); setMobileOpen(false); }}
                   className="text-[16px] font-medium text-red-600 py-3 px-4 rounded-xl hover:bg-red-50 transition-colors text-left"

@@ -1,5 +1,6 @@
-import { useAuth } from "../context/AuthContext";
+import { useAuth } from "../context/useAuth";
 import AdminOnlyView from "./AdminOnlyView";
+import { Navigate } from "react-router-dom";
 
 /**
  * AdminRoute - Shows access denied message if user is not an admin
@@ -7,9 +8,7 @@ import AdminOnlyView from "./AdminOnlyView";
 const AdminRoute = ({ children }) => {
   const { user } = useAuth();
 
-  if (!user) {
-    return <AdminOnlyView />;
-  }
+  if (!user) return <Navigate to="/login" replace />;
 
   if (user.role !== "admin") {
     return <AdminOnlyView />;

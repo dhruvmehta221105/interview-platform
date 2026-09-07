@@ -7,11 +7,11 @@ const sendMessage = async (req, res) => {
     console.log("API HIT");
     console.log("BODY:", req.body);
 
-    const { userId, message, response } = req.body;
+    const { message, response } = req.body;
 
     // validate input
-    if (!userId || !message) {
-      return res.status(400).json({ error: "userId and message are required" });
+    if (!message) {
+      return res.status(400).json({ error: "message is required" });
     }
 
     // get response from chatbot
@@ -19,7 +19,7 @@ const sendMessage = async (req, res) => {
 
     // save to MongoDB
     const chat = await Chat.create({
-      userId,
+      userId: req.user.id,
       message,
       response: botResponse,
     });
@@ -40,9 +40,7 @@ const sendMessage = async (req, res) => {
 // get chat history
 const getChatHistory = async (req, res) => {
   try {
-    console.log("FETCH CHAT FOR:", req.params.userId);
-
-    const chats = await Chat.find({ userId: req.params.userId })
+    const chats = await Chat.find({ userId: req.user.id })
       .sort({ createdAt: 1 });
 
     res.json(chats);

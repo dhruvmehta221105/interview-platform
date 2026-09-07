@@ -60,7 +60,7 @@ function App() {
         {/* 🔴 PROTECTED PAGES - All logged-in users can view feedback */}
         <Route 
           path="/view-feedback" 
-          element={<ProtectedRoute><ViewFeedback /></ProtectedRoute>} 
+          element={<AdminRoute><ViewFeedback /></AdminRoute>} 
         />
         <Route 
           path="/profile" 

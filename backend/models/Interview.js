@@ -12,6 +12,12 @@ const questionSchema = new mongoose.Schema({
 
 const interviewSchema = new mongoose.Schema(
   {
+    userId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+      index: true
+    },
     candidateName: {
       type: String,
       required: true

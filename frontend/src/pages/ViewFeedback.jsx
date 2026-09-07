@@ -4,13 +4,7 @@ import Navbar from "../components/common/Navbar";
 import FeedbackTable from "../components/viewFeedback/FeedbackTable";
 import DetailPanel from "../components/viewFeedback/DetailPanel";
 import { filterFeedbacks, sortFeedbacks } from "../utils/helpers";
-
-const DEMO = [
-  { id: 1, candidateName: "Arjun Sharma", candidateEmail: "arjun@example.com", role: "Frontend Developer", date: "2025-03-14", technical: "4", communication: "5", problemSolving: "4", strengths: "Excellent React knowledge, clean code structure, great with CSS animations.", improvements: "Could improve on system design concepts and backend awareness.", comments: "Very promising candidate. Would be a great addition to the team.", recommendation: "Strongly Hire", totalScore: "4.3" },
-  { id: 2, candidateName: "Priya Mehta", candidateEmail: "priya@example.com", role: "Data Scientist", date: "2025-03-12", technical: "5", communication: "3", problemSolving: "5", strengths: "Outstanding ML knowledge, strong problem-solving, excellent Python skills.", improvements: "Needs to work on communication and explaining complex ideas simply.", comments: "Technically exceptional, communication needs some polish.", recommendation: "Hire", totalScore: "4.3" },
-  { id: 3, candidateName: "Rahul Verma", candidateEmail: "rahul@example.com", role: "Backend Developer", date: "2025-03-10", technical: "3", communication: "4", problemSolving: "2", strengths: "Good communication, understands REST APIs.", improvements: "Needs significant improvement in DSA and system design.", comments: "Not ready for a senior role. Could revisit after 3-6 months.", recommendation: "No Hire", totalScore: "3.0" },
-  { id: 4, candidateName: "Sneha Kapoor", candidateEmail: "sneha@example.com", role: "UX Designer", date: "2025-03-08", technical: "3", communication: "5", problemSolving: "4", strengths: "Superb portfolio, user empathy, great at presenting ideas.", improvements: "Needs to improve on prototyping speed and accessibility knowledge.", comments: "Would fit well with the design team.", recommendation: "Hire", totalScore: "4.0" },
-];
+import API from "../api";
 
 function ViewFeedback() {
   const navigate = useNavigate();
@@ -23,14 +17,17 @@ function ViewFeedback() {
   const [deleteId, setDeleteId] = useState(null);
 
   useEffect(() => {
-    try {
-      const stored = JSON.parse(localStorage.getItem("feedbacks") || "[]");
-      const data = Array.isArray(stored) && stored.length ? stored : DEMO;
-      setFeedbacks(Array.isArray(data) ? data : DEMO);
-    } catch (error) {
-      console.error("Error parsing feedbacks from localStorage:", error);
-      setFeedbacks(DEMO);
-    }
+    API.get("/feedback")
+      .then((res) => setFeedbacks((res.data || []).map((feedback) => ({
+        ...feedback,
+        id: feedback._id,
+        candidateName: feedback.interviewId?.candidateName || "Unknown candidate",
+        candidateEmail: feedback.interviewId?.email || "",
+        role: feedback.interviewId?.role || "",
+        date: feedback.interviewId?.date || feedback.createdAt,
+        totalScore: feedback.rating,
+      }))))
+      .catch((error) => console.error("Error loading feedback:", error));
   }, []);
 
   // Ensure feedbacks is always an array
@@ -44,7 +41,7 @@ function ViewFeedback() {
   const handleDelete = (id) => {
     const updated = safeFeedbacks.filter((f) => f?.id !== id);
     setFeedbacks(updated);
-    localStorage.setItem("feedbacks", JSON.stringify(updated));
+    API.delete(`/feedback/${id}`).catch((error) => console.error("Error deleting feedback:", error));
     setDeleteId(null);
     if (selected?.id === id) setSelected(null);
   };

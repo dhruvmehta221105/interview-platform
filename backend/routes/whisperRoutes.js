@@ -1,6 +1,7 @@
 const express = require("express");
 const multer = require("multer");
 const { transcribeAudio } = require("../controller/whisperController");
+const auth = require("../middleware/auth");
 
 const router = express.Router();
 
@@ -8,6 +9,6 @@ const router = express.Router();
 const upload = multer({ dest: "uploads/" });
 
 // route
-router.post("/transcribe", upload.single("audio"), transcribeAudio);
+router.post("/transcribe", auth, upload.single("audio"), transcribeAudio);
 
 module.exports = router;
