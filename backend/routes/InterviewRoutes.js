@@ -9,7 +9,10 @@ const {
   getInterviewById,
   updateInterview,
   deleteInterview,
+  prepareInterview,
   startInterview,
+  pauseInterview,
+  resumeInterview,
   getQuestion,
   submitAnswer,
   endInterview
@@ -23,7 +26,10 @@ router.put("/:id", auth, updateInterview);
 router.delete("/:id", auth, deleteInterview);
 
 // Interview Flow Routes
+router.post("/:interviewId/ready", auth, prepareInterview);
 router.post("/:interviewId/start", auth, startInterview);
+router.post("/:interviewId/pause", auth, pauseInterview);
+router.post("/:interviewId/resume", auth, resumeInterview);
 router.get("/:interviewId/question", auth, getQuestion);
 router.post("/:interviewId/answer", auth, submitAnswer);
 router.post("/:interviewId/end", auth, endInterview);

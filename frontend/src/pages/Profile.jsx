@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import API from "../api";
 import {
   LayoutDashboard,
   User,
@@ -17,12 +17,7 @@ export default function Profile() {
   const [user, setUser] = useState(null);
 
   useEffect(() => {
-    axios
-      .get("http://localhost:5000/api/profile", {
-        headers: {
-          Authorization: "Bearer " + localStorage.getItem("token"),
-        },
-      })
+    API.get("/profile")
       .then((res) => setUser(res.data))
       .catch((err) => console.log(err));
   }, []);

@@ -1,11 +1,19 @@
 // backend/models/Interview.js
 const mongoose = require("mongoose");
 
+const audioReferenceSchema = new mongoose.Schema({
+  storageKey: { type: String, required: true },
+  contentType: { type: String, required: true },
+  size: { type: Number, required: true },
+  originalName: { type: String, required: true },
+  createdAt: { type: Date, default: Date.now }
+}, { _id: false });
+
 const questionSchema = new mongoose.Schema({
   _id: false,
   questionId: Number,
   questionText: String,
-  audioBlob: String, // base64 encoded audio
+  audio: audioReferenceSchema,
   transcript: String,
   createdAt: { type: Date, default: Date.now }
 });
@@ -40,7 +48,7 @@ const interviewSchema = new mongoose.Schema(
     },
     status: {
       type: String,
-      enum: ["scheduled", "in-progress", "completed"],
+      enum: ["scheduled", "ready", "in-progress", "paused", "processing", "completed"],
       default: "scheduled"
     },
     startTime: Date,

@@ -1,38 +1,19 @@
-const Chat = require("../models/Chat");
-const getBotResponse = require("../utils/chatbot");
+const chatService = require("../services/chatService");
+const { isNonEmptyString } = require("../validators/commonValidator");
 
 // send message + store in DB
 const sendMessage = async (req, res) => {
   try {
-    console.log("API HIT");
-    console.log("BODY:", req.body);
-
-    const { message, response } = req.body;
+    const { message } = req.body;
 
     // validate input
-    if (!message) {
+    if (!isNonEmptyString(message, 4000)) {
       return res.status(400).json({ error: "message is required" });
     }
 
-    // get response from chatbot
-    const botResponse = response;
-
-    // save to MongoDB
-    const chat = await Chat.create({
-      userId: req.user.id,
-      message,
-      response: botResponse,
-    });
-
-    console.log("SAVED TO DB:", chat);
-
-    res.json({
-      message,
-      response: botResponse,
-    });
+    res.json(await chatService.sendMessage(req.user.id, message.trim()));
 
   } catch (error) {
-    console.log("ERROR:", error);
     res.status(500).json({ error: error.message });
   }
 };
@@ -40,13 +21,9 @@ const sendMessage = async (req, res) => {
 // get chat history
 const getChatHistory = async (req, res) => {
   try {
-    const chats = await Chat.find({ userId: req.user.id })
-      .sort({ createdAt: 1 });
-
-    res.json(chats);
+    res.json(await chatService.getChatHistory(req.user.id));
 
   } catch (error) {
-    console.log("ERROR:", error);
     res.status(500).json({ error: error.message });
   }
 };

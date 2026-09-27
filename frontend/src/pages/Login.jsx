@@ -1,9 +1,9 @@
-import axios from 'axios';
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/useAuth';
 import { Eye, EyeOff, Mail, Lock, ArrowRight } from 'lucide-react';
+import API from '../api';
 
 export default function Login() {
   const navigate = useNavigate();
@@ -34,7 +34,7 @@ export default function Login() {
     setLoading(true);
 
     try {
-      const res = await axios.post('http://localhost:5000/api/auth/login', {
+      const res = await API.post('/auth/login', {
         email: form.email,
         password: form.password,
       });

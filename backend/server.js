@@ -6,6 +6,7 @@ const path = require("path");
 const connectDB = require("./config/db");
 
 dotenv.config();
+const config = require("./config/env");
 connectDB();
 
 const app = express();
@@ -16,9 +17,19 @@ if (!fs.existsSync(uploadsDir)) {
   fs.mkdirSync(uploadsDir, { recursive: true });
   console.log("Created uploads directory");
 }
+fs.mkdirSync(config.tempUploadDir, { recursive: true });
+fs.mkdirSync(config.audioStorageDir, { recursive: true });
 
-// 🟢 CORS
-app.use(cors());
+// Allow browser requests only from configured frontend origins.
+app.use(cors({
+  origin(origin, callback) {
+    if (!origin || config.frontendOrigins.includes(origin)) {
+      return callback(null, true);
+    }
+
+    return callback(new Error("Origin is not allowed by CORS"));
+  }
+}));
 
 // 🟢 Body parser
 app.use(express.json());
@@ -54,7 +65,7 @@ app.use((err, req, res, next) => {
   res.status(500).json({ message: "Something went wrong" });
 });
 
-const PORT = process.env.PORT || 5000;
+const PORT = config.port;
 
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);

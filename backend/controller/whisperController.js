@@ -1,39 +1,14 @@
-const { exec } = require("child_process");
-const fs = require("fs");
+const transcriptionService = require("../services/transcriptionService");
 
-exports.transcribeAudio = (req, res) => {
+exports.transcribeAudio = async (req, res) => {
   try {
     if (!req.file) {
       return res.status(400).json({ message: "No file uploaded" });
     }
 
-    const filePath = req.file.path;
-
-    exec(
-  `py transcribe.py "${filePath}"`,
-  { cwd: __dirname + "/.." }, // ensures backend folder
-  (err, stdout, stderr) => {
-      console.log("==== WHISPER DEBUG ====");
-      console.log("FILE:", filePath);
-      console.log("STDOUT:", stdout);
-      console.log("STDERR:", stderr);
-      console.log("ERROR:", err);
-      console.log("=======================");
-
-      if (err) {
-        return res.status(500).json({
-          message: "Transcription failed",
-          error: stderr || err.message,
-        });
-      }
-
-      fs.unlinkSync(filePath);
-
-      return res.json({ text: stdout.trim() });
-    });
-
+    const result = await transcriptionService.transcribeAudio(req.file);
+    return res.json(result);
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: "Server error" });
+    return res.status(error.statusCode || 500).json({ message: error.message || "Transcription failed" });
   }
 };
