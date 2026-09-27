@@ -34,7 +34,10 @@ function Interviews() {
 
   const handleStartInterview = async (interviewId, role) => {
     try {
-      // Mark interview as in-progress
+      const selectedInterview = interviews.find((interview) => interview._id === interviewId);
+      if (selectedInterview?.status === "scheduled") {
+        await API.post(`/interviews/${interviewId}/ready`);
+      }
       await API.post(`/interviews/${interviewId}/start`);
       
       // Navigate to interview room with state
@@ -50,7 +53,10 @@ function Interviews() {
   const getStatusBadge = (status) => {
     const statusStyles = {
       scheduled: { background: "#e3f2fd", color: "#1976d2", label: "Scheduled" },
+      ready: { background: "#e8f8f5", color: "#16866a", label: "Ready" },
       "in-progress": { background: "#fff3e0", color: "#f57c00", label: "In Progress" },
+      paused: { background: "#f3e8ff", color: "#7e22ce", label: "Paused" },
+      processing: { background: "#f1f5f9", color: "#475569", label: "Processing" },
       completed: { background: "#e8f8f5", color: "#27ae60", label: "Completed" }
     };
     return statusStyles[status] || statusStyles.scheduled;
@@ -129,15 +135,19 @@ function Interviews() {
                     style={{
                       ...styles.btnStart,
                       ...(int.status === "completed" ? styles.btnDisabled : {}),
-                      ...(int.status === "in-progress" ? styles.btnWarning : {})
+                      ...(int.status === "in-progress" || int.status === "paused" ? styles.btnWarning : {})
                     }}
                     onClick={() => handleStartInterview(int._id, int.role)}
-                    disabled={int.status === "completed"}
+                    disabled={int.status === "completed" || int.status === "processing"}
                   >
                     {int.status === "completed" 
                       ? "Completed" 
+                      : int.status === "processing"
+                        ? "Processing..."
                       : int.status === "in-progress" 
                         ? "Resume Interview" 
+                        : int.status === "paused"
+                          ? "Resume Interview"
                         : "Start Interview"}
                   </button>
                 </div>

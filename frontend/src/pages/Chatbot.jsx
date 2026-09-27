@@ -1,5 +1,4 @@
 import { useState, useRef, useEffect } from "react";
-import { getAIResponse } from "../utils/ai";
 import Navbar from "../components/common/Navbar";
 import API from "../api";
 
@@ -38,12 +37,8 @@ export default function Chatbot() {
     setLoading(true);
 
     try {
-      // ✅ Step 1: get AI response (keep your chatbot working)
-const reply = await getAIResponse(userMessage);
-
-// ✅ Step 2: send to backend (store in DB)
-await API.post("/chat/send", { message: userMessage, response: reply });
-
+      const response = await API.post("/chat/send", { message: userMessage });
+      const reply = response.data.response;
 
       setMessages((prev) => [...prev, { role: "bot", text: reply }]);
     } catch (err) {

@@ -1,6 +1,7 @@
 const User = require("../models/User");
 const bcrypt = require("bcryptjs");
 const generateToken = require("../utils/generateToken");
+const { isValidEmail, isValidObjectId, isNonEmptyString } = require("../validators/commonValidator");
 
 // REGISTER ADMIN (Protected - only existing admins can create new admins)
 const registerAdmin = async (req, res) => {
@@ -8,12 +9,13 @@ const registerAdmin = async (req, res) => {
     const { name, email, password } = req.body;
 
     // Validate input
-    if (!name || !email || !password) {
-      return res.status(400).json({ message: "All fields required" });
+    if (!isNonEmptyString(name, 100) || !isValidEmail(email) || typeof password !== "string" || password.length < 8) {
+      return res.status(400).json({ message: "Name, valid email, and password of at least 8 characters are required" });
     }
 
     // Check if email already exists
-    const userExists = await User.findOne({ email });
+    const normalizedEmail = email.trim().toLowerCase();
+    const userExists = await User.findOne({ email: normalizedEmail });
     if (userExists) {
       return res.status(400).json({ message: "User already exists" });
     }
@@ -23,8 +25,8 @@ const registerAdmin = async (req, res) => {
 
     // Create admin user
     const admin = await User.create({
-      name,
-      email,
+      name: name.trim(),
+      email: normalizedEmail,
       password: hashedPassword,
       role: "admin", // ✅ Set as admin
     });
@@ -37,7 +39,7 @@ const registerAdmin = async (req, res) => {
         email: admin.email,
         role: admin.role,
       },
-      token: generateToken(admin._id),
+      token: generateToken(admin._id, admin.role),
     });
   } catch (error) {
     return res.status(500).json({ message: error.message });
@@ -68,7 +70,7 @@ const promoteToAdmin = async (req, res) => {
   try {
     const { userId } = req.body;
 
-    if (!userId) {
+    if (!isValidObjectId(userId)) {
       return res.status(400).json({ message: "User ID required" });
     }
 
@@ -103,7 +105,7 @@ const demoteAdminToUser = async (req, res) => {
   try {
     const { userId } = req.body;
 
-    if (!userId) {
+    if (!isValidObjectId(userId)) {
       return res.status(400).json({ message: "User ID required" });
     }
 

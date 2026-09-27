@@ -1,14 +1,10 @@
 const express = require("express");
-const multer = require("multer");
 const { transcribeAudio } = require("../controller/whisperController");
 const auth = require("../middleware/auth");
+const { audioUpload, handleUploadError } = require("../middleware/upload");
 
 const router = express.Router();
 
-// upload config
-const upload = multer({ dest: "uploads/" });
-
-// route
-router.post("/transcribe", auth, upload.single("audio"), transcribeAudio);
+router.post("/transcribe", auth, audioUpload.single("audio"), handleUploadError, transcribeAudio);
 
 module.exports = router;

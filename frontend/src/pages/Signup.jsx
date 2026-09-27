@@ -1,9 +1,9 @@
-import axios from 'axios';
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate, Link } from 'react-router-dom';
 import { Eye, EyeOff, Mail, Lock, User, ArrowRight } from 'lucide-react';
 import PasswordStrength from '../components/ui/PasswordStrength';
+import API from '../api';
 
 export default function Signup() {
   const navigate = useNavigate();
@@ -39,13 +39,12 @@ export default function Signup() {
     setLoading(true);
 
     try {
-      const res = await axios.post('http://localhost:5000/api/auth/register', {
+      const res = await API.post('/auth/register', {
         name: form.name,
         email: form.email,
         password: form.password,
       });
 
-      console.log('Signup Success:', res.data);
       navigate('/login');
     } catch (error) {
       setErrors({

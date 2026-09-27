@@ -1,17 +1,19 @@
 const User = require("../models/User");
 const bcrypt = require("bcryptjs");
 const generateToken = require("../utils/generateToken");
+const { isValidEmail, isNonEmptyString } = require("../validators/commonValidator");
 
 // REGISTER
 const registerUser = async (req, res) => {
   try {
     const { name, email, password } = req.body;
 
-    if (!name || !email || !password) {
-      return res.status(400).json({ message: "All fields required" });
+    if (!isNonEmptyString(name, 100) || !isValidEmail(email) || typeof password !== "string" || password.length < 8) {
+      return res.status(400).json({ message: "Name, valid email, and password of at least 8 characters are required" });
     }
 
-    const userExists = await User.findOne({ email });
+    const normalizedEmail = email.trim().toLowerCase();
+    const userExists = await User.findOne({ email: normalizedEmail });
     if (userExists) {
       return res.status(400).json({ message: "User already exists" });
     }
@@ -19,8 +21,8 @@ const registerUser = async (req, res) => {
     const hashedPassword = await bcrypt.hash(password, 10);
 
     const user = await User.create({
-      name,
-      email,
+      name: name.trim(),
+      email: normalizedEmail,
       password: hashedPassword,
       role: "user", // Always register as user, not admin
     });
@@ -43,11 +45,12 @@ const registerUser = async (req, res) => {
 const loginUser = async (req, res) => {
   try {
     const { email, password } = req.body;
-    console.log("Entered Email:", email);
-    console.log("Entered Password:", password);
 
-    const user = await User.findOne({ email });
-    console.log("DB User:", user);
+    if (!isValidEmail(email) || typeof password !== "string" || password.length === 0) {
+      return res.status(400).json({ message: "Valid email and password are required" });
+    }
+
+    const user = await User.findOne({ email: email.trim().toLowerCase() });
 
     if (user && (await bcrypt.compare(password, user.password))) {
       return res.json({

@@ -274,7 +274,11 @@ function InterviewRoom() {
         setCurrentQuestion(questionRes.data);
 
         // ✅ START TIMER
-        let seconds = 0;
+        let seconds = Math.max(
+          0,
+          Math.floor((Date.now() - new Date(interviewRes.data.startTime).getTime()) / 1000)
+        );
+        setTimeElapsed(seconds);
         timerIntervalRef.current = setInterval(() => {
           seconds += 1;
           setTimeElapsed(seconds);
@@ -452,17 +456,15 @@ function InterviewRoom() {
       if (!audioBlob || audioBlob.size === 0) throw new Error("Audio blob is empty");
       const formData = new FormData();
       formData.append("audio", audioBlob, "recording.webm");
-      const res  = await fetch("http://localhost:5000/api/whisper/transcribe", {
-        method: "POST",
-        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-        body: formData
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.message || "Transcription failed");
-      return data.text || "Unable to transcribe.";
+      const response = await API.post("/whisper/transcribe", formData);
+      const data = response.data;
+      return {
+        text: data.text || "Unable to transcribe.",
+        audio: data.audio
+      };
     } catch (err) {
       console.error("Whisper error:", err);
-      return "Unable to transcribe.";
+      return { text: "Unable to transcribe." };
     }
   };
 
@@ -520,9 +522,12 @@ function InterviewRoom() {
 
       // Transcribe audio
       let transcript = "";
+      let audio;
       try { 
         console.log("[Submit] Sending to transcription service...");
-        transcript = await transcribeAudio(audioBlob); 
+        const transcription = await transcribeAudio(audioBlob);
+        transcript = transcription.text;
+        audio = transcription.audio;
         console.log("[Submit] Transcription complete");
       }
       catch (err) { 
@@ -535,6 +540,7 @@ function InterviewRoom() {
       await API.post(`/interviews/${interviewId}/answer`, {
         questionId: currentQuestion.questionId,
         transcript,
+        audio
       });
 
       // Clear chunks and fetch next question
@@ -670,6 +676,30 @@ function InterviewRoom() {
   };
 
   /* ── End ── */
+  const pauseInterview = async () => {
+    if (isSubmitting) return;
+
+    try {
+      await API.post(`/interviews/${interviewId}/pause`);
+
+      if (timerIntervalRef.current) {
+        clearInterval(timerIntervalRef.current);
+        timerIntervalRef.current = null;
+      }
+      if (mediaRecorderRef.current?.state !== "inactive") {
+        mediaRecorderRef.current.stop();
+      }
+      if (videoStream) stopAllMediaTracks(videoStream);
+      setVideoStream(null);
+      setIsRecording(false);
+      mediaRecorderRef.current = null;
+      recordedChunksRef.current = [];
+      navigate("/interviews");
+    } catch (err) {
+      setError(err.response?.data?.error || "Failed to pause interview");
+    }
+  };
+
   const endInterview = async () => {
     try {
       console.log("[EndInterview] Starting interview end sequence...");
@@ -1025,6 +1055,15 @@ function InterviewRoom() {
 
         {/* Right: End */}
         <div style={c.ctrlRight}>
+          <button
+            className="ix-end-btn"
+            style={{ ...c.endBtn, opacity: isSubmitting ? 0.5 : 1, marginRight: 8 }}
+            onClick={pauseInterview}
+            disabled={isSubmitting}
+            title="Pause interview"
+          >
+            Pause
+          </button>
           <button
             className="ix-end-btn"
             style={{ ...c.endBtn, opacity: isSubmitting ? 0.5 : 1 }}
