@@ -15,6 +15,9 @@ function ScheduleInterview() {
     candidate: user?.name || "",
     email: user?.email || "",
     role: "",
+    difficulty: "medium",
+    jobDescription: "",
+    questionCount: 5,
     date: "",
     time: ""
   });
@@ -39,6 +42,9 @@ function ScheduleInterview() {
         candidateName: form.candidate, // ✅ mapping fixed
         email: form.email,
         role: form.role === "Other" ? customRole : form.role,
+        difficulty: form.difficulty,
+        jobDescription: form.jobDescription,
+        questionCount: Number(form.questionCount),
         date: form.date,
         time: form.time,
         status: "scheduled"
@@ -50,6 +56,9 @@ function ScheduleInterview() {
         candidate: "",
         email: "",
         role: "",
+        difficulty: "medium",
+        jobDescription: "",
+        questionCount: 5,
         date: "",
         time: ""
       });
@@ -156,6 +165,26 @@ function ScheduleInterview() {
                   required
                 />
               </div>
+            </div>
+
+            <div style={styles.row}>
+              <div style={styles.inputGroup}>
+                <label style={styles.label}>Difficulty</label>
+                <select name="difficulty" style={styles.input} onChange={handleChange} value={form.difficulty}>
+                  <option value="easy">Easy</option>
+                  <option value="medium">Medium</option>
+                  <option value="hard">Hard</option>
+                </select>
+              </div>
+              <div style={styles.inputGroup}>
+                <label style={styles.label}>Questions</label>
+                <input name="questionCount" type="number" min="1" max="20" style={styles.input} onChange={handleChange} value={form.questionCount} required />
+              </div>
+            </div>
+
+            <div style={styles.inputGroup}>
+              <label style={styles.label}>Job Description (optional)</label>
+              <textarea name="jobDescription" rows="5" maxLength="10000" style={styles.input} onChange={handleChange} value={form.jobDescription} placeholder="Paste the role description to make questions more relevant..." />
             </div>
 
             <div style={styles.inputGroup}>

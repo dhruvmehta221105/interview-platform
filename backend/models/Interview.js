@@ -13,8 +13,18 @@ const questionSchema = new mongoose.Schema({
   _id: false,
   questionId: Number,
   questionText: String,
+  focus: String,
+  difficulty: String,
+  expectedSignals: [String],
   audio: audioReferenceSchema,
   transcript: String,
+  evaluation: {
+    score: Number,
+    strengths: [String],
+    weaknesses: [String],
+    feedback: String,
+    recommendedTopics: [String]
+  },
   createdAt: { type: Date, default: Date.now }
 });
 
@@ -38,6 +48,22 @@ const interviewSchema = new mongoose.Schema(
       type: String,
       required: true
     },
+    difficulty: {
+      type: String,
+      enum: ["easy", "medium", "hard"],
+      default: "medium"
+    },
+    jobDescription: {
+      type: String,
+      default: "",
+      maxlength: 10000
+    },
+    questionCount: {
+      type: Number,
+      min: 1,
+      max: 20,
+      default: 5
+    },
     date: {
       type: String,
       required: true
@@ -58,9 +84,24 @@ const interviewSchema = new mongoose.Schema(
       type: Number,
       default: 0
     },
+    activeQuestion: {
+      questionId: Number,
+      questionText: String,
+      focus: String,
+      difficulty: String,
+      expectedSignals: [String]
+    },
     questions: [questionSchema], // array of Q&A
     totalScore: Number,
-    feedback: String
+    feedback: String,
+    categoryScores: {
+      technical: Number,
+      communication: Number,
+      problemSolving: Number
+    },
+    strengths: [String],
+    weaknesses: [String],
+    recommendedTopics: [String]
   },
   { timestamps: true }
 );
