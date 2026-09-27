@@ -1,68 +1,201 @@
-InterviewX – Real-Time Interview Platform
+# InterviewX — AI-Powered Real-Time Interview Platform
 
-InterviewX is a full-stack web application designed to help users practice interviews with AI and receive structured feedback from interviewers.
+<p align="center">
+  <strong>Practice interviews with AI. Get evaluated. Track your improvement.</strong>
+</p>
 
-This platform allows:
+<p align="center">
+  <img src="https://img.shields.io/badge/React-18-61DAFB?logo=react&logoColor=white" />
+  <img src="https://img.shields.io/badge/Vite-646CFF?logo=vite&logoColor=white" />
+  <img src="https://img.shields.io/badge/Node.js-339933?logo=node.js&logoColor=white" />
+  <img src="https://img.shields.io/badge/Express-000000?logo=express&logoColor=white" />
+  <img src="https://img.shields.io/badge/MongoDB-47A248?logo=mongodb&logoColor=white" />
+  <img src="https://img.shields.io/badge/OpenAI-412991?logo=openai&logoColor=white" />
+</p>
 
-1. Practice interviews
+---
 
-2. AI chatbot interaction
+## 🚀 Overview
 
-3. Feedback collection system
+**InterviewX** is a full-stack AI interview platform designed to simulate realistic technical and behavioral interviews.
 
-4. Interview performance tracking
------------------------------------------
+It combines **LLM-powered interview orchestration, dynamic questioning, voice/text interaction, response evaluation, scoring, and structured feedback** into a single interview workflow.
 
-📌 Features
+---
 
-Frontend
-Modern React (Vite) setup
+## ✨ Features
 
-Clean UI based on Figma design
+* 🤖 AI-powered technical & behavioral interviews
+* 🧠 Dynamic and context-aware question generation
+* 🔄 Adaptive follow-up questions
+* 🎙️ Voice + text interaction
+* 📝 Speech-to-text processing
+* 📊 AI-based candidate evaluation & scoring
+* 💬 Structured interview feedback
+* 📈 Interview performance tracking
+* 🔐 Authentication and protected sessions
+* 💾 Interview and feedback persistence
 
-Feedback submission form
+---
 
-Feedback summary page
+## 🏗️ Architecture
 
-React Router for page navigation
+```mermaid
+flowchart LR
+    A[Candidate] --> B[React + Vite]
+    B --> C[Express REST API]
+    C --> D[Interview Engine]
+    D --> E[OpenAI API]
+    D --> F[MongoDB]
+    C --> G[Authentication]
+    E --> D
+    D --> B
+```
 
-Local storage integration (temporary frontend storage)
-------------------------------------------------------------------
-Backend (Planned / In Progress)
-REST API for feedback submission
+---
 
-MongoDB database integration
+## 🔄 Interview Workflow
 
-Authentication system
+```mermaid
+flowchart TD
+    A[Start Interview] --> B[Configure Interview]
+    B --> C[Generate Question]
+    C --> D[Candidate Response]
+    D --> E[Context Analysis]
+    E --> F{Continue?}
+    F -->|Yes| C
+    F -->|No| G[Evaluate Interview]
+    G --> H[Score & Feedback]
+    H --> I[Performance Dashboard]
+```
 
-Interview data storage
+---
 
-Role-based access control
-------------------------------------------
-Tech Stack
-Frontend
+## 📊 Evaluation Model
 
-React 18
+```text
+                Interview Performance
+                         │
+       ┌─────────────────┼─────────────────┐
+       ▼                 ▼                 ▼
+ Technical           Problem           Communication
+ Knowledge           Solving
+       │                 │                 │
+       └─────────────────┼─────────────────┘
+                         ▼
+                  Overall Evaluation
+                         │
+                         ▼
+                  Feedback Report
+```
 
-Vite
+---
 
-React Router DOM
+## 🛠️ Tech Stack
 
-Axios
+| Layer    | Technologies                        |
+| -------- | ----------------------------------- |
+| Frontend | React 18, Vite, React Router, Axios |
+| Backend  | Node.js, Express.js                 |
+| Database | MongoDB, Mongoose                   |
+| AI       | OpenAI API                          |
+| Voice    | Speech-to-Text / Whisper            |
+| Auth     | JWT                                 |
+| Styling  | Custom CSS                          |
 
-CSS (Custom Styling)
+---
 
-Backend (Planned)
+## 📂 Project Structure
 
-Node.js
+```text
+InterviewX/
+├── frontend/
+│   └── src/
+│       ├── components/
+│       ├── pages/
+│       ├── services/
+│       ├── hooks/
+│       └── utils/
+│
+├── backend/
+│   ├── controllers/
+│   ├── models/
+│   ├── routes/
+│   ├── middleware/
+│   ├── services/
+│   └── config/
+│
+└── README.md
+```
 
-Express.js
+---
 
-MongoDB
+## ⚡ Getting Started
 
-Mongoose
+```bash
+git clone https://github.com/YOUR_USERNAME/interviewx.git
+cd interviewx
 
+# Frontend
+cd frontend
+npm install
+npm run dev
 
-📜 License
+# Backend
+cd ../backend
+npm install
+npm run dev
+```
 
-This project is for educational purposes only.
+Create a `.env` file in the backend:
+
+```env
+PORT=5000
+MONGODB_URI=your_mongodb_uri
+JWT_SECRET=your_jwt_secret
+OPENAI_API_KEY=your_openai_api_key
+```
+
+---
+
+## 🛣️ Roadmap
+
+* [x] Interview UI
+* [x] AI interaction foundation
+* [x] Feedback interface
+* [ ] Complete AI interview orchestration
+* [ ] Adaptive questioning
+* [ ] Voice interview mode
+* [ ] Persistent interview history
+* [ ] Performance analytics
+* [ ] Production deployment
+
+---
+
+## 🎯 Core Pipeline
+
+```text
+Configure
+   ↓
+Interview
+   ↓
+Response
+   ↓
+AI Analysis
+   ↓
+Evaluation
+   ↓
+Feedback
+   ↓
+Performance Tracking
+```
+
+---
+
+## 📜 License
+
+Educational and portfolio project.
+
+<p align="center">
+  <strong>InterviewX — Practice Smarter. Interview Better.</strong>
+</p>
