@@ -1,6 +1,7 @@
 const Interview = require("../models/Interview");
 const ServiceError = require("./serviceError");
 const evaluationService = require("./evaluationService");
+const interviewAiService = require("./interviewAiService");
 const storageService = require("./storageService");
 const { validateAnswer, validateInterviewDetails } = require("../validators/interviewValidator");
 
@@ -51,6 +52,9 @@ const createInterview = async (details, userId) => {
     role: details.role.trim(),
     date: details.date.trim(),
     time: details.time.trim(),
+    difficulty: details.difficulty || "medium",
+    jobDescription: details.jobDescription?.trim() || "",
+    questionCount: Number(details.questionCount) || 5,
     status: "scheduled",
     userId
   });
@@ -71,6 +75,9 @@ const updateInterview = async (interviewId, details, user) => {
     role: details.role ?? interview.role,
     date: details.date ?? interview.date,
     time: details.time ?? interview.time
+    ,difficulty: details.difficulty ?? interview.difficulty
+    ,jobDescription: details.jobDescription ?? interview.jobDescription
+    ,questionCount: details.questionCount ?? interview.questionCount
   };
 
   if (!validateInterviewDetails(nextDetails)) {
@@ -83,6 +90,9 @@ const updateInterview = async (interviewId, details, user) => {
     role: nextDetails.role.trim(),
     date: nextDetails.date.trim(),
     time: nextDetails.time.trim()
+    ,difficulty: nextDetails.difficulty || "medium"
+    ,jobDescription: String(nextDetails.jobDescription || "").trim()
+    ,questionCount: Number(nextDetails.questionCount)
   });
 
   return interview.save();
@@ -143,9 +153,9 @@ const getQuestion = async (interviewId, user) => {
   }
   if (!interview.startTime) throw new ServiceError("Interview is missing its start time", 409);
 
-  const questions = getQuestions(interview.role);
   const currentIndex = interview.currentQuestionIndex;
-  if (currentIndex >= questions.length) {
+  const questionCount = interview.questionCount || 5;
+  if (currentIndex >= questionCount) {
     return {
       questionId: currentIndex,
       questionText: "Thank you for your responses. This concludes the interview.",
@@ -153,11 +163,20 @@ const getQuestion = async (interviewId, user) => {
     };
   }
 
-  return {
-    questionId: currentIndex,
-    questionText: questions[currentIndex],
-    isLastQuestion: currentIndex === questions.length - 1
-  };
+  let question = interview.activeQuestion;
+  if (!question || question.questionId !== currentIndex) {
+    try {
+      question = { questionId: currentIndex, ...(await interviewAiService.generateQuestion(interview)) };
+    } catch (error) {
+      if (error.statusCode !== 503) throw error;
+      const fallback = getQuestions(interview.role)[currentIndex % getQuestions(interview.role).length];
+      question = { questionId: currentIndex, questionText: fallback, focus: "General role competency", difficulty: interview.difficulty, expectedSignals: [] };
+    }
+    interview.activeQuestion = question;
+    await interview.save();
+  }
+
+  return { ...question.toObject?.() || question, isLastQuestion: currentIndex === questionCount - 1 };
 };
 
 const submitAnswer = async (interviewId, answer, user) => {
@@ -172,18 +191,36 @@ const submitAnswer = async (interviewId, answer, user) => {
     throw new ServiceError("Unexpected question", 409);
   }
 
-  const questions = getQuestions(interview.role);
-  if (answer.questionId >= questions.length) {
+  if (answer.questionId >= (interview.questionCount || 5)) {
     throw new ServiceError("No answer is expected for this question", 409);
   }
 
   const audio = answer.audio
     ? await storageService.validateAudioReference(answer.audio)
     : undefined;
+  const fallbackQuestions = getQuestions(interview.role);
+  const currentQuestion = interview.activeQuestion || {
+    questionId: answer.questionId,
+    questionText: fallbackQuestions[answer.questionId % fallbackQuestions.length],
+    focus: "General role competency",
+    difficulty: interview.difficulty || "medium",
+    expectedSignals: []
+  };
+  let evaluation;
+  try {
+    evaluation = await interviewAiService.evaluateAnswer(interview, currentQuestion, answer.transcript);
+  } catch (error) {
+    if (error.statusCode !== 503) throw error;
+    evaluation = evaluationService.fallbackAnswerEvaluation();
+  }
   const questionAnswer = {
     questionId: answer.questionId,
-    questionText: questions[answer.questionId],
-    transcript: answer.transcript
+    questionText: currentQuestion.questionText,
+    focus: currentQuestion.focus,
+    difficulty: currentQuestion.difficulty,
+    expectedSignals: currentQuestion.expectedSignals,
+    transcript: answer.transcript,
+    evaluation
   };
   if (audio) questionAnswer.audio = audio;
 
@@ -199,6 +236,7 @@ const submitAnswer = async (interviewId, answer, user) => {
           questions: questionAnswer
       },
       $inc: { currentQuestionIndex: 1 },
+      $unset: { activeQuestion: 1 },
       $set: { status: "processing" }
     },
     { new: true }
@@ -246,10 +284,16 @@ const endInterview = async (interviewId, user) => {
 
   const endTime = new Date();
   const duration = Math.round((endTime - interview.startTime) / 1000);
-  const evaluation = await evaluationService.evaluateInterview(interview);
+  let evaluation;
+  try {
+    evaluation = await interviewAiService.evaluateInterview(interview);
+  } catch (error) {
+    if (error.statusCode !== 503) throw error;
+    evaluation = evaluationService.fallbackInterviewEvaluation(interview);
+  }
   return Interview.findByIdAndUpdate(
     interviewId,
-    { status: "completed", endTime, duration, ...evaluation },
+    { status: "completed", endTime, duration, totalScore: evaluation.overallScore, feedback: evaluation.summary, categoryScores: evaluation.categoryScores, strengths: evaluation.strengths, weaknesses: evaluation.weaknesses, recommendedTopics: evaluation.recommendedTopics },
     { new: true }
   );
 };

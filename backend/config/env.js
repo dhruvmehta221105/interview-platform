@@ -18,6 +18,7 @@ module.exports = {
   openRouterApiKey: process.env.OPENROUTER_API_KEY || "",
   openRouterUrl: process.env.OPENROUTER_URL || "https://openrouter.ai/api/v1/chat/completions",
   openRouterModel: process.env.OPENROUTER_MODEL || "mistralai/mixtral-8x7b-instruct",
+  aiTimeoutMs: Number(process.env.AI_TIMEOUT_MS) || 60000,
   transcriptionProvider: process.env.TRANSCRIPTION_PROVIDER || "whisper",
   transcriptionTimeoutMs: Number(process.env.TRANSCRIPTION_TIMEOUT_MS) || 120000,
   maxAudioFileSize: Number(process.env.MAX_AUDIO_FILE_SIZE) || 10 * 1024 * 1024,
